@@ -325,7 +325,6 @@ function startEducationExam(edu) {
     renderQuestionModal();
 }
 
-
 function completeEducationProgram(edu, isPassed) {
     if (typeof gameState === 'undefined' || !gameState) return;
     

@@ -267,3 +267,36 @@ function showJobsModal(show) {
         }
     }
 }
+// BẢNG QUY ĐỔI BẰNG CẤP BẬC CAO
+// Cấu trúc: "bằng_yêu_cầu": ["danh_sách_các_bằng_cao_hơn_được_chấp_nhận"]
+const degreeHierarchy = {
+    "cert_coder": ["bachelor_it"], // Yêu cầu chứng chỉ code -> Có bằng Đại học IT là qua
+    "cert_builder": ["bachelor_civil_engineering"], // Yêu cầu chứng chỉ thợ -> Có bằng Kỹ sư XD là qua
+    "cert_barista": ["bachelor_tourism", "bachelor_business"], // Yêu cầu chứng chỉ pha chế -> Có bằng Du lịch hoặc Kinh doanh là qua
+    "cert_beauty": ["bachelor_design"], 
+    // Yêu cầu bằng cấp 3 -> Có BẤT KỲ bằng Đại học nào cũng được chấp nhận
+    "thpt_diploma": [
+        "bachelor_it", "bachelor_civil_engineering", "bachelor_mechanical", 
+        "bachelor_business", "bachelor_law", "bachelor_medicine", 
+        "bachelor_design", "bachelor_tourism"
+    ]
+};
+
+/**
+ * Hàm kiểm tra thông minh: Trả về true nếu user có bằng yêu cầu HOẶC bằng cấp cao hơn
+ */
+function checkHasRequiredDegrees(requiredDegreesArray) {
+    if (!requiredDegreesArray || requiredDegreesArray.length === 0) return true;
+    
+    const myDegrees = gameState.degrees || [];
+
+    // Phải thỏa mãn TOÀN BỘ các điều kiện trong mảng requiredDegrees
+    return requiredDegreesArray.every(reqDegree => {
+        // 1. Nếu có đúng cái bằng đó -> Hợp lệ luôn
+        if (myDegrees.includes(reqDegree)) return true;
+        
+        // 2. Nếu không có bằng gốc, đối chiếu xem có bằng cấp cao hơn không
+        const higherDegrees = degreeHierarchy[reqDegree] || [];
+        return higherDegrees.some(higher => myDegrees.includes(higher));
+    });
+}
