@@ -14,7 +14,7 @@ let gameState = null;
  */
 function createCharacter(name, gender = "Nam") {
     const characterName = name && name.trim() !== "" ? name.trim() : "Charlie";
-
+    
     // Random Gia cảnh xuất thân
     const bgTypes = [
         { type: "wealthy", label: "🏡 Gia đình khá giả", allowance: 150, contributionChance: 0.1 },
@@ -23,7 +23,7 @@ function createCharacter(name, gender = "Nam") {
     ];
     const rand = Math.random();
     const selectedBg = rand < 0.2 ? bgTypes[0] : (rand < 0.7 ? bgTypes[1] : bgTypes[2]);
-
+    
     gameState = {
         name: characterName,
         gender: gender,
@@ -31,7 +31,7 @@ function createCharacter(name, gender = "Nam") {
         month: 1,
         currentDay: 1,
         money: 0,
-
+        
         // Chỉ số sinh tồn
         health: 100,
         hunger: 80,
@@ -39,19 +39,19 @@ function createCharacter(name, gender = "Nam") {
         smarts: 50,
         stress: 0,
         ailments: [],
-
+        
         // Thuộc tính năng lực
         strength: 50,
         looks: 60,
         charm: 45,
         ego: 30,
-
+        
         // Học vấn & Nghề nghiệp
         job: null,
         education: "THCS",
         currentEducation: null,
         degrees: [],
-
+        
         // Tài sản & Nơi ở
         debt: 0,
         assets: [],
@@ -65,11 +65,11 @@ function createCharacter(name, gender = "Nam") {
             monthlyCost: 0,
             description: "Ngôi nhà ấm cúng của gia đình. Phụ thuộc vào tình cảm với Bố Mẹ."
         },
-
+        
         // Gia cảnh & Mạng lưới quan hệ
         familyBackground: selectedBg,
         relationships: [],
-
+        
         // Nhật ký & Thống kê trọn đời
         historyLog: [
             { month: 1, age: 16, text: "Bắt đầu cuộc hành trình mới cuộc đời." }
@@ -80,7 +80,7 @@ function createCharacter(name, gender = "Nam") {
         totalLifetimeIncome: 0,
         totalLifetimeExpense: 0
     };
-
+    
     ensureBaseRelationships();
     saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
@@ -92,12 +92,12 @@ function createCharacter(name, gender = "Nam") {
 function ensureBaseRelationships() {
     if (!gameState) return;
     if (!gameState.relationships) gameState.relationships = [];
-
+    
     let father = gameState.relationships.find(r => r.id === "father");
     if (!father) {
         gameState.relationships.push({ id: "father", name: "Bố", relation: "Bố", icon: "👨", level: 2, xp: 0 });
     }
-
+    
     let mother = gameState.relationships.find(r => r.id === "mother");
     if (!mother) {
         gameState.relationships.push({ id: "mother", name: "Mẹ", relation: "Mẹ", icon: "👩", level: 2, xp: 0 });
@@ -172,79 +172,80 @@ function resetCharacter() {
  */
 function nextMonth() {
     if (typeof gameState === 'undefined' || !gameState) return;
-
+    
     // Snapshot các chỉ số trước khi sang tháng
     const startMoney = gameState.money || 0;
     const startHealth = gameState.health || 100;
     const startHunger = gameState.hunger || 80;
     const startHappiness = gameState.happiness || 70;
-
+    
     const currentMonthNum = gameState.month || 1;
-
+    
     // 1. Tăng tháng & tuổi
     gameState.month = currentMonthNum + 1;
     if (gameState.month % 12 === 0) {
         gameState.age = (gameState.age || 16) + 1;
         addMilestoneLog(`Tròn ${gameState.age} tuổi.`);
     }
-
+    
     // 2. Tính toán tài chính trong tháng
     let monthlyIncome = 0;
     let monthlyExpense = 0;
-
+    
     // Lương hàng tháng
     if (gameState.job) {
         monthlyIncome += (gameState.job.salary || 0);
     }
-
+    
     // Học phí hàng tháng
     if (gameState.currentEducation) {
         monthlyExpense += (gameState.currentEducation.tuitionPerMonth || 0);
     }
-
+    
     // Tiền thuê nhà
     if (gameState.currentHome && gameState.currentHome.type === 'rented') {
         monthlyExpense += (gameState.currentHome.monthlyCost || 0);
     }
-
+    
     // Chi phí sinh hoạt cơ bản
     monthlyExpense += 50;
-
+    
     // 3. Thực thi logic chuyên biệt hàng tháng từ các module
     if (typeof processMonthlyEducation === 'function') processMonthlyEducation();
     if (typeof processMonthlyJob === 'function') processMonthlyJob();
     if (typeof checkHousingEvents === 'function') checkHousingEvents();
-
+    
     // 4. Trừ chỉ số sinh tồn (Độ no, Sức khỏe, Hạnh phúc)
     const hungerLoss = 20;
     gameState.hunger = Math.max(0, (gameState.hunger ?? 80) - hungerLoss);
-
+    
     if (gameState.hunger === 0) {
         gameState.health = Math.max(0, (gameState.health ?? 100) - 25);
         gameState.happiness = Math.max(0, (gameState.happiness ?? 70) - 20);
     } else {
         gameState.happiness = Math.max(0, (gameState.happiness ?? 70) - 3);
     }
-
+    
     // 5. Tích lũy tài chính trọn đời
     gameState.totalLifetimeIncome = (gameState.totalLifetimeIncome || 0) + monthlyIncome;
     gameState.totalLifetimeExpense = (gameState.totalLifetimeExpense || 0) + monthlyExpense;
-
+    
     // Lưu trạng thái
     saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
-
+    if (typeof renderHealthView === 'function') renderHealthView(); // Thêm dòng này để đồng bộ UI
+    
     // 6. Hiển thị Modal Tổng Kết Báo Cáo Cuối Tháng
     const summaryData = {
         month: currentMonthNum,
-        income: monthlyIncome,
+income: monthlyIncome,
         expense: monthlyExpense,
         net: monthlyIncome - monthlyExpense,
         healthDiff: (gameState.health || 0) - startHealth,
         hungerDiff: (gameState.hunger || 0) - startHunger,
         happinessDiff: (gameState.happiness || 0) - startHappiness
     };
-
+    
     if (typeof showMonthlySummaryModal === 'function') {
         showMonthlySummaryModal(summaryData, () => {
             // Callback sau khi đóng modal tổng kết
@@ -266,7 +267,7 @@ let lastWorkerTickTime = Date.now();
 let workerWatchdogTimer = null;
 
 const TOTAL_DAYS_IN_MONTH = 30;
-const SECONDS_PER_MONTH = 60; 
+const SECONDS_PER_MONTH = 60;
 const TICK_INTERVAL = (SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000; // 2000ms
 
 /**
@@ -275,22 +276,22 @@ const TICK_INTERVAL = (SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000; // 2000m
 function startMonthCalendarTimer() {
     if (!gameState) return;
     if (typeof gameState.currentDay === 'undefined') gameState.currentDay = 1;
-
+    
     stopMonthCalendarTimer();
     lastWorkerTickTime = Date.now();
     if (typeof updateCalendarUI === 'function') updateCalendarUI();
-
+    
     if (window.Worker) {
         try {
             gameTimerWorker = new Worker('timer-worker.js');
-
-            gameTimerWorker.onmessage = function (e) {
+            
+            gameTimerWorker.onmessage = function(e) {
                 if (e.data.type === 'tick') {
                     lastWorkerTickTime = Date.now(); // Ghi nhận tim vẫn đập
                     handleTimerTick();
                 }
             };
-
+            
             gameTimerWorker.postMessage({ cmd: 'start', interval: TICK_INTERVAL });
             console.log("⚡ Web Worker Timer đã kích hoạt!");
             
@@ -304,7 +305,7 @@ function startMonthCalendarTimer() {
                     }
                 }
             }, 3000);
-
+            
         } catch (err) {
             console.warn("⚠️ Lỗi khởi tạo Worker, dùng bộ đếm dự phòng:", err);
             startFallbackTimer();
@@ -319,11 +320,11 @@ function startMonthCalendarTimer() {
  */
 function handleTimerTick() {
     if (!gameState) return;
-
+    
     if (gameState.currentDay < TOTAL_DAYS_IN_MONTH) {
         gameState.currentDay += 1;
         if (typeof updateCalendarUI === 'function') updateCalendarUI();
-
+        
         // Bọc an toàn: Lỗi sự kiện không bao giờ làm dừng đồng hồ
         try {
             if (typeof checkDynamicMidMonthEvents === 'function') {
@@ -366,6 +367,7 @@ function skipDays(daysToAdd) {
 }
 
 let fallbackTimer = null;
+
 function startFallbackTimer() {
     if (fallbackTimer) clearInterval(fallbackTimer);
     fallbackTimer = setInterval(handleTimerTick, TICK_INTERVAL);
@@ -384,7 +386,7 @@ function refreshHousingMarket() {
     if (!gameState) return;
     const hasListings = Math.random() < 0.6;
     gameState.availableHousingPool = [];
-
+    
     if (hasListings) {
         const housingOptions = [
             { id: "cheap_room_" + gameState.month, name: "Phòng trọ xập xệ", type: "rented", monthlyCost: 150, description: "Phòng nhỏ 12m2 giá rẻ." },
@@ -425,11 +427,11 @@ function checkHousingEvents() {
 function getRelationshipTier(level = 0, xp = 0) {
     const safeLevel = typeof level === 'number' && !isNaN(level) ? level : 0;
     const safeXP = typeof xp === 'number' && !isNaN(xp) ? xp : 0;
-
+    
     if (safeLevel === 0 && safeXP === 0) {
         return { icons: "👁️", label: "Quen biết", xpText: "0/100", progressPercent: 0, barColor: "bg-gray-400" };
     }
-
+    
     if (safeLevel > 0 || (safeLevel === 0 && safeXP > 0)) {
         const displayLevel = Math.min(5, Math.max(1, safeLevel));
         return {
@@ -440,7 +442,7 @@ function getRelationshipTier(level = 0, xp = 0) {
             barColor: "bg-gradient-to-r from-rose-400 to-pink-500"
         };
     }
-
+    
     if (safeLevel < 0 || (safeLevel === 0 && safeXP < 0)) {
         const absLevel = Math.min(5, Math.max(1, Math.abs(safeLevel)));
         return {
@@ -459,15 +461,41 @@ function getRelationshipTier(level = 0, xp = 0) {
 function interactWithNPC(id, info = {}, xpChange = 0) {
     if (!gameState) return;
     ensureBaseRelationships();
+
     let target = gameState.relationships.find(r => r.id === id);
     if (!target) {
         target = { id: id, name: info.name || "Người quen", relation: info.relation || "Bạn bè", icon: info.icon || "👤", level: 0, xp: 0 };
         gameState.relationships.push(target);
     }
+
     target.xp = (target.xp || 0) + xpChange;
+
+    // Logic thăng cấp (Tăng tim) khi XP >= 100
+    while (target.xp >= 100) {
+        if (target.level < 5) {
+            target.level++;
+            target.xp -= 100;
+        } else {
+            target.xp = 100; // Đạt mức thân thiết tối đa (Tim level 5)
+            break;
+        }
+    }
+
+    // Logic giáng cấp (Trừ tim / Chuyển sang nấm đấm) khi XP < 0
+    while (target.xp < 0) {
+        if (target.level > -5) {
+            target.level--;
+            target.xp += 100;
+        } else {
+            target.xp = 0; // Đạt mức thù ghét tối đa (Đấm level 5)
+            break;
+        }
+    }
+
     saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
+
 
 
 /**
@@ -521,7 +549,7 @@ function addHistoryLog(text) {
 function addTransactionHistory(title, amount) {
     if (!gameState) return;
     if (!gameState.transactionHistory) gameState.transactionHistory = [];
-
+    
     gameState.transactionHistory.unshift({
         month: gameState.month || 1,
         title: title,

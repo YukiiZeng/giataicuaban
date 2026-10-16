@@ -1,404 +1,602 @@
 {
   "education_programs": [
+  {
+    "id": "thpt_program",
+    "name": "Chương Trình THPT (Lớp 10 - Lớp 12)",
+    "category": "formal",
+    "min_age": 16,
+    "max_age": 22,
+    "duration_months": 36,
+    "tuition_per_month": 50,
+    "stamina_cost_per_month": 12,
+    "smarts_required": 35,
+    "prerequisites": [],
+    "requires_exam": true,
+    "exam_questions": [
     {
-      "id": "thpt_program",
-      "name": "Chương Trình THPT (Lớp 10 - Lớp 12)",
-      "category": "formal",
-      "min_age": 16,
-      "max_age": 22,
-      "duration_months": 36,
-      "tuition_per_month": 50,
-      "stamina_cost_per_month": 12,
-      "smarts_required": 35,
-      "prerequisites": [],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Tác phẩm 'Tắt Đèn' do ai sáng tác?",
-          "options": ["Nam Cao", "Ngô Tất Tố", "Vũ Trọng Phụng", "Xuân Diệu"],
-          "answer": 1
-        },
-        {
-          "q": "Công thức tính vận tốc chuyển động thẳng đều là gì?",
-          "options": ["v = s / t", "v = s * t", "v = a * t", "v = m * g"],
-          "answer": 0
-        },
-        {
-          "q": "Đồng bằng sông Cửu Long là vựa lúa lớn nhất nước ta đúng hay sai?",
-          "options": ["Đúng", "Sai"],
-          "answer": 0
-        }
-      ],
-      "skip_exam_questions": [
-        { "id": "sq01", "q": "Trong tự nhiên, nguyên tố hoá học nào có độ âm điện lớn nhất?", "options": ["Clo (Cl)", "Oxi (O)", "Flo (F)", "Brom (Br)"], "answer": 2 },
-        { "id": "sq02", "q": "Dãy số Fibonacci bắt đầu bằng 0 và 1. Số thứ 8 trong dãy Fibonacci là bao nhiêu?", "options": ["13", "21", "8", "34"], "answer": 0 },
-        { "id": "sq03", "q": "Ai là tác giả của bản hợp xướng 'Ode to Joy' nổi tiếng?", "options": ["Mozart", "Beethoven", "Bach", "Chopin"], "answer": 1 },
-        { "id": "sq04", "q": "Đơn vị đo cường độ dòng điện trong hệ SI là gì?", "options": ["Volt (V)", "Watt (W)", "Ampere (A)", "Ohm (Ω)"], "answer": 2 },
-        { "id": "sq05", "q": "Nếu 5 máy làm 5 sản phẩm trong 5 phút, thì 100 máy làm 100 sản phẩm trong bao nhiêu phút?", "options": ["100 phút", "5 phút", "1 phút", "20 phút"], "answer": 1 },
-        { "id": "sq06", "q": "Quốc gia nào có đường bờ biển dài nhất thế giới?", "options": ["Nga", "Úc", "Mỹ", "Canada"], "answer": 3 },
-        { "id": "sq07", "q": "Đâu là hằng số Euler (e) làm tròn đến 2 chữ số thập phân?", "options": ["3.14", "2.72", "1.61", "2.41"], "answer": 1 },
-        { "id": "sq08", "q": "Hành tinh nào có chu kỳ quay quanh Mặt Trời ngắn nhất trong Hệ Mặt Trời?", "options": ["Sao Kim", "Sao Thủy", "Sao Hỏa", "Sao Trái Đất"], "answer": 1 },
-        { "id": "sq09", "q": "Thành phố nào là kinh đô đầu tiên của nước Đại Việt dưới thời nhà Lý?", "options": ["Hoa Lư", "Thăng Long", "Cổ Loa", "Phú Xuân"], "answer": 1 },
-        { "id": "sq10", "q": "Trong máy tính, 1 Terabyte (TB) bằng bao nhiêu Gigabyte (GB) theo chuẩn nhị phân (GiB)?", "options": ["1000 GB", "1024 GB", "512 GB", "2048 GB"], "answer": 1 },
-        { "id": "sq11", "q": "Hợp chất hóa học nào chiếm phần lớn khối lượng trong khí quyển Trái Đất?", "options": ["Khí Oxi (O2)", "Khí Cargon (CO2)", "Khí Nitơ (N2)", "Khí Argon (Ar)"], "answer": 2 },
-        { "id": "sq12", "q": "Góc vuông có số đo bằng bao nhiêu Radian?", "options": ["π/2 Radian", "π Radian", "2π Radian", "π/4 Radian"], "answer": 0 },
-        { "id": "sq13", "q": "Bức họa 'Mona Lisa' nổi tiếng được trưng bày tại bảo tàng nào?", "options": ["Bảo tàng Louvre (Pháp)", "Bảo tàng Vatican", "Bảo tàng Anh", "Bảo tàng Metropolitan"], "answer": 0 },
-        { "id": "sq14", "q": "Động vật nào là loài động vật có vú duy nhất biết bay chủ động?", "options": ["Sóc bay", "Chim cánh cụt", "Dơi", "Chồn bay"], "answer": 2 },
-        { "id": "sq15", "q": "Độ PH của nước tinh khiết ở nhiệt độ 25°C là bao nhiêu?", "options": ["5", "7", "9", "12"], "answer": 1 },
-        { "id": "sq16", "q": "Vị tướng nào đã lãnh đạo quân Tây Sơn đánh tan 29 vạn quân Thanh vào mùa xuân năm Kỷ Dậu (1789)?", "options": ["Quang Trung (Nguyễn Huệ)", "Trần Hưng Đạo", "Lê Lợi", "Lý Thường Kiệt"], "answer": 0 },
-        { "id": "sq17", "q": "Đâu là loại hạt hạ nguyên tử mang điện tích âm trong nguyên tử?", "options": ["Proton", "Neutron", "Electron", "Photon"], "answer": 2 },
-        { "id": "sq18", "q": "Có bao nhiêu cặp xương sườn trong cơ thể người bình thường?", "options": ["10 cặp", "12 cặp", "14 cặp", "16 cặp"], "answer": 1 }
-      ],
-      "rewards": {
-        "degree_id": "thpt_diploma",
-        "smarts_bonus": 15,
-        "charm_bonus": 5
-      }
+      "q": "Tác phẩm 'Tắt Đèn' do ai sáng tác?",
+      "options": ["Nam Cao", "Ngô Tất Tố", "Vũ Trọng Phụng", "Xuân Diệu"],
+      "answer": 1
     },
     {
-      "id": "degree_cntt",
-      "name": "Đại Học Công Nghệ Thông Tin (CNTT)",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 45,
-      "duration_months": 48,
-      "tuition_per_month": 250,
-      "stamina_cost_per_month": 18,
-      "smarts_required": 60,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Trong lập trình, biến kiểu Boolean nhận những giá trị nào?",
-          "options": ["True / False", "Số nguyên", "Chuỗi ký tự", "Mảng"],
-          "answer": 0
-        },
-        {
-          "q": "HTML được viết tắt từ cụm từ nào?",
-          "options": ["HyperText Markup Language", "High Tech Main Language", "Hyperlink Text Mode Logic", "Home Tool Markup Language"],
-          "answer": 0
-        },
-        {
-          "q": "Đâu là một hệ quản trị cơ sở dữ liệu phổ biến?",
-          "options": ["MySQL", "Photoshop", "NodeJS", "Tailwind"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_it",
-        "smarts_bonus": 25
-      }
+      "q": "Công thức tính vận tốc chuyển động thẳng đều là gì?",
+      "options": ["v = s / t", "v = s * t", "v = a * t", "v = m * g"],
+      "answer": 0
     },
     {
-      "id": "degree_xaydung",
-      "name": "Đại Học Kỹ Thuật Xây Dựng",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 45,
-      "duration_months": 48,
-      "tuition_per_month": 220,
-      "stamina_cost_per_month": 20,
-      "smarts_required": 55,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Bê tông cốt thép là sự kết hợp giữa bê tông và vật liệu nào?",
-          "options": ["Thép", "Gỗ", "Nhựa", "Nhôm"],
-          "answer": 0
-        },
-        {
-          "q": "Bản vẽ kỹ thuật thể hiện điều gì của công trình?",
-          "options": ["Kích thước & Cấu trúc", "Giá tiền bán nhà", "Tên chủ đầu tư", "Màu sơn nội thất"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_civil_engineering",
-        "smarts_bonus": 20,
-        "strength_bonus": 10
-      }
-    },
-    {
-      "id": "degree_cokhi",
-      "name": "Đại Học Cơ Khí - Tự Động Hóa",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 45,
-      "duration_months": 48,
-      "tuition_per_month": 210,
-      "stamina_cost_per_month": 18,
-      "smarts_required": 55,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Dầu nhớt trong động cơ xe có tác dụng chính là gì?",
-          "options": ["Bôi trơn & Tản nhiệt", "Tăng tốc độ chạy", "Làm đẹp xe", "Đổi màu khói"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_mechanical",
-        "smarts_bonus": 20,
-        "strength_bonus": 5
-      }
-    },
-    {
-      "id": "degree_kinhte",
-      "name": "Đại Học Quản Trị Kinh Doanh & Tài Chính",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 50,
-      "duration_months": 48,
-      "tuition_per_month": 240,
-      "stamina_cost_per_month": 15,
-      "smarts_required": 50,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Lợi nhuận được tính bằng công thức nào?",
-          "options": ["Doanh thu - Chi phí", "Doanh thu + Chi phí", "Doanh thu * Thuế", "Vốn điều lệ / 2"],
-          "answer": 0
-        },
-        {
-          "q": "Lạm phát tăng cao ảnh hưởng thế nào đến tiền mặt?",
-          "options": ["Làm giảm sức mua", "Làm tăng giá trị", "Không ảnh hưởng", "Tự nhân đôi"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_business",
-        "smarts_bonus": 15,
-        "charm_bonus": 15
-      }
-    },
-    {
-      "id": "degree_luat",
-      "name": "Đại Học Luật",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 50,
-      "duration_months": 48,
-      "tuition_per_month": 230,
-      "stamina_cost_per_month": 16,
-      "smarts_required": 60,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Văn bản pháp luật có hiệu lực cao nhất ở Việt Nam là gì?",
-          "options": ["Hiến pháp", "Nghị định", "Thông tư", "Quyết định"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_law",
-        "smarts_bonus": 20,
-        "charm_bonus": 10
-      }
-    },
-    {
-      "id": "degree_yduoc",
-      "name": "Đại Học Y Dược (Bác Sĩ Đa Khoa)",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 35,
-      "duration_months": 72,
-      "tuition_per_month": 350,
-      "stamina_cost_per_month": 25,
-      "smarts_required": 75,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Nhiệt độ cơ thể bình thường của người khỏe mạnh là bao nhiêu?",
-          "options": ["36.5°C - 37.5°C", "39°C - 40°C", "32°C - 34°C", "42°C"],
-          "answer": 0
-        },
-        {
-          "q": "Cơ quan nào trong cơ thể chịu trách nhiệm lọc máu chính?",
-          "options": ["Thận", "Dạ dày", "Phổi", "Mắt"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_medicine",
-        "smarts_bonus": 35
-      }
-    },
-    {
-      "id": "degree_thietke",
-      "name": "Đại Học Thiết Kế Đồ Họa & Mỹ Thuật",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 45,
-      "duration_months": 48,
-      "tuition_per_month": 260,
-      "stamina_cost_per_month": 16,
-      "smarts_required": 45,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Hệ màu RGB thường dùng cho thiết kế hiển thị trên màn hình đúng hay sai?",
-          "options": ["Đúng", "Sai"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_design",
-        "looks_bonus": 10,
-        "smarts_bonus": 15
-      }
-    },
-    {
-      "id": "degree_dulich",
-      "name": "Cao Đẳng / Đại Học Quản Trị Du Lịch - Khách Sạn",
-      "category": "formal",
-      "min_age": 18,
-      "max_age": 50,
-      "duration_months": 36,
-      "tuition_per_month": 190,
-      "stamina_cost_per_month": 14,
-      "smarts_required": 40,
-      "prerequisites": ["thpt_diploma"],
-      "requires_exam": true,
-      "exam_questions": [
-        {
-          "q": "Kỹ năng quan trọng nhất của hướng dẫn viên du lịch là gì?",
-          "options": ["Giao tiếp & Ngoại ngữ", "Sửa xe máy", "Lập trình web", "Thi công cầu đường"],
-          "answer": 0
-        }
-      ],
-      "rewards": {
-        "degree_id": "bachelor_tourism",
-        "charm_bonus": 20,
-        "looks_bonus": 5
-      }
-    },
-    {
-      "id": "cert_xaydung_basic",
-      "name": "Chứng Chỉ An Toàn & Kỹ Thuật Xây Dựng",
-      "category": "vocational",
-      "min_age": 16,
-      "max_age": 60,
-      "duration_months": 6,
-      "tuition_per_month": 100,
-      "stamina_cost_per_month": 15,
-      "smarts_required": 0,
-      "prerequisites": [],
-      "requires_exam": false,
-      "rewards": {
-        "degree_id": "cert_builder",
-        "strength_bonus": 10
-      }
-    },
-    {
-      "id": "cert_barista_fnb",
-      "name": "Chứng Chỉ Pha Chế & Phục Vụ Chuyên Nghiệp",
-      "category": "vocational",
-      "min_age": 16,
-      "max_age": 50,
-      "duration_months": 3,
-      "tuition_per_month": 150,
-      "stamina_cost_per_month": 10,
-      "smarts_required": 0,
-      "prerequisites": [],
-      "requires_exam": false,
-      "rewards": {
-        "degree_id": "cert_barista",
-        "charm_bonus": 10
-      }
-    },
-    {
-      "id": "cert_chef",
-      "name": "Chứng Chỉ Nấu Ăn & Bếp Trưởng",
-      "category": "vocational",
-      "min_age": 16,
-      "max_age": 55,
-      "duration_months": 6,
-      "tuition_per_month": 170,
-      "stamina_cost_per_month": 15,
-      "smarts_required": 0,
-      "prerequisites": [],
-      "requires_exam": false,
-      "rewards": {
-        "degree_id": "cert_chef_degree",
-        "charm_bonus": 5,
-        "strength_bonus": 5
-      }
-    },
-    {
-      "id": "cert_driver_license",
-      "name": "Bằng Lái Xe Máy & Ô Tô B2",
-      "category": "vocational",
-      "min_age": 18,
-      "max_age": 65,
-      "duration_months": 4,
-      "tuition_per_month": 180,
-      "stamina_cost_per_month": 8,
-      "smarts_required": 0,
-      "prerequisites": [],
-      "requires_exam": false,
-      "rewards": {
-        "degree_id": "cert_driver",
-        "charm_bonus": 5
-      }
-    },
-    {
-      "id": "cert_coder_bootcamp",
-      "name": "Chứng Chỉ Lập Trình Cấp Tốc (Bootcamp)",
-      "category": "vocational",
-      "min_age": 16,
-      "max_age": 50,
-      "duration_months": 6,
-      "tuition_per_month": 300,
-      "stamina_cost_per_month": 20,
-      "smarts_required": 45,
-      "prerequisites": [],
-      "requires_exam": false,
-      "rewards": {
-        "degree_id": "cert_coder",
-        "smarts_bonus": 15
-      }
-    },
-    {
-      "id": "cert_spa_beauty",
-      "name": "Chứng Chỉ Chăm Sóc Sắc Đẹp & Spa",
-      "category": "vocational",
-      "min_age": 16,
-      "max_age": 50,
-      "duration_months": 4,
-      "tuition_per_month": 200,
-      "stamina_cost_per_month": 10,
-      "smarts_required": 0,
-      "prerequisites": [],
-      "requires_exam": false,
-      "rewards": {
-        "degree_id": "cert_beauty",
-        "looks_bonus": 15,
-        "charm_bonus": 5
-      }
-    },
-    {
-      "id": "cert_electrician",
-      "name": "Chứng Chỉ Sửa Chữa Điện - Dân Dụng",
-      "category": "vocational",
-      "min_age": 16,
-      "max_age": 60,
-      "duration_months": 6,
-      "tuition_per_month": 130,
-      "stamina_cost_per_month": 15,
-      "smarts_required": 20,
-      "prerequisites": [],
-      "requires_exam": false,
-      "rewards": {
-        "degree_id": "cert_electrician_degree",
-        "strength_bonus": 8,
-        "smarts_bonus": 5
-      }
+      "q": "Đồng bằng sông Cửu Long là vựa lúa lớn nhất nước ta đúng hay sai?",
+      "options": ["Đúng", "Sai"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "sq01", "q": "Trong tự nhiên, nguyên tố hoá học nào có độ âm điện lớn nhất?", "options": ["Clo (Cl)", "Oxi (O)", "Flo (F)", "Brom (Br)"], "answer": 2 },
+      { "id": "sq02", "q": "Dãy số Fibonacci bắt đầu bằng 0 và 1. Số thứ 8 trong dãy Fibonacci là bao nhiêu?", "options": ["13", "21", "8", "34"], "answer": 0 },
+      { "id": "sq03", "q": "Ai là tác giả của bản hợp xướng 'Ode to Joy' nổi tiếng?", "options": ["Mozart", "Beethoven", "Bach", "Chopin"], "answer": 1 },
+      { "id": "sq04", "q": "Đơn vị đo cường độ dòng điện trong hệ SI là gì?", "options": ["Volt (V)", "Watt (W)", "Ampere (A)", "Ohm (Ω)"], "answer": 2 },
+      { "id": "sq05", "q": "Nếu 5 máy làm 5 sản phẩm trong 5 phút, thì 100 máy làm 100 sản phẩm trong bao nhiêu phút?", "options": ["100 phút", "5 phút", "1 phút", "20 phút"], "answer": 1 },
+      { "id": "sq06", "q": "Quốc gia nào có đường bờ biển dài nhất thế giới?", "options": ["Nga", "Úc", "Mỹ", "Canada"], "answer": 3 },
+      { "id": "sq07", "q": "Đâu là hằng số Euler (e) làm tròn đến 2 chữ số thập phân?", "options": ["3.14", "2.72", "1.61", "2.41"], "answer": 1 },
+      { "id": "sq08", "q": "Hành tinh nào có chu kỳ quay quanh Mặt Trời ngắn nhất trong Hệ Mặt Trời?", "options": ["Sao Kim", "Sao Thủy", "Sao Hỏa", "Sao Trái Đất"], "answer": 1 },
+      { "id": "sq09", "q": "Thành phố nào là kinh đô đầu tiên của nước Đại Việt dưới thời nhà Lý?", "options": ["Hoa Lư", "Thăng Long", "Cổ Loa", "Phú Xuân"], "answer": 1 },
+      { "id": "sq10", "q": "Trong máy tính, 1 Terabyte (TB) bằng bao nhiêu Gigabyte (GB) theo chuẩn nhị phân (GiB)?", "options": ["1000 GB", "1024 GB", "512 GB", "2048 GB"], "answer": 1 },
+      { "id": "sq11", "q": "Hợp chất hóa học nào chiếm phần lớn khối lượng trong khí quyển Trái Đất?", "options": ["Khí Oxi (O2)", "Khí Cargon (CO2)", "Khí Nitơ (N2)", "Khí Argon (Ar)"], "answer": 2 },
+      { "id": "sq12", "q": "Góc vuông có số đo bằng bao nhiêu Radian?", "options": ["π/2 Radian", "π Radian", "2π Radian", "π/4 Radian"], "answer": 0 },
+      { "id": "sq13", "q": "Bức họa 'Mona Lisa' nổi tiếng được trưng bày tại bảo tàng nào?", "options": ["Bảo tàng Louvre (Pháp)", "Bảo tàng Vatican", "Bảo tàng Anh", "Bảo tàng Metropolitan"], "answer": 0 },
+      { "id": "sq14", "q": "Động vật nào là loài động vật có vú duy nhất biết bay chủ động?", "options": ["Sóc bay", "Chim cánh cụt", "Dơi", "Chồn bay"], "answer": 2 },
+      { "id": "sq15", "q": "Độ PH của nước tinh khiết ở nhiệt độ 25°C là bao nhiêu?", "options": ["5", "7", "9", "12"], "answer": 1 },
+      { "id": "sq16", "q": "Vị tướng nào đã lãnh đạo quân Tây Sơn đánh tan 29 vạn quân Thanh vào mùa xuân năm Kỷ Dậu (1789)?", "options": ["Quang Trung (Nguyễn Huệ)", "Trần Hưng Đạo", "Lê Lợi", "Lý Thường Kiệt"], "answer": 0 },
+      { "id": "sq17", "q": "Đâu là loại hạt hạ nguyên tử mang điện tích âm trong nguyên tử?", "options": ["Proton", "Neutron", "Electron", "Photon"], "answer": 2 },
+      { "id": "sq18", "q": "Có bao nhiêu cặp xương sườn trong cơ thể người bình thường?", "options": ["10 cặp", "12 cặp", "14 cặp", "16 cặp"], "answer": 1 }
+    ],
+    "rewards": {
+      "degree_id": "thpt_diploma",
+      "smarts_bonus": 15,
+      "charm_bonus": 5
     }
-  ]
+  },
+  {
+    "id": "degree_cntt",
+    "name": "Đại Học Công Nghệ Thông Tin (CNTT)",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 45,
+    "duration_months": 48,
+    "tuition_per_month": 250,
+    "stamina_cost_per_month": 18,
+    "smarts_required": 60,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Trong lập trình, biến kiểu Boolean nhận những giá trị nào?",
+      "options": ["True / False", "Số nguyên", "Chuỗi ký tự", "Mảng"],
+      "answer": 0
+    },
+    {
+      "q": "HTML được viết tắt từ cụm từ nào?",
+      "options": ["HyperText Markup Language", "High Tech Main Language", "Hyperlink Text Mode Logic", "Home Tool Markup Language"],
+      "answer": 0
+    },
+    {
+      "q": "Đâu là một hệ quản trị cơ sở dữ liệu phổ biến?",
+      "options": ["MySQL", "Photoshop", "NodeJS", "Tailwind"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "cntt_sq01", "q": "Trong kiến trúc máy tính, thuật ngữ 'Pipeline' (Đường ống) có ý nghĩa gì?", "options": ["Lưu trữ dữ liệu vĩnh viễn", "Tăng thông lượng lệnh bằng cách thực thi song song các giai đoạn", "Làm mát CPU bằng chất lỏng", "Mã hóa dữ liệu đường truyền"], "answer": 1 },
+      { "id": "cntt_sq02", "q": "Độ phức tạp thời gian trung bình của thuật toán sắp xếp QuickSort là bao nhiêu?", "options": ["O(1)", "O(n)", "O(n log n)", "O(n^2)"], "answer": 2 },
+      { "id": "cntt_sq03", "q": "Kỹ thuật nào sau đây giúp ngăn chặn lỗ hổng bảo mật SQL Injection hiệu quả nhất?", "options": ["Sử dụng Prepared Statements (Tham số hóa truy vấn)", "Tắt tường lửa", "Đổi tên database", "Sử dụng mã hóa Base64 cho mật khẩu"], "answer": 0 },
+      { "id": "cntt_sq04", "q": "Trong mô hình mạng OSI, giao thức TCP và UDP hoạt động ở tầng (layer) nào?", "options": ["Tầng Mạng (Network)", "Tầng Giao vận (Transport)", "Tầng Ứng dụng (Application)", "Tầng Vật lý (Physical)"], "answer": 1 },
+      { "id": "cntt_sq05", "q": "Khái niệm 'Closure' trong JavaScript có nghĩa là gì?", "options": ["Hàm có thể ghi nhớ và truy cập các biến từ phạm vi bên ngoài của nó", "Lệnh đóng trình duyệt", "Vòng lặp vô hạn", "Biến toàn cục không thể thay đổi"], "answer": 0 },
+      { "id": "cntt_sq06", "q": "Cấu trúc dữ liệu nào hoạt động theo nguyên tắc LIFO (Last In, First Out)?", "options": ["Hàng đợi (Queue)", "Cây nhị phân (Binary Tree)", "Ngăn xếp (Stack)", "Đồ thị (Graph)"], "answer": 2 },
+      { "id": "cntt_sq07", "q": "Design Pattern 'Singleton' đảm bảo điều gì?", "options": ["Một class chỉ có duy nhất một instance và cung cấp một điểm truy cập toàn cục", "Tạo ra nhiều object giống nhau", "Đóng gói thuật toán", "Tách biệt giao diện và logic xử lý"], "answer": 0 },
+      { "id": "cntt_sq08", "q": "Trong cơ sở dữ liệu quan hệ, thuộc tính ACID đại diện cho điều gì?", "options": ["Atomicity, Consistency, Isolation, Durability", "Active, Custom, Input, Data", "Array, Class, Integer, Double", "Access, Control, Identity, Domain"], "answer": 0 },
+      { "id": "cntt_sq09", "q": "Trạng thái 'Deadlock' trong hệ điều hành xảy ra khi nào?", "options": ["CPU quá nóng", "Hai hoặc nhiều tiến trình chờ đợi lẫn nhau vô hạn để giải phóng tài nguyên", "Ram bị tràn", "Mất kết nối mạng"], "answer": 1 },
+      { "id": "cntt_sq10", "q": "Đâu là phương thức HTTP dùng để cập nhật một phần dữ liệu của tài nguyên?", "options": ["GET", "POST", "PUT", "PATCH"], "answer": 3 },
+      { "id": "cntt_sq11", "q": "Đặc trưng cơ bản của lập trình hướng đối tượng (OOP) KHÔNG bao gồm?", "options": ["Tính đóng gói (Encapsulation)", "Tính kế thừa (Inheritance)", "Tính tuần tự (Sequential)", "Tính đa hình (Polymorphism)"], "answer": 2 },
+      { "id": "cntt_sq12", "q": "Docker Container khác với Virtual Machine (VM) ở điểm cốt lõi nào?", "options": ["Container không dùng hệ điều hành", "Container chia sẻ chung kernel với Host OS, VM chạy guest OS riêng", "Container nặng hơn VM", "VM an toàn tuyệt đối, Container thì không"], "answer": 1 },
+      { "id": "cntt_sq13", "q": "Trong Git, lệnh nào dùng để gộp nhánh (branch)?", "options": ["git push", "git merge", "git clone", "git fetch"], "answer": 1 },
+      { "id": "cntt_sq14", "q": "Đâu là thuật toán băm (hashing) một chiều phổ biến?", "options": ["RSA", "AES", "SHA-256", "DES"], "answer": 2 },
+      { "id": "cntt_sq15", "q": "Kiến trúc Microservices có ưu điểm gì so với Monolithic?", "options": ["Dễ triển khai độc lập từng service", "Code chung một source duy nhất", "Không bao giờ bị lỗi", "Ít tốn RAM hơn"], "answer": 0 },
+      { "id": "cntt_sq16", "q": "CORS (Cross-Origin Resource Sharing) là gì?", "options": ["Một ngôn ngữ lập trình", "Cơ chế cho phép server chỉ định domain nào được phép truy cập tài nguyên của nó", "Giao thức truyền file", "Cơ sở dữ liệu đám mây"], "answer": 1 },
+      { "id": "cntt_sq17", "q": "Chữ 'S' trong nguyên lý SOLID của lập trình hướng đối tượng là viết tắt của?", "options": ["Single Responsibility Principle", "System Reliability", "Static Type", "Software Security"], "answer": 0 },
+      { "id": "cntt_sq18", "q": "Trong quá trình TCP 3-way handshake, cờ (flag) nào được gửi đầu tiên?", "options": ["ACK", "SYN", "FIN", "RST"], "answer": 1 },
+      { "id": "cntt_sq19", "q": "Cây B-Tree thường được ứng dụng mạnh nhất trong lĩnh vực nào?", "options": ["Index cơ sở dữ liệu", "Xử lý đồ họa", "Phân tích ngôn ngữ tự nhiên", "Mã hóa mật khẩu"], "answer": 0 },
+      { "id": "cntt_sq20", "q": "Lỗi 'Stack Overflow' thường xảy ra do nguyên nhân nào?", "options": ["Lặp vô hạn trong cấp phát bộ nhớ", "Đệ quy quá sâu không có điểm dừng", "Ổ cứng hết dung lượng", "Quên đóng kết nối database"], "answer": 1 },
+      { "id": "cntt_sq21", "q": "JSON Web Token (JWT) thường gồm mấy phần?", "options": ["1 phần", "2 phần", "3 phần", "4 phần"], "answer": 2 },
+      { "id": "cntt_sq22", "q": "Trong mô hình MVC, Controller có nhiệm vụ gì?", "options": ["Lưu trữ dữ liệu", "Hiển thị giao diện", "Xử lý logic, nhận request và điều hướng giữa Model - View", "Quản lý cơ sở dữ liệu"], "answer": 2 },
+      { "id": "cntt_sq23", "q": "DOM (Document Object Model) biểu diễn tài liệu HTML dưới dạng nào?", "options": ["Danh sách liên kết", "Đồ thị", "Cây (Tree)", "Mảng"], "answer": 2 },
+      { "id": "cntt_sq24", "q": "Lỗ hổng XSS (Cross-Site Scripting) xảy ra khi nào?", "options": ["Kẻ tấn công thực thi mã độc JavaScript trên trình duyệt của nạn nhân", "Kẻ tấn công xóa database", "Server bị quá tải", "User quên mật khẩu"], "answer": 0 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_it",
+      "smarts_bonus": 25
+    }
+  },
+  {
+    "id": "degree_xaydung",
+    "name": "Đại Học Kỹ Thuật Xây Dựng",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 45,
+    "duration_months": 48,
+    "tuition_per_month": 220,
+    "stamina_cost_per_month": 20,
+    "smarts_required": 55,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Bê tông cốt thép là sự kết hợp giữa bê tông và vật liệu nào?",
+      "options": ["Thép", "Gỗ", "Nhựa", "Nhôm"],
+      "answer": 0
+    },
+    {
+      "q": "Bản vẽ kỹ thuật thể hiện điều gì của công trình?",
+      "options": ["Kích thước & Cấu trúc", "Giá tiền bán nhà", "Tên chủ đầu tư", "Màu sơn nội thất"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "xd_sq01", "q": "Mác bê tông (M) thường được phân loại dựa trên đặc tính nào sau 28 ngày bảo dưỡng?", "options": ["Cường độ chịu kéo", "Cường độ chịu nén", "Độ dẻo", "Khả năng chống thấm nước"], "answer": 1 },
+      { "id": "xd_sq02", "q": "Hiện tượng 'chảy dẻo' trong kết cấu thép xảy ra khi nào?", "options": ["Khi thép bị nung chảy ở nhiệt độ cao", "Khi ứng suất vượt quá giới hạn chảy nhưng chưa đạt giới hạn bền", "Khi thép bị gỉ sét", "Khi lực tác dụng đột ngột rút đi"], "answer": 1 },
+      { "id": "xd_sq03", "q": "Tác dụng chính của cốt đai trong dầm bê tông cốt thép là gì?", "options": ["Chịu lực cắt và giữ vị trí cốt thép dọc", "Tăng tính thẩm mỹ", "Chống nứt bề mặt", "Làm nhẹ trọng lượng dầm"], "answer": 0 },
+      { "id": "xd_sq04", "q": "Hệ số rỗng của đất (e) được định nghĩa là tỷ số giữa?", "options": ["Thể tích nước và thể tích hạt đất", "Thể tích lỗ rỗng và thể tích hạt đất", "Trọng lượng đất và thể tích đất", "Khối lượng hạt và khối lượng nước"], "answer": 1 },
+      { "id": "xd_sq05", "q": "Trong trắc địa, cao độ tuyệt đối của một điểm được tính dựa trên bề mặt chuẩn nào?", "options": ["Mặt đường quốc lộ", "Đỉnh núi cao nhất", "Mực nước biển trung bình (Geoid)", "Tâm Trái Đất"], "answer": 2 },
+      { "id": "xd_sq06", "q": "Tải trọng gió tác dụng lên công trình chủ yếu phụ thuộc vào yếu tố nào?", "options": ["Màu sơn công trình", "Chiều cao và hình dáng hình học của công trình", "Loại móng", "Hệ thống cấp thoát nước"], "answer": 1 },
+      { "id": "xd_sq07", "q": "Xi măng Portland được sản xuất chủ yếu từ nguyên liệu nào?", "options": ["Đá vôi và đất sét", "Cát và sỏi", "Thạch cao nguyên chất", "Tro bay"], "answer": 0 },
+      { "id": "xd_sq08", "q": "Móng cọc ma sát chịu tải trọng công trình chủ yếu dựa vào đâu?", "options": ["Sức chống mũi cọc vào lớp đá cứng", "Lực ma sát giữa thân cọc và đất xung quanh", "Khối lượng của đài cọc", "Lực nổi của nước ngầm"], "answer": 1 },
+      { "id": "xd_sq09", "q": "Trong sức bền vật liệu, mômen uốn sinh ra ứng suất gì trên tiết diện ngang của dầm?", "options": ["Ứng suất cắt", "Ứng suất pháp", "Ứng suất tiếp", "Ứng suất nhiệt"], "answer": 1 },
+      { "id": "xd_sq10", "q": "Độ sụt bê tông (Slump) là thông số dùng để đánh giá tính chất gì?", "options": ["Cường độ bê tông", "Độ lưu động (tính dễ thi công) của hỗn hợp bê tông tươi", "Độ chống thấm", "Thời gian đông kết"], "answer": 1 },
+      { "id": "xd_sq11", "q": "Mục đích chính của việc bảo dưỡng bê tông là gì?", "options": ["Tránh bị mất trộm", "Duy trì độ ẩm và nhiệt độ thích hợp để xi măng thủy hóa hoàn toàn", "Tăng tính thẩm mỹ bề mặt", "Chống cháy"], "answer": 1 },
+      { "id": "xd_sq12", "q": "Cốt thép trong cấu kiện chịu uốn (như dầm) chủ yếu được bố trí ở vùng nào?", "options": ["Vùng chịu nén", "Vùng chịu kéo", "Vùng trung hòa", "Bố trí đều khắp nơi"], "answer": 1 },
+      { "id": "xd_sq13", "q": "Bê tông cốt thép ứng suất trước có ưu điểm vượt trội nào so với bê tông cốt thép thường?", "options": ["Khắc phục hiện tượng nứt ở vùng kéo, vượt nhịp lớn hơn", "Rẻ hơn nhiều", "Thi công đơn giản hơn, không cần kỹ thuật cao", "Không cần dùng xi măng"], "answer": 0 },
+      { "id": "xd_sq14", "q": "Tường vây (Diaphragm wall) thường được sử dụng trong công tác thi công nào?", "options": ["Xây nhà cấp 4", "Thi công tầng hầm hố đào sâu", "Xây cầu dây văng", "Trang trí mặt tiền"], "answer": 1 },
+      { "id": "xd_sq15", "q": "Hiện tượng 'lún lệch' của móng gây ra hậu quả nguy hiểm nhất là gì?", "options": ["Mất tính thẩm mỹ", "Nứt, nghiêng hoặc sụp đổ kết cấu phần thân", "Nước ngầm thấm vào nhà", "Thay đổi màu sơn"], "answer": 1 },
+      { "id": "xd_sq16", "q": "Đường xoắn ốc chuyển tiếp trong thiết kế đường cong có tác dụng gì?", "options": ["Tạo điểm dừng xe", "Giúp xe chuyển từ đường thẳng vào đường cong tròn từ từ, giảm lực ly tâm đột ngột", "Tăng độ bám của lốp xe", "Trang trí cho đẹp"], "answer": 1 },
+      { "id": "xd_sq17", "q": "Đầm rung hỗn hợp bê tông tươi nhằm mục đích gì?", "options": ["Đẩy bớt xi măng ra ngoài", "Loại bỏ bọt khí, làm bê tông đặc chắc", "Làm cho bê tông nhanh khô", "Trộn lại bê tông cho đều màu"], "answer": 1 },
+      { "id": "xd_sq18", "q": "Tải trọng hoạt tải (Live load) tác dụng lên sàn nhà bao gồm?", "options": ["Trọng lượng bản thân sàn", "Trọng lượng tường ngăn cố định", "Trọng lượng người, đồ đạc và thiết bị di động", "Trọng lượng hệ thống cơ điện ngầm"], "answer": 2 },
+      { "id": "xd_sq19", "q": "Nhịp của cầu treo dây văng được đỡ trực tiếp bởi hệ thống nào?", "options": ["Cáp chủ", "Trụ tháp và cáp văng xiên", "Vòm bê tông", "Dầm thép chữ I"], "answer": 1 },
+      { "id": "xd_sq20", "q": "Trong tính toán kết cấu, hệ số an toàn (Safety factor) được hiểu là?", "options": ["Tỷ số giữa tải trọng phá hoại và tải trọng cho phép", "Số lượng mũ bảo hiểm trên công trường", "Số năm bảo hành công trình", "Tỷ lệ hao hụt vật tư"], "answer": 0 },
+      { "id": "xd_sq21", "q": "Biểu đồ nội lực nào thể hiện sự phân bố của mômen dọc theo chiều dài dầm?", "options": ["Biểu đồ lực cắt (V)", "Biểu đồ lực dọc (N)", "Biểu đồ mômen uốn (M)", "Biểu đồ chuyển vị"], "answer": 2 },
+      { "id": "xd_sq22", "q": "Khớp dẻo trong kết cấu thép hình thành tại vị trí nào?", "options": ["Nơi có mômen uốn đạt đến mômen dẻo toàn phần của tiết diện", "Nơi có lực cắt bằng không", "Tại vị trí gối tựa đơn", "Tại điểm không có tải trọng"], "answer": 0 },
+      { "id": "xd_sq23", "q": "Công tác trắc địa 'Giao hội nghịch' là phương pháp xác định tọa độ của điểm máy dựa vào?", "options": ["Một điểm đã biết tọa độ", "Hai điểm chưa biết tọa độ", "Từ 3 điểm đã biết tọa độ trở lên", "Vệ tinh GPS đo trực tiếp"], "answer": 2 },
+      { "id": "xd_sq24", "q": "Theo tiêu chuẩn thiết kế, góc mái dốc của hố đào không gia cố phụ thuộc chủ yếu vào?", "options": ["Thời tiết hôm đào", "Loại đất và độ sâu hố đào", "Kích thước máy xúc", "Thể tích hố đào"], "answer": 1 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_civil_engineering",
+      "smarts_bonus": 20,
+      "strength_bonus": 10
+    }
+  },
+  {
+    "id": "degree_cokhi",
+    "name": "Đại Học Cơ Khí - Tự Động Hóa",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 45,
+    "duration_months": 48,
+    "tuition_per_month": 210,
+    "stamina_cost_per_month": 18,
+    "smarts_required": 55,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Dầu nhớt trong động cơ xe có tác dụng chính là gì?",
+      "options": ["Bôi trơn & Tản nhiệt", "Tăng tốc độ chạy", "Làm đẹp xe", "Đổi màu khói"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "ck_sq01", "q": "Trong hệ thống điều khiển tự động PID, thành phần 'I' (Integral - Tích phân) có chức năng chính là gì?", "options": ["Tăng tốc độ đáp ứng ban đầu", "Triệt tiêu sai số xác lập (sai số tĩnh)", "Giảm độ vọt lố", "Dự đoán sai số tương lai"], "answer": 1 },
+      { "id": "ck_sq02", "q": "Phương pháp gia công Phay khác với Tiện ở điểm cốt lõi nào?", "options": ["Phay: Dao quay, phôi tịnh tiến. Tiện: Phôi quay, dao tịnh tiến", "Phay dùng nước, Tiện dùng dầu", "Phay chỉ cắt kim loại mềm, Tiện cắt kim loại cứng", "Phay không sinh ra phoi, Tiện sinh ra phoi"], "answer": 0 },
+      { "id": "ck_sq03", "q": "Bánh răng nghiêng có ưu điểm gì vượt trội so với bánh răng thẳng?", "options": ["Dễ chế tạo hơn", "Giá thành rẻ hơn", "Truyền động êm hơn và chịu tải lớn hơn", "Không sinh ra lực dọc trục"], "answer": 2 },
+      { "id": "ck_sq04", "q": "Cảm biến Encoder trong công nghiệp thường được sử dụng để đo đại lượng vật lý nào?", "options": ["Nhiệt độ môi trường", "Áp suất chất lỏng", "Tốc độ vòng quay và vị trí góc", "Cường độ ánh sáng"], "answer": 2 },
+      { "id": "ck_sq05", "q": "Hiện tượng 'xâm thực' (Cavitation) trong bơm ly tâm xảy ra do đâu?", "options": ["Áp suất chất lỏng giảm xuống thấp hơn áp suất hóa hơi", "Động cơ bơm bị chập điện", "Cánh bơm bị gỉ sét", "Bơm nhầm dung dịch axit"], "answer": 0 },
+      { "id": "ck_sq06", "q": "Nguyên lý làm việc của động cơ đốt trong 4 kỳ gồm các hành trình nào theo thứ tự?", "options": ["Nạp - Xả - Nén - Nổ", "Nạp - Nén - Nổ (Sinh công) - Xả", "Nén - Nạp - Xả - Nổ", "Xả - Nổ - Nạp - Nén"], "answer": 1 },
+      { "id": "ck_sq07", "q": "Trong bản vẽ cơ khí, hệ thống dung sai lắp ghép Lắp lỏng (Clearance fit) có đặc điểm gì?", "options": ["Kích thước lỗ luôn lớn hơn kích thước trục", "Kích thước lỗ luôn nhỏ hơn kích thước trục", "Lỗ và trục bằng nhau tuyệt đối", "Độ dôi lớn nhất luôn dương"], "answer": 0 },
+      { "id": "ck_sq08", "q": "Cơ cấu tay quay - con trượt dùng để biến đổi chuyển động nào?", "options": ["Chuyển động quay thành quay", "Chuyển động quay thành chuyển động tịnh tiến (hoặc ngược lại)", "Chuyển động tịnh tiến thành lắc", "Không biến đổi chuyển động"], "answer": 1 },
+      { "id": "ck_sq09", "q": "PLC (Programmable Logic Controller) là thiết bị chuyên dụng để?", "options": ["Điều khiển tự động hóa các quá trình công nghiệp", "Phát wifi trong nhà máy", "Đo nhiệt độ lò nung", "Hàn kim loại"], "answer": 0 },
+      { "id": "ck_sq10", "q": "Quá trình nhiệt luyện 'Tôi thép' nhằm mục đích chính là gì?", "options": ["Làm mềm thép", "Tăng độ cứng và khả năng chống mài mòn", "Tạo hình dạng chi tiết", "Chống gỉ sét"], "answer": 1 },
+      { "id": "ck_sq11", "q": "Truyền động đai và truyền động bánh răng khác nhau cơ bản ở điểm nào?", "options": ["Truyền động đai không bị trượt", "Truyền động đai có khả năng trượt trơn bảo vệ máy khi quá tải", "Bánh răng êm hơn đai", "Bánh răng truyền khoảng cách xa hơn"], "answer": 1 },
+      { "id": "ck_sq12", "q": "Trong máy CNC, ngôn ngữ lập trình thường được sử dụng để điều khiển trục chính và dao cắt là?", "options": ["HTML", "Python", "G-code và M-code", "C++"], "answer": 2 },
+      { "id": "ck_sq13", "q": "Hàn MIG (Metal Inert Gas) sử dụng khí bảo vệ là khí gì?", "options": ["Oxi", "Hydro", "Khí trơ (như Argon, Helium)", "Carbon Dioxide"], "answer": 2 },
+      { "id": "ck_sq14", "q": "Khớp nối các đăng (Universal joint) được sử dụng khi nào?", "options": ["Nối 2 trục song song", "Nối 2 trục đồng tâm", "Nối 2 trục giao nhau với góc lệch thay đổi trong quá trình làm việc", "Dùng để phanh trục"], "answer": 2 },
+      { "id": "ck_sq15", "q": "Vòng bi (ổ lăn) có ưu điểm gì so với ổ trượt (bạc lót)?", "options": ["Tốc độ quay cực cao", "Chịu tải trọng va đập tốt hơn", "Mômen ma sát khởi động nhỏ và dễ bôi trơn", "Chiếm ít không gian hướng kính"], "answer": 2 },
+      { "id": "ck_sq16", "q": "Thép Hợp Kim là gì?", "options": ["Thép chỉ có Sắt và Carbon", "Thép được thêm các nguyên tố (Cr, Ni, Mn, W...) để cải thiện cơ tính", "Nhựa tổng hợp giống thép", "Hợp kim của nhôm"], "answer": 1 },
+      { "id": "ck_sq17", "q": "Cảm biến Hall hoạt động dựa trên nguyên lý nào?", "options": ["Phát xạ hồng ngoại", "Thay đổi điện dung", "Tương tác với từ trường sinh ra điện áp Hall", "Phản xạ sóng âm"], "answer": 2 },
+      { "id": "ck_sq18", "q": "Phương pháp gia công tia lửa điện (EDM) thường dùng để gia công vật liệu nào?", "options": ["Nhựa dẻo", "Gỗ", "Kính", "Vật liệu dẫn điện có độ cứng rất cao"], "answer": 3 },
+      { "id": "ck_sq19", "q": "Trong khí nén thủy lực, Van tiết lưu có tác dụng gì?", "options": ["Đóng mở dòng lưu chất hoàn toàn", "Chỉ cho lưu chất chảy 1 chiều", "Điều chỉnh lưu lượng để thay đổi tốc độ chấp hành", "Giảm áp suất hệ thống"], "answer": 2 },
+      { "id": "ck_sq20", "q": "Trục khuỷu trong động cơ làm nhiệm vụ gì?", "options": ["Làm mát động cơ", "Chuyển đổi chuyển động tịnh tiến của piston thành chuyển động quay", "Phân phối khí nạp xả", "Bơm dầu nhớt"], "answer": 1 },
+      { "id": "ck_sq21", "q": "Trong hệ thống truyền động bánh răng xoắn ốc (Trục vít - Bánh vít), tính chất đặc biệt nhất là gì?", "options": ["Tỷ số truyền rất nhỏ", "Hiệu suất truyền động 100%", "Có khả năng tự hãm một chiều", "Truyền được giữa 2 trục song song"], "answer": 2 },
+      { "id": "ck_sq22", "q": "Độ nhám bề mặt (Ra, Rz) đánh giá yếu tố nào của chi tiết máy?", "options": ["Độ cứng", "Tính chất hình học tế vi của bề mặt", "Khối lượng", "Kích thước tổng thể"], "answer": 1 },
+      { "id": "ck_sq23", "q": "Trong kỹ thuật Robot, 'Bậc tự do' (Degrees of Freedom) biểu thị điều gì?", "options": ["Số lượng cảm biến trên robot", "Số lượng thông số độc lập cần thiết để xác định cấu hình của robot trong không gian", "Số lượng bánh xe", "Tốc độ di chuyển"], "answer": 1 },
+      { "id": "ck_sq24", "q": "Gia công 'Doa' thường được thực hiện ở giai đoạn nào?", "options": ["Phá thô khối kim loại", "Tạo phôi ban đầu", "Gia công tinh lỗ để đạt độ chính xác và độ bóng bề mặt cao", "Cắt rãnh then"], "answer": 2 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_mechanical",
+      "smarts_bonus": 20,
+      "strength_bonus": 5
+    }
+  },
+  {
+    "id": "degree_kinhte",
+    "name": "Đại Học Quản Trị Kinh Doanh & Tài Chính",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 50,
+    "duration_months": 48,
+    "tuition_per_month": 240,
+    "stamina_cost_per_month": 15,
+    "smarts_required": 50,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Lợi nhuận được tính bằng công thức nào?",
+      "options": ["Doanh thu - Chi phí", "Doanh thu + Chi phí", "Doanh thu * Thuế", "Vốn điều lệ / 2"],
+      "answer": 0
+    },
+    {
+      "q": "Lạm phát tăng cao ảnh hưởng thế nào đến tiền mặt?",
+      "options": ["Làm giảm sức mua", "Làm tăng giá trị", "Không ảnh hưởng", "Tự nhân đôi"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "kt_sq01", "q": "Chỉ số ROE (Return on Equity) trong báo cáo tài chính đánh giá điều gì của doanh nghiệp?", "options": ["Tỷ suất lợi nhuận trên tổng tài sản", "Tỷ suất lợi nhuận trên vốn chủ sở hữu", "Tốc độ quay vòng hàng tồn kho", "Khả năng thanh toán nợ ngắn hạn"], "answer": 1 },
+      { "id": "kt_sq02", "q": "Trong kinh tế học, khái niệm 'Chi phí cơ hội' (Opportunity Cost) được hiểu là?", "options": ["Chi phí phát sinh thêm khi sản xuất thêm 1 đơn vị", "Chi phí quảng cáo để tìm kiếm khách hàng", "Giá trị của phương án tốt nhất bị bỏ lỡ khi đưa ra một quyết định", "Tổng chi phí cố định và biến đổi"], "answer": 2 },
+      { "id": "kt_sq03", "q": "Đường cong Phillips mô tả mối quan hệ đánh đổi ngắn hạn giữa hai yếu tố kinh tế vĩ mô nào?", "options": ["Lạm phát và Thất nghiệp", "Tăng trưởng GDP và Lãi suất", "Nhập khẩu và Xuất khẩu", "Cung tiền và Tỷ giá hối đoái"], "answer": 0 },
+      { "id": "kt_sq04", "q": "Điểm hòa vốn (Break-even point) là thời điểm mà?", "options": ["Doanh nghiệp trả hết nợ ngân hàng", "Tổng doanh thu bằng tổng chi phí (Lợi nhuận bằng 0)", "Doanh thu đạt mức cao nhất trong năm", "Cổ tức được chia cho cổ đông"], "answer": 1 },
+      { "id": "kt_sq05", "q": "Trong mô hình phân tích SWOT, hai yếu tố nào là yếu tố nội tại của doanh nghiệp?", "options": ["Cơ hội và Thách thức", "Điểm mạnh và Cơ hội", "Điểm mạnh và Điểm yếu", "Điểm yếu và Thách thức"], "answer": 2 },
+      { "id": "kt_sq06", "q": "Chỉ số EPS (Earning Per Share) đo lường điều gì?", "options": ["Lợi nhuận sau thuế của toàn công ty", "Thu nhập trên mỗi cổ phiếu của doanh nghiệp", "Giá trị vốn hóa thị trường", "Tỷ lệ trả cổ tức"], "answer": 1 },
+      { "id": "kt_sq07", "q": "Lạm phát xảy ra khi nào?", "options": ["Giá cả chung của hàng hóa và dịch vụ tăng lên liên tục trong một khoảng thời gian", "Giá cả giảm sút", "Cung tiền giảm", "Chính phủ giảm thuế"], "answer": 0 },
+      { "id": "kt_sq08", "q": "Mô hình Marketing Mix 4P bao gồm các yếu tố nào?", "options": ["People, Process, Physical evidence, Profit", "Product, Price, Place, Promotion", "Plan, Prepare, Produce, Provide", "Position, Package, Pay, PR"], "answer": 1 },
+      { "id": "kt_sq09", "q": "Trong quản trị tài chính, WACC là viết tắt của?", "options": ["Chi phí vốn bình quân gia quyền", "Thu nhập vốn khả dụng", "Tài sản lưu động tối đa", "Chi phí hoạt động chung"], "answer": 0 },
+      { "id": "kt_sq10", "q": "Lợi thế cạnh tranh (Competitive Advantage) theo Michael Porter chủ yếu được xây dựng trên cơ sở nào?", "options": ["Sản xuất nhiều sản phẩm nhất", "Giá thành thấp hoặc Sự khác biệt hóa", "Có trụ sở lớn nhất", "Vay nhiều nợ nhất"], "answer": 1 },
+      { "id": "kt_sq11", "q": "Khấu hao tài sản cố định ảnh hưởng thế nào đến dòng tiền của doanh nghiệp?", "options": ["Là dòng tiền chi ra trực tiếp", "Là chi phí phi tiền tệ, giúp giảm thuế thu nhập doanh nghiệp", "Tăng dòng tiền thu vào", "Không có tác động gì"], "answer": 1 },
+      { "id": "kt_sq12", "q": "Giá trị hiện tại ròng (NPV) lớn hơn 0 mang ý nghĩa gì đối với một dự án đầu tư?", "options": ["Dự án bị lỗ", "Dự án hòa vốn", "Dự án khả thi và mang lại giá trị gia tăng", "Nên hủy dự án"], "answer": 2 },
+      { "id": "kt_sq13", "q": "Tỷ giá hối đoái thả nổi là gì?", "options": ["Do ngân hàng trung ương cố định hoàn toàn", "Được quyết định bởi cung cầu ngoại tệ trên thị trường", "Do chính phủ quy định hàng năm", "Tỷ giá luôn bằng 1"], "answer": 1 },
+      { "id": "kt_sq14", "q": "Cổ tức (Dividend) được chia từ nguồn nào của doanh nghiệp?", "options": ["Vốn điều lệ", "Doanh thu bán hàng", "Lợi nhuận sau thuế chưa phân phối", "Tiền vay ngân hàng"], "answer": 2 },
+      { "id": "kt_sq15", "q": "Báo cáo lưu chuyển tiền tệ (Cash Flow Statement) chia các dòng tiền thành 3 loại hoạt động nào?", "options": ["Kinh doanh, Đầu tư, Tài chính", "Sản xuất, Bán hàng, Nhân sự", "Thu, Chi, Tồn", "Cổ phiếu, Trái phiếu, Tiền mặt"], "answer": 0 },
+      { "id": "kt_sq16", "q": "Thị trường Độc quyền hoàn toàn (Monopoly) có đặc điểm gì?", "options": ["Nhiều người bán, nhiều người mua", "Một người bán duy nhất kiểm soát toàn bộ thị trường", "Cạnh tranh bằng giá gắt gao", "Rào cản gia nhập ngành thấp"], "answer": 1 },
+      { "id": "kt_sq17", "q": "Chỉ số CPI (Chỉ số giá tiêu dùng) thường được sử dụng để đo lường?", "options": ["Tăng trưởng GDP", "Sức khỏe tài chính của ngân hàng", "Lạm phát", "Tỷ lệ thất nghiệp"], "answer": 2 },
+      { "id": "kt_sq18", "q": "Trong phân khúc thị trường, B2B là viết tắt của mô hình kinh doanh nào?", "options": ["Doanh nghiệp với Khách hàng cá nhân", "Doanh nghiệp với Doanh nghiệp", "Khách hàng với Khách hàng", "Doanh nghiệp với Chính phủ"], "answer": 1 },
+      { "id": "kt_sq19", "q": "Đường cầu (Demand curve) thông thường có độ dốc như thế nào?", "options": ["Dốc lên (Đồng biến)", "Nằm ngang", "Dốc xuống (Nghịch biến với giá)", "Thẳng đứng"], "answer": 2 },
+      { "id": "kt_sq20", "q": "CAPM (Mô hình định giá tài sản vốn) dùng để tính toán điều gì?", "options": ["Chi phí tồn kho", "Lợi suất kỳ vọng của một tài sản rủi ro", "Mức lương nhân viên", "Số lượng cổ phiếu đang lưu hành"], "answer": 1 },
+      { "id": "kt_sq21", "q": "Tính thanh khoản (Liquidity) của một tài sản thể hiện điều gì?", "options": ["Mức độ rủi ro", "Khả năng chuyển đổi thành tiền mặt dễ dàng và nhanh chóng", "Lợi suất sinh lời", "Thời gian tồn tại"], "answer": 1 },
+      { "id": "kt_sq22", "q": "Một trái phiếu có lãi suất coupon cao hơn lãi suất thị trường thì sẽ được bán với giá?", "options": ["Thấp hơn mệnh giá (Chiết khấu)", "Bằng mệnh giá", "Cao hơn mệnh giá (Phụ trội)", "Không xác định được"], "answer": 2 },
+      { "id": "kt_sq23", "q": "Hàng tồn kho trong bảng cân đối kế toán thuộc nhóm tài sản nào?", "options": ["Tài sản ngắn hạn", "Tài sản dài hạn", "Nợ phải trả", "Vốn chủ sở hữu"], "answer": 0 },
+      { "id": "kt_sq24", "q": "Chu kỳ sống của sản phẩm (Product Life Cycle) thường gồm các giai đoạn nào?", "options": ["Phát triển, Thử nghiệm, Bán hàng", "Giới thiệu, Tăng trưởng, Bão hòa, Suy thoái", "Ý tưởng, Sản xuất, Thanh lý", "Ngắn hạn, Trung hạn, Dài hạn"], "answer": 1 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_business",
+      "smarts_bonus": 15,
+      "charm_bonus": 15
+    }
+  },
+  {
+    "id": "degree_luat",
+    "name": "Đại Học Luật",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 50,
+    "duration_months": 48,
+    "tuition_per_month": 230,
+    "stamina_cost_per_month": 16,
+    "smarts_required": 60,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Văn bản pháp luật có hiệu lực cao nhất ở Việt Nam là gì?",
+      "options": ["Hiến pháp", "Nghị định", "Thông tư", "Quyết định"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "law_sq01", "q": "Nguyên tắc 'Suy đoán vô tội' trong luật tố tụng hình sự có nghĩa là gì?", "options": ["Mọi tội phạm đều do thiếu hiểu biết pháp luật", "Không ai bị coi là có tội khi chưa có bản án kết tội của Tòa án đã có hiệu lực pháp luật", "Bị cáo luôn đúng cho đến khi cảnh sát chứng minh ngược lại", "Trẻ em dưới 18 tuổi không bao giờ có tội"], "answer": 1 },
+      { "id": "law_sq02", "q": "Thời hiệu khởi kiện vụ án dân sự về tranh chấp hợp đồng thông thường là bao lâu?", "options": ["1 năm", "2 năm", "3 năm kể từ ngày người có quyền lợi bị xâm phạm", "Không có thời hiệu"], "answer": 2 },
+      { "id": "law_sq03", "q": "Trong luật Dân sự Việt Nam, 'Năng lực hành vi dân sự đầy đủ' của cá nhân bắt đầu từ độ tuổi nào?", "options": ["Từ đủ 14 tuổi", "Từ đủ 16 tuổi", "Từ đủ 18 tuổi", "Từ đủ 21 tuổi"], "answer": 2 },
+      { "id": "law_sq04", "q": "Chủ thể nào sau đây KHÔNG có quyền trình dự án luật trước Quốc hội?", "options": ["Chủ tịch nước", "Chính phủ", "Công dân cá nhân", "Mặt trận Tổ quốc Việt Nam"], "answer": 2 },
+      { "id": "law_sq05", "q": "Loại hợp đồng nào bắt buộc phải được lập thành văn bản và có công chứng/chứng thực?", "options": ["Hợp đồng mượn xe máy", "Hợp đồng mua bán điện thoại cũ", "Hợp đồng chuyển nhượng quyền sử dụng đất", "Hợp đồng lao động thử việc"], "answer": 2 },
+      { "id": "law_sq06", "q": "Tài sản nào sau đây KHÔNG phải là tài sản chung của vợ chồng trong thời kỳ hôn nhân (nếu không có thỏa thuận khác)?", "options": ["Tiền lương hàng tháng", "Lợi tức từ tài sản riêng", "Nhà được tặng cho chung", "Tài sản được thừa kế riêng"], "answer": 3 },
+      { "id": "law_sq07", "q": "Tội phạm đặc biệt nghiêm trọng có mức hình phạt cao nhất là gì?", "options": ["10 năm tù", "15 năm tù", "20 năm tù", "Chung thân hoặc Tử hình"], "answer": 3 },
+      { "id": "law_sq08", "q": "Giám đốc thẩm là thủ tục xét lại bản án, quyết định của Tòa án đã?", "options": ["Chưa có hiệu lực pháp luật", "Bị kháng cáo", "Có hiệu lực pháp luật nhưng phát hiện có vi phạm pháp luật nghiêm trọng trong việc giải quyết vụ án", "Mới được ban hành"], "answer": 2 },
+      { "id": "law_sq09", "q": "Đâu KHÔNG phải là một loại hình doanh nghiệp theo Luật Doanh nghiệp Việt Nam?", "options": ["Công ty Cổ phần", "Công ty TNHH", "Doanh nghiệp tư nhân", "Hợp tác xã"], "answer": 3 },
+      { "id": "law_sq10", "q": "Bồi thường thiệt hại ngoài hợp đồng phát sinh khi nào?", "options": ["Vi phạm điều khoản hợp đồng đã ký", "Cố ý hoặc vô ý xâm phạm tính mạng, sức khỏe, danh dự, tài sản của người khác gây thiệt hại", "Giao hàng trễ hạn", "Từ chối nhận hàng"], "answer": 1 },
+      { "id": "law_sq11", "q": "Di chúc bằng văn bản không có người làm chứng có hợp pháp không?", "options": ["Không bao giờ", "Có, nếu người lập di chúc tự tay viết và ký tên vào bản di chúc", "Có, nếu được đánh máy", "Chỉ hợp pháp với người mù"], "answer": 1 },
+      { "id": "law_sq12", "q": "Người lao động có quyền đơn phương chấm dứt hợp đồng lao động không xác định thời hạn nếu báo trước bao nhiêu ngày?", "options": ["15 ngày", "30 ngày", "45 ngày", "Không cần báo trước"], "answer": 2 },
+      { "id": "law_sq13", "q": "Chủ thể của Luật Quốc tế chủ yếu là?", "options": ["Các tập đoàn đa quốc gia", "Các cá nhân", "Quốc gia và các tổ chức quốc tế liên chính phủ", "Tổ chức phi chính phủ (NGO)"], "answer": 2 },
+      { "id": "law_sq14", "q": "Pháp nhân là tổ chức thỏa mãn điều kiện gì?", "options": ["Được thành lập hợp pháp, có cơ cấu tổ chức chặt chẽ, có tài sản độc lập và nhân danh mình tham gia các quan hệ pháp luật", "Bất kỳ nhóm người nào tụ tập lại", "Mọi công ty đều là pháp nhân", "Chỉ cơ quan nhà nước mới là pháp nhân"], "answer": 0 },
+      { "id": "law_sq15", "q": "Ai là người đứng đầu cơ quan xét xử cao nhất của nước Cộng hòa XHCN Việt Nam?", "options": ["Chủ tịch Quốc hội", "Bộ trưởng Bộ Tư pháp", "Chánh án Tòa án nhân dân tối cao", "Viện trưởng Viện kiểm sát nhân dân tối cao"], "answer": 2 },
+      { "id": "law_sq16", "q": "Quyền tác giả đối với tác phẩm văn học, nghệ thuật phát sinh khi nào?", "options": ["Khi tác phẩm được sáng tạo ra và thể hiện dưới một hình thức vật chất nhất định", "Khi đăng ký tại Cục Bản quyền", "Khi tác phẩm được xuất bản bán lấy tiền", "Khi được nhà nước cấp phép"], "answer": 0 },
+      { "id": "law_sq17", "q": "Trong trường hợp nào người thực hiện hành vi nguy hiểm cho xã hội KHÔNG phải chịu trách nhiệm hình sự?", "options": ["Lúc đó đang say rượu", "Phòng vệ chính đáng", "Bị người khác xúi giục", "Thiếu hiểu biết pháp luật"], "answer": 1 },
+      { "id": "law_sq18", "q": "Luật Hôn nhân và Gia đình Việt Nam cấm kết hôn giữa những người có họ trong phạm vi mấy đời?", "options": ["2 đời", "3 đời", "4 đời", "5 đời"], "answer": 1 },
+      { "id": "law_sq19", "q": "Trường hợp nào được gọi là 'Thừa kế theo pháp luật'?", "options": ["Chia thừa kế theo di chúc", "Chia thừa kế theo thứ tự hàng thừa kế do pháp luật quy định khi không có di chúc hoặc di chúc không hợp pháp", "Chia tài sản ly hôn", "Nhà nước tịch thu tài sản"], "answer": 1 },
+      { "id": "law_sq20", "q": "Đình công là quyền của ai theo Luật Lao động?", "options": ["Giám đốc doanh nghiệp", "Người lao động do tổ chức công đoàn lãnh đạo để giải quyết tranh chấp lao động tập thể", "Cơ quan thuế", "Cổ đông"], "answer": 1 },
+      { "id": "law_sq21", "q": "Thuế thu nhập cá nhân (TNCN) là loại thuế?", "options": ["Thuế gián thu", "Thuế trực thu", "Thuế tiêu thụ đặc biệt", "Thuế giá trị gia tăng"], "answer": 1 },
+      { "id": "law_sq22", "q": "Cơ quan nào có quyền thực hành quyền công tố và kiểm sát hoạt động tư pháp?", "options": ["Công an", "Tòa án", "Viện kiểm sát nhân dân", "Ủy ban nhân dân"], "answer": 2 },
+      { "id": "law_sq23", "q": "Kháng cáo là gì?", "options": ["Yêu cầu tòa án cấp trên xét lại bản án sơ thẩm chưa có hiệu lực pháp luật", "Báo cảnh sát", "Kiện lại nguyên đơn", "Xin tòa án giảm án khi đang thi hành án"], "answer": 0 },
+      { "id": "law_sq24", "q": "Trong Bộ luật Hình sự, 'Lỗi cố ý trực tiếp' là trường hợp người phạm tội?", "options": ["Thấy trước hậu quả nhưng chủ quan cho rằng có thể ngăn chặn được", "Không thấy trước hậu quả", "Thấy trước hành vi của mình là nguy hiểm cho xã hội, thấy trước hậu quả và mong muốn hậu quả xảy ra", "Bị ép buộc làm"], "answer": 2 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_law",
+      "smarts_bonus": 20,
+      "charm_bonus": 10
+    }
+  },
+  {
+    "id": "degree_yduoc",
+    "name": "Đại Học Y Dược (Bác Sĩ Đa Khoa)",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 35,
+    "duration_months": 72,
+    "tuition_per_month": 350,
+    "stamina_cost_per_month": 25,
+    "smarts_required": 75,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Nhiệt độ cơ thể bình thường của người khỏe mạnh là bao nhiêu?",
+      "options": ["36.5°C - 37.5°C", "39°C - 40°C", "32°C - 34°C", "42°C"],
+      "answer": 0
+    },
+    {
+      "q": "Cơ quan nào trong cơ thể chịu trách nhiệm lọc máu chính?",
+      "options": ["Thận", "Dạ dày", "Phổi", "Mắt"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "med_sq01", "q": "Tuyến nội tiết nào đóng vai trò 'nhạc trưởng' điều khiển hoạt động của các tuyến nội tiết khác trong cơ thể?", "options": ["Tuyến giáp", "Tuyến yên (Pituitary gland)", "Tuyến tụy", "Tuyến thượng thận"], "answer": 1 },
+      { "id": "med_sq02", "q": "Loại kháng thể (Immunoglobulin) nào có khả năng đi qua nhau thai để truyền miễn dịch thụ động bảo vệ thai nhi?", "options": ["IgA", "IgM", "IgE", "IgG"], "answer": 3 },
+      { "id": "med_sq03", "q": "Thuốc kháng sinh nhóm Penicillin hoạt động dựa trên cơ chế nào để tiêu diệt vi khuẩn?", "options": ["Phá vỡ màng tế bào", "Ức chế quá trình tổng hợp thành (vách) tế bào vi khuẩn", "Thay đổi cấu trúc ADN của vi khuẩn", "Hút cạn nước của vi khuẩn"], "answer": 1 },
+      { "id": "med_sq04", "q": "Trong hệ thần kinh thực vật, kích thích hệ giao cảm có tác dụng gì đối với hoạt động của tim?", "options": ["Làm giảm nhịp tim", "Làm ngừng tim tạm thời", "Làm tăng nhịp tim và sức co bóp cơ tim", "Không ảnh hưởng đến tim"], "answer": 2 },
+      { "id": "med_sq05", "q": "Chỉ số BMI (Body Mass Index) dùng để đánh giá mức độ béo phì được tính bằng công thức nào?", "options": ["Chiều cao (cm) chia cho Cân nặng (kg)", "Cân nặng (kg) chia cho bình phương Chiều cao (m)", "Vòng eo (cm) nhân với Cân nặng (kg)", "Cân nặng (kg) trừ đi 100"], "answer": 1 },
+      { "id": "med_sq06", "q": "Nhóm máu nào được gọi là 'Nhóm máu chuyên cho' (Universal donor) cho hồng cầu?", "options": ["Nhóm A", "Nhóm B", "Nhóm AB", "Nhóm O"], "answer": 3 },
+      { "id": "med_sq07", "q": "Hormone Insulin do tuyến tụy tiết ra có chức năng chính là gì?", "options": ["Làm tăng đường huyết", "Làm giảm đường huyết bằng cách giúp tế bào hấp thụ Glucose", "Tăng nhịp tim", "Tiêu hóa lipid"], "answer": 1 },
+      { "id": "med_sq08", "q": "Cơ quan nào đảm nhận chức năng sản xuất mật để tiêu hóa chất béo?", "options": ["Túi mật", "Dạ dày", "Gan", "Tụy"], "answer": 2 },
+      { "id": "med_sq09", "q": "Hồng cầu người trưởng thành không có bào quan nào?", "options": ["Màng tế bào", "Nhân (Nucleus)", "Hemoglobin", "Tế bào chất"], "answer": 1 },
+      { "id": "med_sq10", "q": "Sốc phản vệ là phản ứng dị ứng tức thì (Type I) qua trung gian của kháng thể nào?", "options": ["IgA", "IgG", "IgM", "IgE"], "answer": 3 },
+      { "id": "med_sq11", "q": "Phế nang là đơn vị cấu trúc và chức năng của cơ quan nào?", "options": ["Tim", "Thận", "Phổi", "Gan"], "answer": 2 },
+      { "id": "med_sq12", "q": "Người trưởng thành bình thường có bao nhiêu chiếc xương?", "options": ["200", "206", "212", "300"], "answer": 1 },
+      { "id": "med_sq13", "q": "Động mạch duy nhất trong cơ thể chứa máu nghèo oxy (máu đỏ thẫm) là?", "options": ["Động mạch chủ", "Động mạch cảnh", "Động mạch phổi", "Động mạch đùi"], "answer": 2 },
+      { "id": "med_sq14", "q": "Trong quá trình hồi sức tim phổi (CPR), tỷ lệ ép tim : thổi ngạt cho người lớn là bao nhiêu?", "options": ["15:2", "30:2", "5:1", "10:1"], "answer": 1 },
+      { "id": "med_sq15", "q": "Điện tâm đồ (ECG) ghi lại đại lượng nào của tim?", "options": ["Lưu lượng máu", "Hoạt động điện học của tim", "Sức co bóp cơ tim", "Âm thanh đóng mở van tim"], "answer": 1 },
+      { "id": "med_sq16", "q": "Chụp MRI sử dụng nguyên lý vật lý nào để tạo ảnh hình thể?", "options": ["Tia X", "Sóng siêu âm", "Từ trường và sóng vô tuyến", "Tia Gamma"], "answer": 2 },
+      { "id": "med_sq17", "q": "Có bao nhiêu đôi dây thần kinh sọ não ở người?", "options": ["10 đôi", "12 đôi", "31 đôi", "8 đôi"], "answer": 1 },
+      { "id": "med_sq18", "q": "Dấu hiệu 'Đau hố chậu phải' kết hợp sốt nhẹ thường nghi ngờ bệnh lý ngoại khoa nào nhất?", "options": ["Viêm ruột thừa cấp", "Thủng dạ dày", "Sỏi niệu quản trái", "Trào ngược dạ dày"], "answer": 0 },
+      { "id": "med_sq19", "q": "Vaccine hoạt động dựa trên cơ chế nào của hệ miễn dịch?", "options": ["Tiêu diệt trực tiếp virus", "Tạo ra trí nhớ miễn dịch (kháng thể) khi tiếp xúc với mầm bệnh suy yếu/bất hoạt", "Lọc máu", "Ức chế hệ thần kinh"], "answer": 1 },
+      { "id": "med_sq20", "q": "Bộ phận lọc máu cơ bản nhất trong thận được gọi là gì?", "options": ["Niệu quản", "Bàng quang", "Nephron (Tiểu thể thận)", "Đài thận"], "answer": 2 },
+      { "id": "med_sq21", "q": "Cấu trúc nào ngăn cách tâm nhĩ trái và tâm thất trái của tim?", "options": ["Van 3 lá", "Van 2 lá (Van tăng mạo)", "Van tổ chim", "Vách liên nhĩ"], "answer": 1 },
+      { "id": "med_sq22", "q": "Bệnh Scorbut (Scurvy) xảy ra do thiếu vitamin nào?", "options": ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin D"], "answer": 2 },
+      { "id": "med_sq23", "q": "Xương dài nhất trong cơ thể người là xương nào?", "options": ["Xương cánh tay", "Xương chày", "Xương đùi", "Xương sườn"], "answer": 2 },
+      { "id": "med_sq24", "q": "Virus HIV tấn công chủ yếu vào loại tế bào nào của hệ miễn dịch?", "options": ["Hồng cầu", "Tiểu cầu", "Tế bào lympho T-CD4", "Tế bào B"], "answer": 2 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_medicine",
+      "smarts_bonus": 35
+    }
+  },
+  {
+    "id": "degree_thietke",
+    "name": "Đại Học Thiết Kế Đồ Họa & Mỹ Thuật",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 45,
+    "duration_months": 48,
+    "tuition_per_month": 260,
+    "stamina_cost_per_month": 16,
+    "smarts_required": 45,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Hệ màu RGB thường dùng cho thiết kế hiển thị trên màn hình đúng hay sai?",
+      "options": ["Đúng", "Sai"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "des_sq01", "q": "Khái niệm 'Kerning' trong nghệ thuật Typography (Thiết kế chữ) là gì?", "options": ["Khoảng cách giữa các dòng chữ", "Khoảng cách giữa hai ký tự riêng lẻ liền kề", "Độ nghiêng của font chữ", "Màu sắc của viền chữ"], "answer": 1 },
+      { "id": "des_sq02", "q": "Hệ màu CMYK được sử dụng chủ yếu và tối ưu nhất trong lĩnh vực nào?", "options": ["Thiết kế giao diện Website", "Chỉnh sửa video", "In ấn công nghiệp", "Lập trình game 3D"], "answer": 2 },
+      { "id": "des_sq03", "q": "Đâu là đặc điểm lợi thế tuyệt đối của đồ họa Vector so với Raster (Bitmap)?", "options": ["Dung lượng file luôn cực kỳ lớn", "Thể hiện ánh sáng chân thực như ảnh chụp", "Thu phóng (scale) vô hạn mà không bị vỡ nét", "Chỉ hiển thị được 2 màu đen trắng"], "answer": 2 },
+      { "id": "des_sq04", "q": "Quy tắc 1/3 (Rule of Thirds) trong bố cục nhiếp ảnh và thiết kế có ý nghĩa gì?", "options": ["Chỉ sử dụng 3 màu sắc trong thiết kế", "Đặt chủ thể vào các điểm giao nhau của lưới 3x3 để tạo sự cân bằng và thu hút", "Chia khung hình thành 3 phần rỗng hoàn toàn", "Phóng to chủ thể chiếm 1/3 khung hình"], "answer": 1 },
+      { "id": "des_sq05", "q": "Định dạng tệp (file format) nào sau đây của Adobe Photoshop hỗ trợ lưu trữ toàn bộ các lớp (layer), mặt nạ (mask) và đường dẫn (path)?", "options": ["JPEG", "PNG", "GIF", "PSD"], "answer": 3 },
+      { "id": "des_sq06", "q": "Sự khác biệt chính giữa font Serif và Sans-serif là gì?", "options": ["Serif có chân (nét gạch ở cuối các nét chữ), Sans-serif không có chân", "Serif chỉ dùng cho số, Sans-serif dùng cho chữ", "Serif là font viết tay", "Sans-serif luôn in đậm"], "answer": 0 },
+      { "id": "des_sq07", "q": "Trong thiết kế giao diện, UI và UX là viết tắt của?", "options": ["User Interaction / User X-ray", "User Interface (Giao diện người dùng) / User Experience (Trải nghiệm người dùng)", "Unique Identity / Universal XML", "United Images / Unzip eXtra"], "answer": 1 },
+      { "id": "des_sq08", "q": "Khái niệm 'Wireframe' trong thiết kế web/app có nghĩa là?", "options": ["Khung xương cấu trúc cơ bản không chứa màu sắc hay hình ảnh chi tiết", "Đường viền có màu sắc nổi bật", "Đoạn mã HTML dùng để vẽ khung", "Dây cáp mạng kết nối website"], "answer": 0 },
+      { "id": "des_sq09", "q": "SVG (Scalable Vector Graphics) là định dạng đồ họa thường dùng cho mục đích gì?", "options": ["Lưu ảnh chụp chân dung", "Đồ họa vector sử dụng trên web không bị vỡ nét", "Video độ phân giải cao", "Tệp âm thanh"], "answer": 1 },
+      { "id": "des_sq10", "q": "Trong vòng thuần sắc (Color Wheel), hai màu đối lập nhau (ví dụ: Đỏ - Xanh lá) tạo thành phối màu gì?", "options": ["Màu tương đồng", "Màu bổ túc (Complementary)", "Màu đơn sắc", "Màu bậc 3"], "answer": 1 },
+      { "id": "des_sq11", "q": "Chỉ số PPI và DPI dùng để đo lường yếu tố nào?", "options": ["Độ sâu màu sắc", "Mật độ điểm ảnh / Điểm mực trên một inch (Độ phân giải)", "Kích thước vật lý của màn hình", "Tốc độ load ảnh"], "answer": 1 },
+      { "id": "des_sq12", "q": "Thuật ngữ 'Leading' trong Typography biểu thị điều gì?", "options": ["Khoảng cách chiều dọc giữa các dòng chữ", "Chữ cái lớn nhất ở đầu đoạn văn", "Tỷ lệ in đậm", "Màu nền của chữ"], "answer": 0 },
+      { "id": "des_sq13", "q": "Thuật ngữ 'Tracking' khác 'Kerning' ở điểm nào?", "options": ["Tracking là khoảng cách đều giữa TẤT CẢ các chữ cái trong một đoạn, Kerning chỉ chỉnh giữa HAI chữ cái", "Tracking dùng cho ảnh, Kerning dùng cho chữ", "Tracking là làm mờ chữ", "Kerning dùng cho in ấn, Tracking dùng cho web"], "answer": 0 },
+      { "id": "des_sq14", "q": "'Bleed' (Đường tràn lề) trong thiết kế in ấn dùng để làm gì?", "options": ["Tạo hiệu ứng mực chảy", "Phần lề in dư ra để đề phòng sai số khi cắt xén giấy", "Lề trắng để ghi chú", "Lỗ bấm gáy sách"], "answer": 1 },
+      { "id": "des_sq15", "q": "Grid System (Hệ thống lưới) giúp ích gì cho thiết kế?", "options": ["Tự động tạo ra hình ảnh", "Căn chỉnh các thành phần bố cục một cách ngăn nắp, cân đối và nhất quán", "Khóa các layer không cho chỉnh sửa", "Tạo hiệu ứng 3D"], "answer": 1 },
+      { "id": "des_sq16", "q": "Phong cách thiết kế 'Minimalism' chú trọng vào yếu tố nào?", "options": ["Nhiều họa tiết trang trí phức tạp", "Màu sắc sặc sỡ rực rỡ", "Sự tối giản, loại bỏ chi tiết thừa, tập trung vào công năng", "Chỉ dùng chữ không dùng hình"], "answer": 2 },
+      { "id": "des_sq17", "q": "Hiệu ứng 'Gradient' trong thiết kế đồ họa là gì?", "options": ["Chuyển đổi mượt mà giữa hai hay nhiều màu sắc", "Làm mờ toàn bộ ảnh", "Tạo viền đen xung quanh vật thể", "Xóa phông nền ảnh"], "answer": 0 },
+      { "id": "des_sq18", "q": "Sử dụng 'Mockup' trong quá trình thiết kế mang lại lợi ích gì?", "options": ["Giảm dung lượng file", "Trình bày trực quan bản thiết kế lên sản phẩm thực tế (áo thun, bao bì, màn hình...)", "Tạo code HTML tự động", "Bảo mật file không cho copy"], "answer": 1 },
+      { "id": "des_sq19", "q": "Lệnh 'Rasterize' trong Photoshop dùng để làm gì?", "options": ["Xóa layer", "Biến đổi layer vector, text hoặc smart object thành layer pixel (bitmap) thông thường", "Tạo hiệu ứng bóng đổ", "Khôi phục lại lịch sử thiết kế"], "answer": 1 },
+      { "id": "des_sq20", "q": "Khái niệm 'Hue' trong chỉnh màu đại diện cho điều gì?", "options": ["Độ sáng", "Độ bão hòa (tươi/nhạt)", "Bản chất màu sắc (Sắc độ của màu)", "Độ tương phản"], "answer": 2 },
+      { "id": "des_sq21", "q": "Đường cong Bézier (Bézier curve) là cốt lõi của công cụ nào trong thiết kế vector?", "options": ["Công cụ tẩy (Eraser)", "Công cụ Pen Tool (Vẽ đường dẫn)", "Công cụ đổ màu nền (Paint Bucket)", "Công cụ gõ chữ (Type)"], "answer": 1 },
+      { "id": "des_sq22", "q": "Tỷ lệ vàng (Golden Ratio) có giá trị xấp xỉ bằng bao nhiêu?", "options": ["1.618", "3.14", "2.71", "1.414"], "answer": 0 },
+      { "id": "des_sq23", "q": "Khái niệm 'White Space' (hoặc Negative Space) trong thiết kế là gì?", "options": ["Bắt buộc phải tô màu trắng", "Không gian trống xung quanh các phần tử thiết kế để tạo độ thở", "Nền trời trong ảnh nhiếp ảnh", "Khung màu trắng chứa text"], "answer": 1 },
+      { "id": "des_sq24", "q": "Thuộc tính 'Opacity' điều chỉnh điều gì của một layer?", "options": ["Kích thước layer", "Độ sắc nét của hình ảnh", "Độ trong suốt (Mức độ mờ tỏ)", "Chế độ hòa trộn màu"], "answer": 2 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_design",
+      "looks_bonus": 10,
+      "smarts_bonus": 15
+    }
+  },
+  {
+    "id": "degree_dulich",
+    "name": "Cao Đẳng / Đại Học Quản Trị Du Lịch - Khách Sạn",
+    "category": "formal",
+    "min_age": 18,
+    "max_age": 50,
+    "duration_months": 36,
+    "tuition_per_month": 190,
+    "stamina_cost_per_month": 14,
+    "smarts_required": 40,
+    "prerequisites": ["thpt_diploma"],
+    "requires_exam": true,
+    "exam_questions": [
+    {
+      "q": "Kỹ năng quan trọng nhất của hướng dẫn viên du lịch là gì?",
+      "options": ["Giao tiếp & Ngoại ngữ", "Sửa xe máy", "Lập trình web", "Thi công cầu đường"],
+      "answer": 0
+    }],
+    "skip_exam_questions": [
+      { "id": "tour_sq01", "q": "Thuật ngữ 'RevPAR' trong quản trị doanh thu khách sạn là viết tắt của tiêu chí đánh giá nào?", "options": ["Chi phí dọn dẹp mỗi phòng", "Doanh thu trên mỗi phòng sẵn sàng cho thuê (Revenue Per Available Room)", "Tổng số khách đến check-in mỗi ngày", "Tỷ lệ đánh giá sao trên mạng"], "answer": 1 },
+      { "id": "tour_sq02", "q": "Chiến lược 'Overbooking' thường được các hãng hàng không và khách sạn áp dụng nhằm mục đích gì?", "options": ["Để đuổi bớt khách đi", "Bán số lượng vé/phòng nhiều hơn sức chứa thực tế để bù đắp tỷ lệ khách hủy đặt chỗ", "Để nâng cấp hạng phòng miễn phí", "Để trốn thuế"], "answer": 1 },
+      { "id": "tour_sq03", "q": "Trong nghiệp vụ nhà hàng, phương pháp phục vụ 'À la carte' có nghĩa là gì?", "options": ["Khách tự chọn từng món ăn theo thực đơn có sẵn giá tiền", "Thực đơn tiệc đứng tự phục vụ", "Thực đơn cố định theo set ăn đã lên sẵn", "Đầu bếp nấu món ngẫu nhiên cho khách"], "answer": 0 },
+      { "id": "tour_sq04", "q": "Bộ phận nào trong khách sạn được ví như 'trái tim', đóng vai trò là điểm tiếp xúc đầu tiên và cuối cùng với khách lưu trú?", "options": ["Bộ phận buồng phòng (Housekeeping)", "Bộ phận an ninh", "Bộ phận Tiền sảnh (Front Office)", "Bộ phận kỹ thuật bảo trì"], "answer": 2 },
+      { "id": "tour_sq05", "q": "Tổ chức UNESCO có vai trò quan trọng trong việc công nhận các di sản thế giới. UNESCO là viết tắt của tổ chức nào?", "options": ["Tổ chức Y tế Thế giới", "Tổ chức Thương mại Thế giới", "Tổ chức Giáo dục, Khoa học và Văn hóa Liên Hợp Quốc", "Quỹ Nhi đồng Liên Hợp Quốc"], "answer": 2 },
+      { "id": "tour_sq06", "q": "Thuật ngữ OTA trong ngành du lịch khách sạn chỉ đối tượng nào?", "options": ["Đại lý du lịch truyền thống", "Đại lý du lịch trực tuyến (Online Travel Agent - vd: Agoda, Booking)", "Cục quản lý xuất nhập cảnh", "Hiệp hội khách sạn"], "answer": 1 },
+      { "id": "tour_sq07", "q": "Loại hình du lịch MICE nhắm đến mục đích chính là gì?", "options": ["Khám phá sinh thái hoang dã", "Hội họp, khen thưởng, hội nghị và triển lãm", "Chữa bệnh kết hợp nghỉ dưỡng", "Hành hương tôn giáo"], "answer": 1 },
+      { "id": "tour_sq08", "q": "Ecotourism (Du lịch sinh thái) nhấn mạnh vào nguyên tắc nào?", "options": ["Xây dựng resort bê tông giữa rừng", "Trải nghiệm casino giải trí cao", "Bảo tồn thiên nhiên, tôn trọng văn hóa bản địa và giáo dục môi trường", "Chặt cây mở đường bộ"], "answer": 2 },
+      { "id": "tour_sq09", "q": "Quy định giờ Check-in / Check-out tiêu chuẩn của hầu hết khách sạn quốc tế là?", "options": ["Check-in 6h sáng, Check-out 12h đêm", "Check-in 14h, Check-out 12h trưa hôm sau", "Check-in tự do, tính đủ 24 tiếng", "Check-in 12h trưa, Check-out 14h chiều"], "answer": 1 },
+      { "id": "tour_sq10", "q": "Trong phân loại phòng khách sạn, phòng Suite là loại phòng?", "options": ["Phòng rẻ nhất, không có cửa sổ", "Phòng tập thể nhiều giường tầng", "Phòng cao cấp nhất, rộng rãi, thường có phòng khách và phòng ngủ riêng biệt", "Phòng dành riêng cho tài xế"], "answer": 2 },
+      { "id": "tour_sq11", "q": "Hộ chiếu (Passport) do cơ quan nào cấp và nhằm mục đích gì?", "options": ["Do đại sứ quán nước ngoài cấp để nhập cảnh", "Do chính phủ nước sở tại cấp cho công dân để chứng minh quốc tịch khi ra nước ngoài", "Do công ty du lịch cấp để lên máy bay", "Do khách sạn cấp để làm thẻ phòng"], "answer": 1 },
+      { "id": "tour_sq12", "q": "Visa (Thị thực) khác với Hộ chiếu ở điểm nào?", "options": ["Visa thay thế hoàn toàn hộ chiếu", "Visa là giấy phép do quốc gia điểm đến cấp cho phép người nước ngoài nhập cảnh/lưu trú", "Visa chỉ dùng trong nước", "Hộ chiếu có thời hạn ngắn hơn Visa"], "answer": 1 },
+      { "id": "tour_sq13", "q": "Cơ quan nào xếp hạng sao (Star rating) cho các khách sạn tại Việt Nam?", "options": ["Cục Hàng không dân dụng", "Sở Du lịch / Tổng cục Du lịch", "Tổ chức Y tế", "Công an địa phương"], "answer": 1 },
+      { "id": "tour_sq14", "q": "Itinerary trong ngành lữ hành có nghĩa là gì?", "options": ["Vé máy bay", "Hóa đơn thanh toán", "Lịch trình chi tiết của chuyến đi", "Menu đồ ăn"], "answer": 2 },
+      { "id": "tour_sq15", "q": "Loại hình cơ sở lưu trú B&B (Bed and Breakfast) cung cấp dịch vụ gì?", "options": ["Phòng ngủ và bữa sáng", "Bao trọn gói 3 bữa ăn", "Chỉ có giường không có đồ ăn", "Buffet tối và quầy bar"], "answer": 0 },
+      { "id": "tour_sq16", "q": "Gói du lịch 'All-inclusive' thường bao gồm những gì?", "options": ["Chỉ vé máy bay", "Chỉ tiền phòng khách sạn", "Gần như mọi chi phí: phòng, các bữa ăn, đồ uống, và hoạt động giải trí cơ bản", "Chỉ tiền tip cho nhân viên"], "answer": 2 },
+      { "id": "tour_sq17", "q": "F&B là bộ phận nào trong khách sạn/resort?", "options": ["Tài chính và Kế toán", "An ninh và Bảo vệ", "Nhà hàng và Đồ uống (Food & Beverage)", "Kỹ thuật bảo trì"], "answer": 2 },
+      { "id": "tour_sq18", "q": "Hệ thống GDS (Global Distribution System) được các đại lý du lịch dùng để làm gì?", "options": ["Quản lý nhân viên", "Phân phối, tìm kiếm và đặt chỗ vé máy bay, khách sạn, thuê xe trên phạm vi toàn cầu", "Tính lương hàng tháng", "Quản lý nguyên liệu nấu ăn"], "answer": 1 },
+      { "id": "tour_sq19", "q": "Tình trạng 'No-show' tại khách sạn xảy ra khi nào?", "options": ["Khách đến nhưng không có phòng", "Khách đã đặt phòng nhưng không đến check-in và không báo hủy", "Khách đến sớm trước giờ check-in", "Khách không có chứng minh thư"], "answer": 1 },
+      { "id": "tour_sq20", "q": "Chiến lược Quản trị năng suất (Yield Management) trong khách sạn nhắm đến mục tiêu gì?", "options": ["Bán đúng phòng cho đúng khách, đúng thời điểm, với mức giá tối ưu nhất để tối đa hóa doanh thu", "Bán tất cả các phòng với một giá duy nhất quanh năm", "Luôn giảm giá để lấp đầy 100% phòng", "Tăng chi phí vận hành"], "answer": 0 },
+      { "id": "tour_sq21", "q": "Nhân viên Concierge tại tiền sảnh khách sạn có nhiệm vụ chính là gì?", "options": ["Dọn dẹp phòng ngủ", "Hỗ trợ khách các dịch vụ thông tin, đặt tour, gọi xe, đặt bàn nhà hàng...", "Nấu ăn trong bếp", "Sửa chữa điều hòa"], "answer": 1 },
+      { "id": "tour_sq22", "q": "Chuyên gia Sommelier trong nhà hàng là người chuyên chịu trách nhiệm về?", "options": ["Món tráng miệng", "Thịt nướng", "Tư vấn và phục vụ Rượu vang", "Pha chế Cocktail"], "answer": 2 },
+      { "id": "tour_sq23", "q": "Mô hình khách sạn Boutique có đặc điểm gì nổi bật?", "options": ["Quy mô cực lớn, hàng ngàn phòng", "Quy mô nhỏ gọn, thiết kế độc đáo, phong cách nghệ thuật riêng biệt và dịch vụ cá nhân hóa", "Chỉ phục vụ dân phượt", "Nằm ở các trạm dừng chân cao tốc"], "answer": 1 },
+      { "id": "tour_sq24", "q": "Du lịch Inbound tại Việt Nam được hiểu là?", "options": ["Người Việt Nam đi du lịch trong nước", "Người Việt Nam ra nước ngoài du lịch", "Đón khách du lịch từ các quốc gia khác nhập cảnh vào Việt Nam", "Chỉ đi du lịch bằng đường biển"], "answer": 2 }
+    ],
+    "rewards": {
+      "degree_id": "bachelor_tourism",
+      "charm_bonus": 20,
+      "looks_bonus": 5
+    }
+  },
+  {
+    "id": "cert_xaydung_basic",
+    "name": "Chứng Chỉ An Toàn & Kỹ Thuật Xây Dựng",
+    "category": "vocational",
+    "min_age": 16,
+    "max_age": 60,
+    "duration_months": 6,
+    "tuition_per_month": 100,
+    "stamina_cost_per_month": 15,
+    "smarts_required": 0,
+    "prerequisites": [],
+    "requires_exam": false,
+    "rewards": {
+      "degree_id": "cert_builder",
+      "strength_bonus": 10
+    }
+  },
+  {
+    "id": "cert_barista_fnb",
+    "name": "Chứng Chỉ Pha Chế & Phục Vụ Chuyên Nghiệp",
+    "category": "vocational",
+    "min_age": 16,
+    "max_age": 50,
+    "duration_months": 3,
+    "tuition_per_month": 150,
+    "stamina_cost_per_month": 10,
+    "smarts_required": 0,
+    "prerequisites": [],
+    "requires_exam": false,
+    "rewards": {
+      "degree_id": "cert_barista",
+      "charm_bonus": 10
+    }
+  },
+  {
+    "id": "cert_chef",
+    "name": "Chứng Chỉ Nấu Ăn & Bếp Trưởng",
+    "category": "vocational",
+    "min_age": 16,
+    "max_age": 55,
+    "duration_months": 6,
+    "tuition_per_month": 170,
+    "stamina_cost_per_month": 15,
+    "smarts_required": 0,
+    "prerequisites": [],
+    "requires_exam": false,
+    "rewards": {
+      "degree_id": "cert_chef_degree",
+      "charm_bonus": 5,
+      "strength_bonus": 5
+    }
+  },
+  {
+    "id": "cert_driver_license",
+    "name": "Bằng Lái Xe Máy & Ô Tô B2",
+    "category": "vocational",
+    "min_age": 18,
+    "max_age": 65,
+    "duration_months": 4,
+    "tuition_per_month": 180,
+    "stamina_cost_per_month": 8,
+    "smarts_required": 0,
+    "prerequisites": [],
+    "requires_exam": false,
+    "rewards": {
+      "degree_id": "cert_driver",
+      "charm_bonus": 5
+    }
+  },
+  {
+    "id": "cert_coder_bootcamp",
+    "name": "Chứng Chỉ Lập Trình Cấp Tốc (Bootcamp)",
+    "category": "vocational",
+    "min_age": 16,
+    "max_age": 50,
+    "duration_months": 6,
+    "tuition_per_month": 300,
+    "stamina_cost_per_month": 20,
+    "smarts_required": 45,
+    "prerequisites": [],
+    "requires_exam": false,
+    "rewards": {
+      "degree_id": "cert_coder",
+      "smarts_bonus": 15
+    }
+  },
+  {
+    "id": "cert_spa_beauty",
+    "name": "Chứng Chỉ Chăm Sóc Sắc Đẹp & Spa",
+    "category": "vocational",
+    "min_age": 16,
+    "max_age": 50,
+    "duration_months": 4,
+    "tuition_per_month": 200,
+    "stamina_cost_per_month": 10,
+    "smarts_required": 0,
+    "prerequisites": [],
+    "requires_exam": false,
+    "rewards": {
+      "degree_id": "cert_beauty",
+      "looks_bonus": 15,
+      "charm_bonus": 5
+    }
+  },
+  {
+    "id": "cert_electrician",
+    "name": "Chứng Chỉ Sửa Chữa Điện - Dân Dụng",
+    "category": "vocational",
+    "min_age": 16,
+    "max_age": 60,
+    "duration_months": 6,
+    "tuition_per_month": 130,
+    "stamina_cost_per_month": 15,
+    "smarts_required": 20,
+    "prerequisites": [],
+    "requires_exam": false,
+    "rewards": {
+      "degree_id": "cert_electrician_degree",
+      "strength_bonus": 8,
+      "smarts_bonus": 5
+    }
+  }]
 }

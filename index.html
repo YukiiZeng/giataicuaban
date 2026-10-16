@@ -419,6 +419,29 @@
                 <!-- Data render động -->
             </div>
         </section>
+        
+                <!-- TÌNH TRẠNG CÔNG NỢ -->
+        <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-rose-300/60 shadow-xl mt-1">
+            <div class="flex justify-between items-center border-b border-rose-900/10 pb-2">
+                <span class="text-[10px] font-extrabold text-rose-900/80 uppercase tracking-wider flex items-center gap-1">
+                    <span>📉 Tình Trạng Công Nợ</span>
+                </span>
+                <span id="report-debt-status" class="text-[9px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                    Không có nợ
+                </span>
+            </div>
+            
+            <div class="flex justify-between items-center bg-rose-900/5 p-2.5 rounded-xl border border-rose-900/10">
+                <span class="text-xs font-bold text-rose-900">Tổng nợ hiện tại:</span>
+                <span id="report-total-debt" class="font-mono font-black text-rose-700">0 $</span>
+            </div>
+
+            <button id="btn-pay-debt" onclick="handlePayDebt()" 
+                class="w-full py-2.5 mt-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 hidden">
+                💳 THANH TOÁN NỢ
+            </button>
+        </section>
+
 
         <!-- 2. BẰNG CẤP & GIA CẢNH -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-amber-300/60 shadow-xl">
