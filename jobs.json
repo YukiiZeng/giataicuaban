@@ -1,18 +1,49 @@
 {
   "careers": [
     {
+      "track_id": "student_part_time",
+      "track_name": "Việc Làm Thêm (Dành cho Sinh Viên)",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_pt_server",
+          "title": "Phục Vụ Bán Thời Gian (Ca Gãy)",
+          "min_age": 16,
+          "required_degrees": [],
+          "required_stats": { "health": 30 },
+          "salary_per_month": 90,
+          "stress_cost": 8,
+          "is_part_time": true,
+          "exp_required_for_next": 12
+        },
+        {
+          "level": 2,
+          "id": "job_pt_shipper",
+          "title": "Shipper / Giao Đồ Ăn Part-time",
+          "min_age": 18,
+          "required_degrees": [],
+          "required_stats": { "health": 40 },
+          "salary_per_month": 130,
+          "stress_cost": 12,
+          "is_part_time": true,
+          "exp_required_for_next": 24
+        }
+      ]
+    },
+    {
       "track_id": "manual_fnb",
-      "track_name": "Dịch Vụ, Lao Động Phổ Thông & F&B",
+      "track_name": "Dịch Vụ, Lao Động Phổ Thông & F&B (Full-time)",
       "levels": [
         {
           "level": 1,
           "id": "job_waiter",
-          "title": "Phục Vụ Bàn / Bán Hàng",
+          "title": "Phục Vụ Bàn Nhà Hàng (Full-time)",
           "min_age": 16,
           "required_degrees": [],
           "required_stats": { "health": 40 },
           "salary_per_month": 250,
           "stress_cost": 15,
+          "is_part_time": false,
           "exp_required_for_next": 12
         },
         {
@@ -24,6 +55,7 @@
           "required_stats": { "charm": 40 },
           "salary_per_month": 550,
           "stress_cost": 15,
+          "is_part_time": false,
           "exp_required_for_next": 24
         },
         {
@@ -35,6 +67,7 @@
           "required_stats": { "charm": 55, "smarts": 45 },
           "salary_per_month": 1100,
           "stress_cost": 20,
+          "is_part_time": false,
           "exp_required_for_next": null
         }
       ]
@@ -52,6 +85,7 @@
           "required_stats": { "strength": 50, "health": 50 },
           "salary_per_month": 350,
           "stress_cost": 22,
+          "is_part_time": false,
           "exp_required_for_next": 12
         },
         {
@@ -63,6 +97,7 @@
           "required_stats": { "strength": 60 },
           "salary_per_month": 700,
           "stress_cost": 22,
+          "is_part_time": false,
           "exp_required_for_next": 24
         },
         {
@@ -74,6 +109,7 @@
           "required_stats": { "charm": 45, "ego": 40 },
           "salary_per_month": 1300,
           "stress_cost": 20,
+          "is_part_time": false,
           "exp_required_for_next": 36
         },
         {
@@ -85,6 +121,7 @@
           "required_stats": { "smarts": 60 },
           "salary_per_month": 2300,
           "stress_cost": 20,
+          "is_part_time": false,
           "exp_required_for_next": 48
         },
         {
@@ -96,6 +133,7 @@
           "required_stats": { "charm": 65, "ego": 60, "smarts": 65 },
           "salary_per_month": 5000,
           "stress_cost": 28,
+          "is_part_time": false,
           "exp_required_for_next": null
         }
       ]
@@ -113,6 +151,7 @@
           "required_stats": { "health": 50 },
           "salary_per_month": 450,
           "stress_cost": 18,
+          "is_part_time": false,
           "exp_required_for_next": 12
         },
         {
@@ -124,6 +163,7 @@
           "required_stats": { "health": 55 },
           "salary_per_month": 850,
           "stress_cost": 20,
+          "is_part_time": false,
           "exp_required_for_next": 24
         }
       ]
@@ -141,6 +181,7 @@
           "required_stats": { "smarts": 50 },
           "salary_per_month": 800,
           "stress_cost": 18,
+          "is_part_time": false,
           "exp_required_for_next": 18
         },
         {
@@ -152,6 +193,7 @@
           "required_stats": { "smarts": 65 },
           "salary_per_month": 1800,
           "stress_cost": 22,
+          "is_part_time": false,
           "exp_required_for_next": 36
         },
         {
@@ -163,6 +205,7 @@
           "required_stats": { "smarts": 75, "charm": 50 },
           "salary_per_month": 3200,
           "stress_cost": 25,
+          "is_part_time": false,
           "exp_required_for_next": 48
         },
         {
@@ -174,6 +217,7 @@
           "required_stats": { "smarts": 85, "ego": 60 },
           "salary_per_month": 6500,
           "stress_cost": 30,
+          "is_part_time": false,
           "exp_required_for_next": null
         }
       ]
@@ -191,6 +235,7 @@
           "required_stats": { "charm": 50 },
           "salary_per_month": 500,
           "stress_cost": 16,
+          "is_part_time": false,
           "exp_required_for_next": 12
         },
         {
@@ -202,6 +247,7 @@
           "required_stats": { "smarts": 60 },
           "salary_per_month": 1100,
           "stress_cost": 18,
+          "is_part_time": false,
           "exp_required_for_next": 24
         },
         {
@@ -213,6 +259,7 @@
           "required_stats": { "charm": 65, "smarts": 60 },
           "salary_per_month": 2400,
           "stress_cost": 24,
+          "is_part_time": false,
           "exp_required_for_next": 36
         },
         {
@@ -224,6 +271,7 @@
           "required_stats": { "charm": 80, "ego": 70, "smarts": 75 },
           "salary_per_month": 7500,
           "stress_cost": 35,
+          "is_part_time": false,
           "exp_required_for_next": null
         }
       ]
@@ -241,6 +289,7 @@
           "required_stats": { "health": 60, "charm": 45 },
           "salary_per_month": 750,
           "stress_cost": 20,
+          "is_part_time": false,
           "exp_required_for_next": 24
         },
         {
@@ -252,6 +301,7 @@
           "required_stats": { "smarts": 75 },
           "salary_per_month": 2200,
           "stress_cost": 25,
+          "is_part_time": false,
           "exp_required_for_next": 48
         },
         {
@@ -263,6 +313,7 @@
           "required_stats": { "smarts": 85, "ego": 50 },
           "salary_per_month": 4800,
           "stress_cost": 30,
+          "is_part_time": false,
           "exp_required_for_next": null
         }
       ]
@@ -280,6 +331,7 @@
           "required_stats": { "looks": 55, "charm": 45 },
           "salary_per_month": 600,
           "stress_cost": 15,
+          "is_part_time": false,
           "exp_required_for_next": 18
         },
         {
@@ -291,6 +343,7 @@
           "required_stats": { "looks": 50, "smarts": 55 },
           "salary_per_month": 1250,
           "stress_cost": 18,
+          "is_part_time": false,
           "exp_required_for_next": 36
         },
         {
@@ -302,6 +355,7 @@
           "required_stats": { "looks": 65, "charm": 60, "smarts": 70 },
           "salary_per_month": 3500,
           "stress_cost": 25,
+          "is_part_time": false,
           "exp_required_for_next": null
         }
       ]

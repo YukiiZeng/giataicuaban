@@ -1,12 +1,58 @@
 {
-  "allowance_events": [
+  "monthly_events": [
     {
-      "id": "parent_allowance",
-      "title": "Tiền chu cấp từ bố mẹ",
-      "description": "Bố mẹ gửi cho bạn 500$ tiền sinh hoạt phí hàng tháng.",
+      "id": "m_family_contribution",
+      "tag": "🏠 CHI PHÍ",
+      "icon": "💡",
+      "title": "Phụ Giúp Gia Đình",
+      "description": "Bố Mẹ bảo: 'Tháng này điện nước tăng cao, con phụ Bố Mẹ một ít nhé?'",
       "min_age": 16,
-      "max_age": 18,
-      "amount": 500
+      "requires_housing": "shared",
+      "trigger_chance": 0.3,
+      "choices": [
+        {
+          "text": "💚 Phụ Bố Mẹ (30$)",
+          "req_money": 30,
+          "cost_money": 30,
+          "reward_happiness": 5,
+          "npc_targets": ["father", "mother"],
+          "npc_change": 15,
+          "success_msg": "✅ Đã phụ Bố Mẹ 30$. Tình cảm đi lên!",
+          "fail_msg": "⚠️ Không đủ tiền! Bố Mẹ thở dài thất vọng.",
+          "fail_npc_change": -10
+        },
+        {
+          "text": "😎 Từ chối",
+          "npc_targets": ["father", "mother"],
+          "npc_change": -15,
+          "success_msg": "💔 Bố Mẹ không hài lòng về bạn."
+        }
+      ]
+    },
+    {
+      "id": "m_parent_allowance",
+      "tag": "👨‍👩‍👦 GIA ĐÌNH",
+      "icon": "💵",
+      "title": "Tiền Sinh Hoạt",
+      "description": "Bố mẹ gửi cho bạn tiền sinh hoạt hàng tháng để trang trải chi phí.",
+      "min_age": 16,
+      "max_age": 17,
+      "trigger_chance": 1.0,
+      "choices": [
+        {
+          "text": "💚 Nhận tiền chu cấp",
+          "is_allowance_calc": true,
+          "reward_happiness": 3,
+          "npc_targets": ["father", "mother"],
+          "npc_change": 10,
+          "success_msg": "✅ Bạn đã nhận tiền chu cấp tháng này."
+        },
+        {
+          "text": "😎 Con tự lập được",
+          "reward_ego": 5,
+          "success_msg": "✨ Bạn từ chối tiền, cái tôi tăng lên!"
+        }
+      ]
     }
   ],
   "random_events": [

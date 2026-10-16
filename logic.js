@@ -1,48 +1,61 @@
 /**
  * =================================================================
- * ZONE 1: CHARACTER CREATION & INITIALIZATION (TẠO NHÂN VẬT & KHỞI TẠO)
+ * ZONE 1: GAME STATE & CHARACTER CREATION (TRẠNG THÁI & TẠO NHÂN VẬT)
  * =================================================================
  */
 
+// Biến toàn cục lưu trữ trạng thái game
+let gameState = null;
+
 /**
  * Khởi tạo nhân vật mới và thiết lập gameState ban đầu
+ * @param {string} name Tên nhân vật
+ * @param {string} gender Giới tính ("Nam" | "Nữ" | "Khác")
  */
 function createCharacter(name, gender = "Nam") {
     const characterName = name && name.trim() !== "" ? name.trim() : "Charlie";
+
+    // Random Gia cảnh xuất thân
+    const bgTypes = [
+        { type: "wealthy", label: "🏡 Gia đình khá giả", allowance: 150, contributionChance: 0.1 },
+        { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 },
+        { type: "poor", label: "🏚️ Gia đình khó khăn", allowance: 20, contributionChance: 0.6 }
+    ];
+    const rand = Math.random();
+    const selectedBg = rand < 0.2 ? bgTypes[0] : (rand < 0.7 ? bgTypes[1] : bgTypes[2]);
 
     gameState = {
         name: characterName,
         gender: gender,
         age: 16,
         month: 1,
+        currentDay: 1,
         money: 0,
 
+        // Chỉ số sinh tồn
         health: 100,
         hunger: 80,
         happiness: 70,
         smarts: 50,
+        stress: 0,
+        ailments: [],
 
+        // Thuộc tính năng lực
         strength: 50,
         looks: 60,
         charm: 45,
         ego: 30,
-        // Bổ sung vào trong gameState của createCharacter():
-stress: 0,             // Điểm căng thẳng (0 - 100)
-ailments: [],          // Mảng lưu danh sách bệnh (VD: ['cam_sot'])
 
-
+        // Học vấn & Nghề nghiệp
         job: null,
         education: "THCS",
+        currentEducation: null,
         degrees: [],
+
+        // Tài sản & Nơi ở
         debt: 0,
         assets: [],
         inventory: [],
-        historyLog: [
-            { month: 1, age: 16, text: "Bắt đầu cuộc hành trình mới cuộc đời." }
-        ],
-        totalLifetimeIncome: 0,
-        totalLifetimeExpense: 0,
-        relationships: [],
         availableHousingPool: [],
         currentHome: {
             id: "parents_house",
@@ -51,24 +64,31 @@ ailments: [],          // Mảng lưu danh sách bệnh (VD: ['cam_sot'])
             hostId: "parents",
             monthlyCost: 0,
             description: "Ngôi nhà ấm cúng của gia đình. Phụ thuộc vào tình cảm với Bố Mẹ."
-        }
+        },
+
+        // Gia cảnh & Mạng lưới quan hệ
+        familyBackground: selectedBg,
+        relationships: [],
+
+        // Nhật ký & Thống kê trọn đời
+        historyLog: [
+            { month: 1, age: 16, text: "Bắt đầu cuộc hành trình mới cuộc đời." }
+        ],
+        transactionHistory: [],
+        milestoneLogs: [],
+        dailyLogs: [],
+        totalLifetimeIncome: 0,
+        totalLifetimeExpense: 0
     };
-    const bgTypes = [
-    { type: "wealthy", label: "🏡 Gia đình khá giả", allowance: 150, contributionChance: 0.1 },
-    { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 },
-    { type: "poor", label: "🏚️ Gia đình khó khăn", allowance: 20, contributionChance: 0.6 }
-];
-// Tỉ lệ ngẫu nhiên: 20% Giàu, 50% Trung bình, 30% Nghèo
-const rand = Math.random();
-const selectedBg = rand < 0.2 ? bgTypes[0] : (rand < 0.7 ? bgTypes[1] : bgTypes[2]);
-
-gameState.familyBackground = selectedBg;
-
 
     ensureBaseRelationships();
     saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
+
+/**
+ * Đảm bảo các mối quan hệ nền tảng (Bố, Mẹ) luôn tồn tại
+ */
 function ensureBaseRelationships() {
     if (!gameState) return;
     if (!gameState.relationships) gameState.relationships = [];
@@ -83,29 +103,53 @@ function ensureBaseRelationships() {
         gameState.relationships.push({ id: "mother", name: "Mẹ", relation: "Mẹ", icon: "👩", level: 2, xp: 0 });
     }
 }
+
+/**
+ * Lấy thông tin gia cảnh của nhân vật
+ */
+function getFamilyBackground() {
+    if (!gameState) return { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 };
+    if (!gameState.familyBackground) {
+        gameState.familyBackground = { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 };
+    }
+    return gameState.familyBackground;
+}
+
+
 /**
  * =================================================================
- * ZONE 2: STORAGE & PERSISTENCE (LƯU & NẠP DỮ LIỆU LOCAL/CLOUD)
+ * ZONE 2: PERSISTENCE & STORAGE (LƯU & NẠP LOCALSTORAGE/CLOUD)
  * =================================================================
  */
 
+/**
+ * Lưu tiến trình game vào LocalStorage & Firebase Cloud
+ */
 function saveGameState() {
     if (typeof gameState !== 'undefined' && gameState) {
         localStorage.setItem("GIA_TAI_CUA_BAN_GAME_STATE", JSON.stringify(gameState));
         if (typeof auth !== 'undefined' && auth.currentUser) {
-            if (typeof saveGameStateToFirebase === 'function') saveGameStateToFirebase(auth.currentUser.uid);
+            if (typeof saveGameStateToFirebase === 'function') {
+                saveGameStateToFirebase(auth.currentUser.uid);
+            }
         }
     }
 }
 
+/**
+ * Nạp tiến trình game từ LocalStorage
+ */
 function loadGameState() {
     const saved = localStorage.getItem("GIA_TAI_CUA_BAN_GAME_STATE");
     if (saved) {
-        try { return JSON.parse(saved); } catch (e) { console.error(e); }
+        try { return JSON.parse(saved); } catch (e) { console.error("❌ Lỗi nạp dữ liệu LocalStorage:", e); }
     }
     return null;
 }
 
+/**
+ * Reset nhân vật và xóa toàn bộ dữ liệu lưu trữ
+ */
 function resetCharacter() {
     localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
     if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
@@ -115,19 +159,21 @@ function resetCharacter() {
     if (typeof showAdminPanel === 'function') showAdminPanel(false);
     if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
 }
+
+
 /**
  * =================================================================
- * ZONE 3: MONTHLY TIME PASSAGE & HOUSING LOGIC (TIẾN TRÌNH HÀNG THÁNG & NHÀ Ở)
+ * ZONE 3: MONTHLY PROGRESSION & LIFECYCLE (TIẾN TRÌNH THÁNG & SINH TỒN)
  * =================================================================
  */
 
 /**
- * Xử lý tiến sang tháng tiếp theo
+ * Chuyển sang tháng tiếp theo và tính toán chi phí / thu nhập
  */
 function nextMonth() {
     if (typeof gameState === 'undefined' || !gameState) return;
 
-    // Snapshot chỉ số cũ trước khi sang tháng
+    // Snapshot các chỉ số trước khi sang tháng
     const startMoney = gameState.money || 0;
     const startHealth = gameState.health || 100;
     const startHunger = gameState.hunger || 80;
@@ -139,38 +185,40 @@ function nextMonth() {
     gameState.month = currentMonthNum + 1;
     if (gameState.month % 12 === 0) {
         gameState.age = (gameState.age || 16) + 1;
-        addHistoryLog(`Tròn ${gameState.age} tuổi.`);
+        addMilestoneLog(`Tròn ${gameState.age} tuổi.`);
     }
 
-    // 2. Tính toán tiền nông & các chỉ số trong tháng
+    // 2. Tính toán tài chính trong tháng
     let monthlyIncome = 0;
     let monthlyExpense = 0;
 
-    // Lương
+    // Lương hàng tháng
     if (gameState.job) {
         monthlyIncome += (gameState.job.salary || 0);
     }
-    
-    // Học phí
+
+    // Học phí hàng tháng
     if (gameState.currentEducation) {
         monthlyExpense += (gameState.currentEducation.tuitionPerMonth || 0);
     }
 
-    // Tiền nhà
+    // Tiền thuê nhà
     if (gameState.currentHome && gameState.currentHome.type === 'rented') {
         monthlyExpense += (gameState.currentHome.monthlyCost || 0);
     }
 
-    // Ăn uống sinh tồn
-    monthlyExpense += 50; // Chi phí ăn uống mặc định
+    // Chi phí sinh hoạt cơ bản
+    monthlyExpense += 50;
 
-    // Thực thi xử lý tháng
+    // 3. Thực thi logic chuyên biệt hàng tháng từ các module
     if (typeof processMonthlyEducation === 'function') processMonthlyEducation();
     if (typeof processMonthlyJob === 'function') processMonthlyJob();
     if (typeof checkHousingEvents === 'function') checkHousingEvents();
 
+    // 4. Trừ chỉ số sinh tồn (Độ no, Sức khỏe, Hạnh phúc)
     const hungerLoss = 20;
     gameState.hunger = Math.max(0, (gameState.hunger ?? 80) - hungerLoss);
+
     if (gameState.hunger === 0) {
         gameState.health = Math.max(0, (gameState.health ?? 100) - 25);
         gameState.happiness = Math.max(0, (gameState.happiness ?? 70) - 20);
@@ -178,15 +226,15 @@ function nextMonth() {
         gameState.happiness = Math.max(0, (gameState.happiness ?? 70) - 3);
     }
 
-    // Tích lũy trọn đời
+    // 5. Tích lũy tài chính trọn đời
     gameState.totalLifetimeIncome = (gameState.totalLifetimeIncome || 0) + monthlyIncome;
     gameState.totalLifetimeExpense = (gameState.totalLifetimeExpense || 0) + monthlyExpense;
 
-    // Lưu & Render UI
-    if (typeof saveGameState === 'function') saveGameState();
+    // Lưu trạng thái
+    saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 
-    // 3. HIỂN THỊ MODAL BÁO CÁO THÁNG VỪA QUA
+    // 6. Hiển thị Modal Tổng Kết Báo Cáo Cuối Tháng
     const summaryData = {
         month: currentMonthNum,
         income: monthlyIncome,
@@ -197,24 +245,141 @@ function nextMonth() {
         happinessDiff: (gameState.happiness || 0) - startHappiness
     };
 
-    showMonthlySummaryModal(summaryData, () => {
-        // Callback sau khi đóng modal báo cáo: MỚI KIỂM TRA EVENT CHU CẤP/BIẾN CỐ
-        if (typeof checkMonthlyEvents === 'function') {
-            checkMonthlyEvents();
-        }
-    });
+    if (typeof showMonthlySummaryModal === 'function') {
+        showMonthlySummaryModal(summaryData, () => {
+            // Callback sau khi đóng modal tổng kết
+            if (typeof checkMonthlyEvents === 'function') {
+                checkMonthlyEvents();
+            }
+        });
+    }
 }
 
-function addHistoryLog(text) {
+/**
+ * =================================================================
+ * ZONE 4: WEB WORKER CALENDAR TIMER (ĐỒNG HỒ SIÊU BỌC GIÁP CHỐNG ĐỨNG 100%)
+ * =================================================================
+ */
+
+let gameTimerWorker = null;
+let lastWorkerTickTime = Date.now();
+let workerWatchdogTimer = null;
+
+const TOTAL_DAYS_IN_MONTH = 30;
+const SECONDS_PER_MONTH = 60; 
+const TICK_INTERVAL = (SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000; // 2000ms
+
+/**
+ * Khởi tạo & Kích hoạt Web Worker với cơ chế Chó săn giám sát (Watchdog)
+ */
+function startMonthCalendarTimer() {
     if (!gameState) return;
-    if (!gameState.historyLog) gameState.historyLog = [];
-    gameState.historyLog.unshift({
-        month: gameState.month || 1,
-        age: gameState.age || 16,
-        text: text
-    });
+    if (typeof gameState.currentDay === 'undefined') gameState.currentDay = 1;
+
+    stopMonthCalendarTimer();
+    lastWorkerTickTime = Date.now();
+    if (typeof updateCalendarUI === 'function') updateCalendarUI();
+
+    if (window.Worker) {
+        try {
+            gameTimerWorker = new Worker('timer-worker.js');
+
+            gameTimerWorker.onmessage = function (e) {
+                if (e.data.type === 'tick') {
+                    lastWorkerTickTime = Date.now(); // Ghi nhận tim vẫn đập
+                    handleTimerTick();
+                }
+            };
+
+            gameTimerWorker.postMessage({ cmd: 'start', interval: TICK_INTERVAL });
+            console.log("⚡ Web Worker Timer đã kích hoạt!");
+            
+            // 🚀 BỘ GIÁM SÁT (WATCHDOG): Tự động đánh thức nếu Worker bị đứng quá 5s
+            workerWatchdogTimer = setInterval(() => {
+                if (gameState && gameState.currentDay < TOTAL_DAYS_IN_MONTH) {
+                    const timeSinceLastTick = Date.now() - lastWorkerTickTime;
+                    if (timeSinceLastTick > 4500) { // Quá 4.5s không nhích
+                        console.warn("⚠️ Đồng hồ bị khựng! Đang kích hoạt lại Worker...");
+                        startMonthCalendarTimer();
+                    }
+                }
+            }, 3000);
+
+        } catch (err) {
+            console.warn("⚠️ Lỗi khởi tạo Worker, dùng bộ đếm dự phòng:", err);
+            startFallbackTimer();
+        }
+    } else {
+        startFallbackTimer();
+    }
 }
 
+/**
+ * Xử lý mỗi nhịp ngày trôi qua (Có bọc try-catch chống sập)
+ */
+function handleTimerTick() {
+    if (!gameState) return;
+
+    if (gameState.currentDay < TOTAL_DAYS_IN_MONTH) {
+        gameState.currentDay += 1;
+        if (typeof updateCalendarUI === 'function') updateCalendarUI();
+
+        // Bọc an toàn: Lỗi sự kiện không bao giờ làm dừng đồng hồ
+        try {
+            if (typeof checkDynamicMidMonthEvents === 'function') {
+                checkDynamicMidMonthEvents();
+            }
+        } catch (err) {
+            console.error("❌ Lỗi ngầm trong sự kiện giữa tháng:", err);
+        }
+    } else {
+        stopMonthCalendarTimer();
+        if (typeof updateCalendarUI === 'function') updateCalendarUI();
+    }
+}
+
+/**
+ * Dừng Web Worker & Watchdog
+ */
+function stopMonthCalendarTimer() {
+    if (gameTimerWorker) {
+        gameTimerWorker.postMessage({ cmd: 'stop' });
+        gameTimerWorker.terminate();
+        gameTimerWorker = null;
+    }
+    if (workerWatchdogTimer) {
+        clearInterval(workerWatchdogTimer);
+        workerWatchdogTimer = null;
+    }
+}
+
+/**
+ * Bỏ qua ngày
+ */
+function skipDays(daysToAdd) {
+    if (!gameState) return;
+    gameState.currentDay = Math.min(TOTAL_DAYS_IN_MONTH, (gameState.currentDay || 1) + daysToAdd);
+    if (typeof updateCalendarUI === 'function') updateCalendarUI();
+    if (gameState.currentDay >= TOTAL_DAYS_IN_MONTH) {
+        stopMonthCalendarTimer();
+    }
+}
+
+let fallbackTimer = null;
+function startFallbackTimer() {
+    if (fallbackTimer) clearInterval(fallbackTimer);
+    fallbackTimer = setInterval(handleTimerTick, TICK_INTERVAL);
+}
+
+/**
+ * =================================================================
+ * ZONE 5: HOUSING MARKET & PROPERTY LOGIC (THỊ TRƯỜNG NHÀ Ở)
+ * =================================================================
+ */
+
+/**
+ * Làm mới tin rao vặt nhà trọ hàng tháng
+ */
 function refreshHousingMarket() {
     if (!gameState) return;
     const hasListings = Math.random() < 0.6;
@@ -230,6 +395,9 @@ function refreshHousingMarket() {
     }
 }
 
+/**
+ * Kiểm tra việc thu tiền nhà trọ và siết phòng nếu không đủ tiền
+ */
 function checkHousingEvents() {
     if (!gameState || !gameState.currentHome) return;
     if (gameState.currentHome.type === "rented" && gameState.currentHome.monthlyCost > 0) {
@@ -243,23 +411,51 @@ function checkHousingEvents() {
     }
     refreshHousingMarket();
 }
+
+
+/**
+ * =================================================================
+ * ZONE 6: RELATIONSHIPS & SOCIAL SYSTEM (MẠNG LƯỚI QUAN HỆ)
+ * =================================================================
+ */
+
+/**
+ * Tính toán Cấp độ Thiện cảm / Ác cảm với NPC dựa trên Level và XP
+ */
 function getRelationshipTier(level = 0, xp = 0) {
     const safeLevel = typeof level === 'number' && !isNaN(level) ? level : 0;
     const safeXP = typeof xp === 'number' && !isNaN(xp) ? xp : 0;
 
-    if (safeLevel === 0 && safeXP === 0) return { icons: "👁️", label: "Quen biết", xpText: "0/100", progressPercent: 0, barColor: "bg-gray-400" };
+    if (safeLevel === 0 && safeXP === 0) {
+        return { icons: "👁️", label: "Quen biết", xpText: "0/100", progressPercent: 0, barColor: "bg-gray-400" };
+    }
 
     if (safeLevel > 0 || (safeLevel === 0 && safeXP > 0)) {
         const displayLevel = Math.min(5, Math.max(1, safeLevel));
-        return { icons: "❤️".repeat(displayLevel) + "🤍".repeat(5 - displayLevel), label: `Thiện cảm Lvl ${displayLevel}`, xpText: `${safeXP}/100`, progressPercent: Math.min(100, Math.max(0, safeXP)), barColor: "bg-gradient-to-r from-rose-400 to-pink-500" };
+        return {
+            icons: "❤️".repeat(displayLevel) + "🤍".repeat(5 - displayLevel),
+            label: `Thiện cảm Lvl ${displayLevel}`,
+            xpText: `${safeXP}/100`,
+            progressPercent: Math.min(100, Math.max(0, safeXP)),
+            barColor: "bg-gradient-to-r from-rose-400 to-pink-500"
+        };
     }
 
     if (safeLevel < 0 || (safeLevel === 0 && safeXP < 0)) {
         const absLevel = Math.min(5, Math.max(1, Math.abs(safeLevel)));
-        return { icons: "👊".repeat(absLevel) + "⚪".repeat(5 - absLevel), label: `Ác cảm Lvl ${absLevel}`, xpText: `${Math.abs(safeXP)}/100`, progressPercent: Math.min(100, Math.max(0, Math.abs(safeXP))), barColor: "bg-gradient-to-r from-purple-600 to-red-600" };
+        return {
+            icons: "👊".repeat(absLevel) + "⚪".repeat(5 - absLevel),
+            label: `Ác cảm Lvl ${absLevel}`,
+            xpText: `${Math.abs(safeXP)}/100`,
+            progressPercent: Math.min(100, Math.max(0, Math.abs(safeXP))),
+            barColor: "bg-gradient-to-r from-purple-600 to-red-600"
+        };
     }
 }
 
+/**
+ * Tương tác tăng / giảm điểm mối quan hệ với NPC
+ */
 function interactWithNPC(id, info = {}, xpChange = 0) {
     if (!gameState) return;
     ensureBaseRelationships();
@@ -269,77 +465,19 @@ function interactWithNPC(id, info = {}, xpChange = 0) {
         gameState.relationships.push(target);
     }
     target.xp = (target.xp || 0) + xpChange;
-    if (typeof saveGameState === 'function') saveGameState();
+    saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
 
-function getFamilyBackground() {
-    if (!gameState) return { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 };
-    if (!gameState.familyBackground) {
-        gameState.familyBackground = { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 };
-    }
-    return gameState.familyBackground;
-}
 
 /**
  * =================================================================
- * BỘ ĐẾM THỜI GIAN LỊCH 30 NGÀY (AUTO-TICK CALENDAR COOLDOWN - 60S)
+ * ZONE 7: GAME LOGS & MILESTONES (NHẬT KÝ & CỘT MỐC)
  * =================================================================
  */
 
-let monthTimer = null;
-const TOTAL_DAYS_IN_MONTH = 30;
-const SECONDS_PER_MONTH = 60; // 60 giây cho 1 tháng
-const TICK_INTERVAL = (SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000; // 2 giây = 1 ngày
-
 /**
- * Bắt đầu đếm thời gian 30 ngày trong tháng
- */
-function startMonthCalendarTimer() {
-    if (!gameState) return;
-    if (typeof gameState.currentDay === 'undefined') gameState.currentDay = 1;
-
-    stopMonthCalendarTimer(); // Xóa timer cũ nếu có
-
-    updateCalendarUI();
-
-    monthTimer = setInterval(() => {
-        if (gameState.currentDay < TOTAL_DAYS_IN_MONTH) {
-            gameState.currentDay += 1;
-            updateCalendarUI();
-
-            // Gọi thử kích hoạt Event ngẫu nhiên trong tháng nếu có
-            if (typeof checkDynamicMidMonthEvents === 'function') {
-                checkDynamicMidMonthEvents();
-            }
-        } else {
-            // Đã chạm mốc 30 ngày
-            stopMonthCalendarTimer();
-            updateCalendarUI();
-        }
-    }, TICK_INTERVAL);
-}
-
-function stopMonthCalendarTimer() {
-    if (monthTimer) {
-        clearInterval(monthTimer);
-        monthTimer = null;
-    }
-}
-
-/**
- * Hàm Skip ngày khi người chơi đi làm / ăn uống / đi học
- */
-function skipDays(daysToAdd) {
-    if (!gameState) return;
-    gameState.currentDay = Math.min(TOTAL_DAYS_IN_MONTH, (gameState.currentDay || 1) + daysToAdd);
-    updateCalendarUI();
-    if (gameState.currentDay >= TOTAL_DAYS_IN_MONTH) {
-        stopMonthCalendarTimer();
-    }
-}
-/**
- * Thêm Cột mốc lớn cuộc đời (Sinh nhật, Tốt nghiệp, Xin việc, Mua nhà, Kết hôn...)
+ * Thêm Cột mốc lớn cuộc đời (Sinh nhật, Tốt nghiệp, Xin việc, Mua nhà...)
  */
 function addMilestoneLog(text) {
     if (!gameState) return;
@@ -361,5 +499,32 @@ function addDailyLog(text) {
         month: gameState.month || 1,
         age: gameState.age || 16,
         text: text
+    });
+}
+
+/**
+ * Thêm Nhật ký lịch sử chung
+ */
+function addHistoryLog(text) {
+    if (!gameState) return;
+    if (!gameState.historyLog) gameState.historyLog = [];
+    gameState.historyLog.unshift({
+        month: gameState.month || 1,
+        age: gameState.age || 16,
+        text: text
+    });
+}
+
+/**
+ * Ghi nhận một giao dịch tài chính vào Lịch sử
+ */
+function addTransactionHistory(title, amount) {
+    if (!gameState) return;
+    if (!gameState.transactionHistory) gameState.transactionHistory = [];
+
+    gameState.transactionHistory.unshift({
+        month: gameState.month || 1,
+        title: title,
+        amount: amount
     });
 }

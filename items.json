@@ -1,0 +1,70 @@
+{
+  "items": [
+    {
+      "id": "phone_brick",
+      "name": "Điện Thoại Cục Gạch",
+      "category": "technology",
+      "type": "smartphone",
+      "tier": 1,
+      "price": 50,
+      "icon": "📞",
+      "description": "Điện thoại phím bấm siêu bền, chỉ nghe gọi và nhắn tin SMS cơ bản.",
+      "effects": { "charm_bonus": 2 },
+      "unlocks_app": ["messages", "contacts"]
+    },
+    {
+      "id": "phone_smartphone_mid",
+      "name": "Smartphone Tầm Trung 2026",
+      "category": "technology",
+      "type": "smartphone",
+      "tier": 2,
+      "price": 400,
+      "icon": "📱",
+      "description": "Màn hình cảm ứng mượt mà, lướt web, chụp ảnh và cài đặt ứng dụng cơ bản.",
+      "effects": { "charm_bonus": 5, "looks_bonus": 3, "ego_bonus": 5 },
+      "unlocks_app": ["messages", "lifefeed", "shopee", "banking"]
+    },
+    {
+      "id": "phone_flagship",
+      "name": "Super Flagship Pro Max",
+      "category": "technology",
+      "type": "smartphone",
+      "tier": 3,
+      "price": 1200,
+      "icon": "📲",
+      "description": "Siêu phẩm công nghệ đỉnh cao! Camera chuyên nghiệp, hiệu năng cực khủng.",
+      "effects": { "charm_bonus": 10, "looks_bonus": 8, "ego_bonus": 15 },
+      "unlocks_app": ["messages", "lifefeed", "shopee", "banking", "crypto", "appstore"]
+    },
+    {
+      "id": "vehicle_motorbike_basic",
+      "name": "Xe Máy Số Cũ",
+      "category": "vehicle",
+      "type": "vehicle",
+      "price": 500,
+      "icon": "🛵",
+      "description": "Phương tiện di chuyển tiết kiệm, giúp đi lại nhanh chóng trong thành phố.",
+      "effects": { "charm_bonus": 5 }
+    },
+    {
+      "id": "vehicle_sh_abs",
+      "name": "Xe Tay Ga Hạng Sang (SH 160i)",
+      "category": "vehicle",
+      "type": "vehicle",
+      "price": 3500,
+      "icon": "🏍️",
+      "description": "Tăng mạnh độ đẹp trai và thu hút ánh nhìn trên đường phố.",
+      "effects": { "looks_bonus": 12, "charm_bonus": 10, "ego_bonus": 10 }
+    },
+    {
+      "id": "outfit_designer_suit",
+      "name": "Bộ Suit Công Sở Hàng Hiệu",
+      "category": "lifestyle",
+      "type": "outfit",
+      "price": 600,
+      "icon": "👔",
+      "description": "Trang phục thanh lịch, tăng tự tin khi đi phỏng vấn và gặp đối tác.",
+      "effects": { "looks_bonus": 10, "charm_bonus": 8 }
+    }
+  ]
+}

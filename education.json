@@ -29,6 +29,26 @@
           "answer": 0
         }
       ],
+      "skip_exam_questions": [
+        { "id": "sq01", "q": "Trong tự nhiên, nguyên tố hoá học nào có độ âm điện lớn nhất?", "options": ["Clo (Cl)", "Oxi (O)", "Flo (F)", "Brom (Br)"], "answer": 2 },
+        { "id": "sq02", "q": "Dãy số Fibonacci bắt đầu bằng 0 và 1. Số thứ 8 trong dãy Fibonacci là bao nhiêu?", "options": ["13", "21", "8", "34"], "answer": 0 },
+        { "id": "sq03", "q": "Ai là tác giả của bản hợp xướng 'Ode to Joy' nổi tiếng?", "options": ["Mozart", "Beethoven", "Bach", "Chopin"], "answer": 1 },
+        { "id": "sq04", "q": "Đơn vị đo cường độ dòng điện trong hệ SI là gì?", "options": ["Volt (V)", "Watt (W)", "Ampere (A)", "Ohm (Ω)"], "answer": 2 },
+        { "id": "sq05", "q": "Nếu 5 máy làm 5 sản phẩm trong 5 phút, thì 100 máy làm 100 sản phẩm trong bao nhiêu phút?", "options": ["100 phút", "5 phút", "1 phút", "20 phút"], "answer": 1 },
+        { "id": "sq06", "q": "Quốc gia nào có đường bờ biển dài nhất thế giới?", "options": ["Nga", "Úc", "Mỹ", "Canada"], "answer": 3 },
+        { "id": "sq07", "q": "Đâu là hằng số Euler (e) làm tròn đến 2 chữ số thập phân?", "options": ["3.14", "2.72", "1.61", "2.41"], "answer": 1 },
+        { "id": "sq08", "q": "Hành tinh nào có chu kỳ quay quanh Mặt Trời ngắn nhất trong Hệ Mặt Trời?", "options": ["Sao Kim", "Sao Thủy", "Sao Hỏa", "Sao Trái Đất"], "answer": 1 },
+        { "id": "sq09", "q": "Thành phố nào là kinh đô đầu tiên của nước Đại Việt dưới thời nhà Lý?", "options": ["Hoa Lư", "Thăng Long", "Cổ Loa", "Phú Xuân"], "answer": 1 },
+        { "id": "sq10", "q": "Trong máy tính, 1 Terabyte (TB) bằng bao nhiêu Gigabyte (GB) theo chuẩn nhị phân (GiB)?", "options": ["1000 GB", "1024 GB", "512 GB", "2048 GB"], "answer": 1 },
+        { "id": "sq11", "q": "Hợp chất hóa học nào chiếm phần lớn khối lượng trong khí quyển Trái Đất?", "options": ["Khí Oxi (O2)", "Khí Cargon (CO2)", "Khí Nitơ (N2)", "Khí Argon (Ar)"], "answer": 2 },
+        { "id": "sq12", "q": "Góc vuông có số đo bằng bao nhiêu Radian?", "options": ["π/2 Radian", "π Radian", "2π Radian", "π/4 Radian"], "answer": 0 },
+        { "id": "sq13", "q": "Bức họa 'Mona Lisa' nổi tiếng được trưng bày tại bảo tàng nào?", "options": ["Bảo tàng Louvre (Pháp)", "Bảo tàng Vatican", "Bảo tàng Anh", "Bảo tàng Metropolitan"], "answer": 0 },
+        { "id": "sq14", "q": "Động vật nào là loài động vật có vú duy nhất biết bay chủ động?", "options": ["Sóc bay", "Chim cánh cụt", "Dơi", "Chồn bay"], "answer": 2 },
+        { "id": "sq15", "q": "Độ PH của nước tinh khiết ở nhiệt độ 25°C là bao nhiêu?", "options": ["5", "7", "9", "12"], "answer": 1 },
+        { "id": "sq16", "q": "Vị tướng nào đã lãnh đạo quân Tây Sơn đánh tan 29 vạn quân Thanh vào mùa xuân năm Kỷ Dậu (1789)?", "options": ["Quang Trung (Nguyễn Huệ)", "Trần Hưng Đạo", "Lê Lợi", "Lý Thường Kiệt"], "answer": 0 },
+        { "id": "sq17", "q": "Đâu là loại hạt hạ nguyên tử mang điện tích âm trong nguyên tử?", "options": ["Proton", "Neutron", "Electron", "Photon"], "answer": 2 },
+        { "id": "sq18", "q": "Có bao nhiêu cặp xương sườn trong cơ thể người bình thường?", "options": ["10 cặp", "12 cặp", "14 cặp", "16 cặp"], "answer": 1 }
+      ],
       "rewards": {
         "degree_id": "thpt_diploma",
         "smarts_bonus": 15,

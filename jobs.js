@@ -4,43 +4,46 @@
  * =================================================================
  */
 
+// Lưu trữ danh sách nghề nghiệp nạp từ file jobs.json
 let jobsData = [];
 
 /**
- * Nạp dữ liệu từ jobs.json
+ * Nạp dữ liệu ngành nghề từ jobs.json
  */
 async function loadJobsData() {
     try {
         const response = await fetch('jobs.json');
-        const data = await response.json();
-        jobsData = data.careers || [];
-        console.log("💼 Đã nạp thành công jobs.json:", jobsData.length, "lĩnh vực nghề nghiệp.");
+        if (response.ok) {
+            const data = await response.json();
+            jobsData = data.careers || [];
+            console.log("💼 Đã nạp thành công jobs.json:", jobsData.length, "lĩnh vực nghề nghiệp.");
+        }
     } catch (error) {
         console.error("❌ Lỗi nạp jobs.json:", error);
     }
 }
 
-// Tự động nạp khi load script
+// Tự động nạp dữ liệu khi load script
 loadJobsData();
 
+
 /**
  * =================================================================
- * ZONE 2: JOB APPLICATION & MONTHLY PROCESS (ỨNG TUYỂN & TÍNH LƯƠNG)
+ * ZONE 2: JOB PROCESS & APPLICATION LOGIC (ỨNG TUYỂN & TÍNH LƯƠNG)
  * =================================================================
  */
 
 /**
- * Nộp đơn xin việc / Nâng cấp thăng tiến
- */
-/**
- * Nộp đơn xin việc / Nâng cấp thăng tiến (Đã cập nhật tự động Refresh UI)
+ * Nộp đơn xin việc / Chuyển vị trí công việc
+ * @param {string} jobId ID công việc trong jobs.json
  */
 function applyForJob(jobId) {
-    if (!gameState) return;
+    if (typeof gameState === 'undefined' || !gameState) return;
 
     let targetJob = null;
     let targetTrack = null;
 
+    // Tìm kiếm vị trí công việc trong cây danh mục
     for (const track of jobsData) {
         const found = track.levels.find(j => j.id === jobId);
         if (found) {
@@ -52,12 +55,13 @@ function applyForJob(jobId) {
 
     if (!targetJob) return;
 
-    // Kiểm tra độ tuổi, bằng cấp & chỉ số...
+    // 1. Kiểm tra điều kiện độ tuổi
     if (gameState.age < targetJob.min_age) {
         alert(`❌ Bạn chưa đủ tuổi! Yêu cầu tối thiểu ${targetJob.min_age} tuổi.`);
         return;
     }
 
+    // 2. Kiểm tra điều kiện Bằng cấp / Chứng chỉ
     if (targetJob.required_degrees && targetJob.required_degrees.length > 0) {
         const myDegrees = gameState.degrees || [];
         const hasDegree = targetJob.required_degrees.some(deg => myDegrees.includes(deg));
@@ -67,7 +71,14 @@ function applyForJob(jobId) {
         }
     }
 
-    // Nhận việc
+    // 3. 🚀 Kiểm tra quy tắc Vừa học vừa làm (Part-time / Full-time)
+    const isFormalEdu = gameState.currentEducation && gameState.currentEducation.category === 'formal';
+    if (isFormalEdu && !targetJob.is_part_time) {
+        alert(`❌ Bạn đang theo học chương trình chính quy! Khung thời gian bận rộn không cho phép nhận việc Full-time (${targetJob.title}). Bạn chỉ có thể làm việc bán thời gian (Part-time).`);
+        return;
+    }
+
+    // 4. Tiến hành nhận việc
     gameState.job = {
         id: targetJob.id,
         title: targetJob.title,
@@ -75,29 +86,42 @@ function applyForJob(jobId) {
         level: targetJob.level,
         salary: targetJob.salary_per_month,
         stressCost: targetJob.stress_cost,
+        isPartTime: targetJob.is_part_time || false,
         monthsExperience: 0,
         expRequiredForNext: targetJob.exp_required_for_next
     };
 
     alert(`🎉 Chúc mừng! Bạn đã nhận vị trí: ${targetJob.title} với mức lương ${targetJob.salary_per_month}$/tháng!`);
-    
+
+    // Ghi nhận cột mốc xin việc thành công
+    if (typeof addMilestoneLog === 'function') {
+        addMilestoneLog(`Nhận việc mới: ${targetJob.title}`);
+    }
+
     if (typeof showJobsModal === 'function') showJobsModal(false);
     if (typeof saveGameState === 'function') saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
 
-
 /**
- * Xử lý nhận lương & tính kinh nghiệm làm việc hàng tháng
+ * Xử lý nhận lương & tính kinh nghiệm làm việc hàng tháng (Gọi trong nextMonth ở logic.js)
  */
 function processMonthlyJob() {
-    if (!gameState || !gameState.job) return;
+    if (typeof gameState === 'undefined' || !gameState || !gameState.job) return;
 
     const job = gameState.job;
 
     // 1. Nhận lương & Trừ sức khỏe do áp lực công việc
-    gameState.money = (gameState.money || 0) + job.salary;
-    gameState.health = Math.max(0, (gameState.health || 100) - job.stressCost);
+    gameState.money = (gameState.money || 0) + (job.salary || 0);
+    showFloatingText('money', `+${job.salary}$`, 'pos');
+    gameState.health = Math.max(0, (gameState.health || 100) - (job.stressCost || 0));
+
+    if (typeof addDailyLog === 'function') {
+        addDailyLog(`Đi làm: ${job.title} (+${job.salary}$) - Thâm niên ${job.monthsExperience + 1} tháng.`);
+    }
+    if (typeof addTransactionHistory === 'function') {
+        addTransactionHistory(`Lương: ${job.title}`, job.salary);
+    }
 
     // 2. Tích lũy số tháng kinh nghiệm
     job.monthsExperience = (job.monthsExperience || 0) + 1;
@@ -106,97 +130,35 @@ function processMonthlyJob() {
 }
 
 /**
- * =================================================================
- * ZONE 3: JOBS & EDUCATION MODAL RENDERERS (RENDER UI CÔNG VIỆC & HỌC VẤN)
- * =================================================================
+ * Xử lý khi người chơi tự xin thôi việc (Nghỉ việc)
  */
+function handleResignJob() {
+    if (typeof gameState === 'undefined' || !gameState || !gameState.job) return;
 
-/**
- * Render Danh sách Chương trình Đào tạo vào Modal
- */
-function renderEducationModalList() {
-    const modalList = document.getElementById("education-modal-list");
-    if (!modalList) return;
+    if (confirm(`Bạn có chắc chắn muốn nghỉ việc vị trí: ${gameState.job.title}?`)) {
+        console.log(`🚪 Đã nghỉ việc: ${gameState.job.title}`);
 
-    modalList.innerHTML = "";
-
-    // Nếu dữ liệu JSON chưa nạp xong
-    if (typeof educationData === 'undefined' || !educationData || educationData.length === 0) {
-        modalList.innerHTML = `
-            <div class="text-center py-6 flex flex-col items-center gap-1">
-                <span class="text-2xl">⌛</span>
-                <p class="text-xs font-bold text-amber-900">Đang tải danh sách khóa học...</p>
-            </div>
-        `;
-        // Thử nạp lại nếu chưa có data
-        if (typeof loadEducationData === 'function') loadEducationData();
-        return;
-    }
-
-    const currentEdu = gameState ? gameState.currentEducation : null;
-
-    educationData.forEach(program => {
-        const item = document.createElement("div");
-        item.className = "glass-card-inner-light p-3 rounded-2xl flex flex-col gap-2 border border-amber-300/40 mb-2 shrink-0";
-
-        const isFormal = program.category === 'formal';
-        const tagText = isFormal ? "🎓 Chính Quy (Có Thi)" : "📜 Chứng Chỉ Ngắn Hạn";
-
-        // Kiểm tra xem người chơi có đang học khóa này không
-        const isEnrolled = currentEdu && currentEdu.id === program.id;
-
-        let buttonHTML = '';
-        if (isEnrolled) {
-            buttonHTML = `
-                <button disabled 
-                    class="w-full py-2 bg-amber-800/20 text-amber-950 font-display font-extrabold rounded-xl text-[10px] cursor-not-allowed border border-amber-900/20 flex items-center justify-center gap-1">
-                    <span>✅</span>
-                    <span>Đang Theo Học (${currentEdu.monthsCompleted}/${currentEdu.totalMonths}T)</span>
-                </button>
-            `;
-        } else {
-            buttonHTML = `
-                <button onclick="enrollProgram('${program.id}')" 
-                    class="w-full py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95">
-                    📝 Đăng Ký Nhập Học
-                </button>
-            `;
+        if (typeof addDailyLog === 'function') {
+            addDailyLog(`Đã nộp đơn xin thôi việc vị trí: ${gameState.job.title}`);
         }
 
-        item.innerHTML = `
-            <div class="flex justify-between items-start">
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md w-fit mb-1">${tagText}</span>
-                    <span class="text-xs font-extrabold text-amber-950">${program.name}</span>
-                    <span class="text-[10px] text-amber-800/80 mt-0.5">Thời gian: ${program.duration_months} tháng | Học phí: ${program.tuition_per_month}$/tháng</span>
-                </div>
-            </div>
-            ${buttonHTML}
-        `;
+        gameState.job = null;
 
-        modalList.appendChild(item);
-    });
-}
-
-/**
- * Ẩn / Hiện Modal Chương Trình Đào Tạo
- */
-function showEducationModal(show) {
-    const modal = document.getElementById("education-modal");
-    if (modal) {
-        if (show) {
-            if (typeof renderEducationModalList === 'function') {
-                renderEducationModalList();
-            }
-            modal.classList.remove("hidden");
-        } else {
-            modal.classList.add("hidden");
-        }
+        if (typeof renderJobsModalList === 'function') renderJobsModalList();
+        if (typeof saveGameState === 'function') saveGameState();
+        if (typeof renderGameState === 'function') renderGameState();
     }
 }
 
+
 /**
- * Render Danh sách Công Việc trong Modal
+ * =================================================================
+ * ZONE 3: JOBS MODAL RENDERER & UI CONTROLLER (HIỂN THỊ MODAL VIỆC LÀM)
+ * =================================================================
+ */
+
+/**
+ * Render Danh sách Công Việc trong Modal Cơ Hội Việc Làm
  */
 function renderJobsModalList() {
     const modalList = document.getElementById("jobs-modal-list");
@@ -204,20 +166,21 @@ function renderJobsModalList() {
 
     modalList.innerHTML = "";
 
-    if (typeof jobsData === 'undefined' || !jobsData || jobsData.length === 0) {
+    // Nếu dữ liệu JSON chưa tải xong
+    if (!jobsData || jobsData.length === 0) {
         modalList.innerHTML = `
             <div class="text-center py-6 flex flex-col items-center gap-1">
                 <span class="text-2xl">⌛</span>
                 <p class="text-xs font-bold text-amber-900">Đang tải danh sách công việc...</p>
             </div>
         `;
-        if (typeof loadJobsData === 'function') loadJobsData();
+        loadJobsData();
         return;
     }
 
     const currentJob = gameState ? gameState.job : null;
 
-    // 1. NẾU ĐANG CÓ VIỆC LÀM: Hiển thị Banner công việc hiện tại + Nút Xin Thôi Việc
+    // 1. Hiển thị Banner Công Việc Hiện Tại & Nút Nghỉ Việc (nếu đang đi làm)
     if (currentJob) {
         const currentJobCard = document.createElement("div");
         currentJobCard.className = "glass-card-inner-light p-3 rounded-2xl flex flex-col gap-2 border border-teal-400/60 bg-teal-50/50 mb-3";
@@ -241,7 +204,7 @@ function renderJobsModalList() {
         modalList.appendChild(currentJobCard);
     }
 
-    // 2. DUYỆT DANH SÁCH CÁC NGÀNH NGHỀ
+    // 2. Duyệt qua từng danh mục ngành nghề
     jobsData.forEach(track => {
         const trackTitle = document.createElement("div");
         trackTitle.className = "text-xs font-black text-amber-950 uppercase border-b border-amber-900/10 pb-1 mt-2 mb-1";
@@ -290,23 +253,8 @@ function renderJobsModalList() {
 }
 
 /**
- * Xử lý khi xin thôi việc
- */
-function handleResignJob() {
-    if (!gameState || !gameState.job) return;
-
-    if (confirm(`Bạn có chắc chắn muốn nghỉ việc vị trí: ${gameState.job.title}?`)) {
-        console.log(`🚪 Đã nghỉ việc: ${gameState.job.title}`);
-        gameState.job = null;
-
-        if (typeof renderJobsModalList === 'function') renderJobsModalList();
-        if (typeof saveGameState === 'function') saveGameState();
-        if (typeof renderGameState === 'function') renderGameState();
-    }
-}
-
-/**
- * Ẩn / Hiện Modal Tìm Việc
+ * Ẩn / Hiện Modal Tìm Việc Làm
+ * @param {boolean} show 
  */
 function showJobsModal(show) {
     const modal = document.getElementById("jobs-modal");

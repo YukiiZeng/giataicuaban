@@ -1,11 +1,12 @@
 /**
  * =================================================================
- * ZONE 1: FIREBASE CLOUD SYNC (ĐỒNG BỘ CLOUD)
+ * ZONE 1: FIREBASE CLOUD SYNC & AUTH STATE (ĐỒNG BỘ DỮ LIỆU CLOUD)
  * =================================================================
  */
 
 /**
  * Lưu gameState hiện tại lên Firebase Firestore
+ * @param {string} userId UID của người dùng
  */
 function saveGameStateToFirebase(userId) {
     if (typeof db === 'undefined' || !gameState) return;
@@ -21,6 +22,7 @@ function saveGameStateToFirebase(userId) {
 
 /**
  * Tải gameState từ Firebase Firestore về máy
+ * @param {string} userId UID của người dùng
  */
 function loadGameStateFromFirebase(userId) {
     if (typeof db === 'undefined') return;
@@ -29,11 +31,11 @@ function loadGameStateFromFirebase(userId) {
         .then((doc) => {
             if (doc.exists) {
                 gameState = doc.data();
-                saveGameState(); // Lưu đè vào LocalStorage
-                renderGameState(); // Render lại UI
+                if (typeof saveGameState === 'function') saveGameState();
+                if (typeof renderGameState === 'function') renderGameState();
                 console.log("☁️ Đã tải tiến trình từ Firebase thành công!");
             } else {
-                console.warn("Không tìm thấy dữ liệu trên Cloud cho user này!");
+                console.warn("⚠️ Không tìm thấy dữ liệu trên Cloud cho user này!");
             }
         })
         .catch((error) => {
@@ -41,11 +43,30 @@ function loadGameStateFromFirebase(userId) {
         });
 }
 
-function updateUI() {
-    if (typeof renderGameState === 'function') {
-        renderGameState();
-    }
+/**
+ * Lắng nghe trạng thái đăng nhập & Cập nhật Username lên Header
+ */
+if (typeof auth !== 'undefined') {
+    auth.onAuthStateChanged((user) => {
+        const cloudUserDisplay = document.getElementById("cloud-username-display");
+        const authBtnText = document.getElementById("auth-status-btn-text");
+
+        if (user && user.email) {
+            const displayUsername = user.email.replace(DOMAIN_SUFFIX, "");
+            
+            if (cloudUserDisplay) cloudUserDisplay.innerText = displayUsername;
+            if (authBtnText) authBtnText.innerText = "Đổi TK";
+            
+            checkAdminAccess(displayUsername);
+            console.log("👤 Đang đăng nhập với Username:", displayUsername);
+        } else {
+            if (cloudUserDisplay) cloudUserDisplay.innerText = "Chưa đăng nhập";
+            if (authBtnText) authBtnText.innerText = "Đăng nhập";
+            checkAdminAccess(null);
+        }
+    });
 }
+
 
 /**
  * =================================================================
@@ -56,6 +77,9 @@ function updateUI() {
 let isSignUpMode = false;
 const DOMAIN_SUFFIX = "@giataicuaban.com";
 
+/**
+ * Ẩn / Hiện Modal Đăng nhập
+ */
 function showAuthModal(show) {
     const modal = document.getElementById("auth-modal");
     if (modal) {
@@ -64,6 +88,9 @@ function showAuthModal(show) {
     }
 }
 
+/**
+ * Chuyển đổi giữa chế độ Đăng nhập và Đăng ký
+ */
 function toggleAuthMode() {
     isSignUpMode = !isSignUpMode;
     const title = document.getElementById("auth-modal-title");
@@ -75,26 +102,37 @@ function toggleAuthMode() {
     if (errorMsg) errorMsg.classList.add("hidden");
 
     if (isSignUpMode) {
-        title.innerText = "ĐĂNG KÝ TÀI KHOẢN";
-        submitBtn.innerText = "✨ TẠO TÀI KHOẢN MỚI";
-        switchText.innerText = "Đã có tài khoản?";
-        switchBtn.innerText = "Đăng nhập ngay";
+        if (title) title.innerText = "ĐĂNG KÝ TÀI KHOẢN";
+        if (submitBtn) submitBtn.innerText = "✨ TẠO TÀI KHOẢN MỚI";
+        if (switchText) switchText.innerText = "Đã có tài khoản?";
+        if (switchBtn) switchBtn.innerText = "Đăng nhập ngay";
     } else {
-        title.innerText = "ĐĂNG NHẬP";
-        submitBtn.innerText = "🔑 ĐĂNG NHẬP";
-        switchText.innerText = "Chưa có tài khoản?";
-        switchBtn.innerText = "Đăng ký ngay";
+        if (title) title.innerText = "ĐĂNG NHẬP";
+        if (submitBtn) submitBtn.innerText = "🔑 ĐĂNG NHẬP";
+        if (switchText) switchText.innerText = "Chưa có tài khoản?";
+        if (switchBtn) switchBtn.innerText = "Đăng ký ngay";
     }
 }
 
+/**
+ * Chuyển đổi Username thường thành dạng Email để khớp với Firebase Auth
+ */
 function usernameToEmail(username) {
     const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
     return `${cleanUsername}${DOMAIN_SUFFIX}`;
 }
 
+/**
+ * Xử lý khi nhấn nút Đăng nhập / Đăng ký
+ */
 function handleAuthSubmit() {
-    const rawUsername = document.getElementById("auth-username").value.trim();
-    const password = document.getElementById("auth-password").value.trim();
+    const usernameInput = document.getElementById("auth-username");
+    const passwordInput = document.getElementById("auth-password");
+
+    if (!usernameInput || !passwordInput) return;
+
+    const rawUsername = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
 
     if (!rawUsername || !password) {
         showAuthError("Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
@@ -133,6 +171,9 @@ function handleAuthSubmit() {
     }
 }
 
+/**
+ * Vietsub câu thông báo lỗi từ Firebase
+ */
 function getAuthErrorMessage(code) {
     switch (code) {
         case 'auth/email-already-in-use':
@@ -150,6 +191,9 @@ function getAuthErrorMessage(code) {
     }
 }
 
+/**
+ * Hiển thị dòng lỗi bên trong Modal Đăng nhập
+ */
 function showAuthError(text) {
     const errorMsg = document.getElementById("auth-error-msg");
     if (errorMsg) {
@@ -157,40 +201,17 @@ function showAuthError(text) {
         errorMsg.classList.remove("hidden");
     }
 }
+
+
 /**
  * =================================================================
- * ZONE 3: ADMIN PANEL & AUTH STATE LISTENERS (PANEL QUẢN TRỊ)
+ * ZONE 3: ADMIN PANEL & SYSTEM DEBUG (QUẢN TRỊ VIÊN)
  * =================================================================
  */
 
 /**
- * Lắng nghe trạng thái Auth & hiển thị Username lên Header
+ * Ẩn / Hiện Admin Panel Debug
  */
-if (typeof auth !== 'undefined') {
-    // Cập nhật tên tài khoản Cloud hiển thị ở hàng riêng
-if (typeof auth !== 'undefined') {
-    auth.onAuthStateChanged((user) => {
-        const cloudUserDisplay = document.getElementById("cloud-username-display");
-        const authBtnText = document.getElementById("auth-status-btn-text");
-
-        if (user && user.email) {
-            const displayUsername = user.email.replace(DOMAIN_SUFFIX, "");
-            
-            if (cloudUserDisplay) cloudUserDisplay.innerText = displayUsername;
-            if (authBtnText) authBtnText.innerText = "Đổi TK";
-            
-            if (typeof checkAdminAccess === 'function') checkAdminAccess(displayUsername);
-            console.log("👤 Đang đăng nhập với Username:", displayUsername);
-        } else {
-            if (cloudUserDisplay) cloudUserDisplay.innerText = "Chưa đăng nhập";
-            if (authBtnText) authBtnText.innerText = "Đăng nhập";
-            if (typeof checkAdminAccess === 'function') checkAdminAccess(null);
-        }
-    });
-}
-
-}
-
 function showAdminPanel(show) {
     const modal = document.getElementById("admin-panel-modal");
     if (modal) {
@@ -199,6 +220,9 @@ function showAdminPanel(show) {
     }
 }
 
+/**
+ * Xử lý Reset Nhân vật từ Admin Panel
+ */
 function handleAdminResetCharacter() {
     const confirmReset = confirm("⚠️ CẢNH BÁO: Bạn có chắc chắn muốn RESET toàn bộ nhân vật và tiến trình chơi về lại từ đầu?");
     if (confirmReset) {
@@ -208,6 +232,9 @@ function handleAdminResetCharacter() {
     }
 }
 
+/**
+ * Kiểm tra xem tài khoản hiện tại có phải "admin" hay không để hiện nút Debug
+ */
 function checkAdminAccess(username) {
     const adminBtn = document.getElementById("admin-panel-btn");
     if (adminBtn) {
@@ -219,14 +246,18 @@ function checkAdminAccess(username) {
     }
 }
 
+
 /**
  * =================================================================
- * CUSTOM TOAST NOTIFICATION SYSTEM (THAY THẾ ALERT BẰNG POPUP ĐẸP)
+ * ZONE 4: CUSTOM TOAST NOTIFICATION SYSTEM (HỆ THỐNG THÔNG BÁO)
  * =================================================================
  */
 
 let toastTimeout = null;
 
+/**
+ * Hiển thị Toast Notification thay thế cho Alert mặc định
+ */
 function showToast(message, icon = "💡", title = "Thông Báo") {
     const toast = document.getElementById("custom-toast");
     const msgEl = document.getElementById("toast-message");
@@ -238,27 +269,30 @@ function showToast(message, icon = "💡", title = "Thông Báo") {
         return;
     }
 
-    // Tự động chọn Icon dựa vào nội dung nếu dùng alert mặc định
+    // Tự động nhận diện Icon dựa trên từ khóa trong thông báo
     if (message.includes("❌") || message.includes("lỗi") || message.includes("không đủ")) icon = "⚠️";
     else if (message.includes("🎉") || message.includes("Chúc mừng") || message.includes("thành công")) icon = "🎉";
     else if (message.includes("💊") || message.includes("🏥") || message.includes("🥗")) icon = "🏥";
 
     if (iconEl) iconEl.innerText = icon;
     if (titleEl) titleEl.innerText = title;
-    msgEl.innerText = message.replace(/^[❌🎉⚠️💊🏥🥗🍜🏋️🏃🚪📝]/g, '').trim(); // Lọc bỏ bớt icon trùng ở đầu
+    msgEl.innerText = message.replace(/^[❌🎉⚠️💊🏥🥗🍜🏋️🏃🚪📝]/g, '').trim();
 
-    // Hiển thị Toast với hiệu ứng trượt xuống
+    // Hiển thị Toast trượt mượt mà
     toast.classList.remove("opacity-0", "pointer-events-none", "-translate-y-4");
     toast.classList.add("opacity-100", "pointer-events-auto", "translate-y-0");
 
     if (toastTimeout) clearTimeout(toastTimeout);
     
-    // Tự động ẩn sau 3 giây
+    // Tự động ẩn sau 3.2 giây
     toastTimeout = setTimeout(() => {
         closeToast();
     }, 3200);
 }
 
+/**
+ * Đóng Popup Toast Notification
+ */
 function closeToast() {
     const toast = document.getElementById("custom-toast");
     if (toast) {
@@ -267,7 +301,52 @@ function closeToast() {
     }
 }
 
-// 🪄 BẢO BỐI: GHI ĐÈ HÀM alert() MẶC ĐỊNH CỦA TRÌNH DUYỆT
+// 🪄 GHI ĐÈ HÀM alert() MẶC ĐỊNH CỦA TRÌNH DUYỆT
 window.alert = function(msg) {
     showToast(msg);
 };
+
+/**
+ * =================================================================
+ * ZONE 5: DOM ANIMATION SYSTEM (HIỆU ỨNG GIAO DIỆN)
+ * =================================================================
+ */
+
+/**
+ * Hiển thị số bay lên (Floating Text) tại một phần tử cụ thể
+ * @param {string} targetId ID của phần tử gốc trên UI (VD: 'money', 'health')
+ * @param {string} text Nội dung hiển thị (VD: '+500$', '-20')
+ * @param {string} type 'pos' (Cộng/Màu Xanh) hoặc 'neg' (Trừ/Màu Đỏ)
+ */
+function showFloatingText(targetId, text, type = 'pos') {
+    const targetEl = document.getElementById(targetId);
+    if (!targetEl) return;
+
+    // Lấy tọa độ thực tế của phần tử trên màn hình
+    const rect = targetEl.getBoundingClientRect();
+
+    // Tạo thẻ span chứa số bay lên
+    const floatingEl = document.createElement('span');
+    floatingEl.innerText = text;
+    floatingEl.className = `fixed font-black text-sm drop-shadow-md animate-float-up z-[100] ${type === 'pos' ? 'text-emerald-500' : 'text-rose-500'}`;
+    
+    // Đặt vị trí ngẫu nhiên lệch một chút để các số không đè chặt lên nhau
+    const randomOffsetX = (Math.random() - 0.5) * 20;
+    floatingEl.style.left = `${rect.left + (rect.width / 2) + randomOffsetX}px`;
+    floatingEl.style.top = `${rect.top}px`;
+
+    document.body.appendChild(floatingEl);
+
+    // Tự dọn rác DOM sau khi animation 1.2s kết thúc
+    setTimeout(() => floatingEl.remove(), 1200);
+}
+
+/**
+ * Rung màn hình khi có sự kiện tiêu cực hoặc lỗi (Screen Shake)
+ */
+function triggerScreenShake() {
+    const mainContainer = document.getElementById("main-game-view") || document.body;
+    mainContainer.classList.add("animate-shake");
+    
+    setTimeout(() => mainContainer.classList.remove("animate-shake"), 300);
+}

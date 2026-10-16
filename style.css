@@ -1,0 +1,108 @@
+/* =================================================================
+   ZONE 1: BASE STYLES & OVERRIDES (ĐỊNH DẠNG CƠ BẢN)
+   ================================================================= */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background: linear-gradient(135deg, #fdfbf7 0%, #fceddd 50%, #f7e8d8 100%);
+    background-attachment: fixed;
+    color: #2d2420;
+}
+
+/* =================================================================
+   ZONE 2: UI COMPONENTS (HIỆU ỨNG KÍNH & BẢNG GỖ)
+   ================================================================= */
+.glass-card-light {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    box-shadow: 0 10px 30px -5px rgba(180, 83, 9, 0.08);
+}
+
+.glass-card-inner-light {
+    background: rgba(254, 243, 199, 0.35);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.wooden-sign {
+    background: linear-gradient(180deg, #b45309 0%, #78350f 70%, #451a03 100%);
+    border: 3px solid #fef3c7;
+    outline: 3px solid #92400e;
+    box-shadow: 
+        0 10px 20px -3px rgba(69, 26, 3, 0.3),
+        inset 0 2px 4px rgba(254, 243, 199, 0.4),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.4);
+    position: relative;
+}
+
+.wooden-sign::before, 
+.wooden-sign::after {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: radial-gradient(circle, #fef3c7 20%, #78350f 80%);
+    border-radius: 50%;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
+    top: 6px;
+}
+.wooden-sign::before { left: 8px; }
+.wooden-sign::after { right: 8px; }
+
+/* =================================================================
+   ZONE 3: CUSTOM SCROLLBAR (THANH CUỘN LƯỚT)
+   ================================================================= */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(180, 83, 9, 0.3);
+    border-radius: 10px;
+}
+
+/* =================================================================
+   ZONE 4: ANIMATIONS & KEYFRAMES (HIỆU ỨNG CHUYỂN ĐỘNG)
+   ================================================================= */
+
+/* 1. Bảng tin chạy chữ (Marquee) */
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+.animate-marquee {
+    display: inline-block;
+    animation: marquee 16s linear infinite;
+}
+.animate-marquee:hover {
+    animation-play-state: paused;
+}
+
+/* 2. Số bay lên (Floating Text) khi nhận lương / trừ tiền */
+@keyframes floatUpFade {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+}
+.animate-float-up {
+    animation: floatUpFade 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    pointer-events: none;
+    z-index: 50;
+}
+
+/* 3. Rung màn hình khi nhấn lỗi hoặc sự kiện trừ điểm */
+@keyframes shakeUI {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+.animate-shake {
+    animation: shakeUI 0.3s ease-in-out;
+}
+
+/* 4. Modal bật/tắt mượt mà */
+.modal-transition {
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}

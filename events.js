@@ -1,390 +1,20 @@
 /**
  * =================================================================
- * ZONE 1: GAME EVENTS DATA & CONFIGURATION (DỮ LIỆU SỰ KIỆN)
+ * ZONE 1: DATA LOADING & GLOBAL STATE (NẠP DỮ LIỆU & TRẠNG THÁI)
  * =================================================================
  */
 
-// Danh sách sự kiện cố định / định kỳ
-const GAME_EVENTS = {
-    parent_allowance: {
-        id: "parent_allowance",
-        tag: "👨‍👩‍👦 Gia Đình",
-        icon: "💵",
-        title: "Tiền Chu Cấp Hàng Tháng",
-        description: "Đầu tháng, bố mẹ gửi cho bạn 500$ để trang trải chi phí học tập và sinh hoạt.",
-        choices: [
-            {
-                text: "💚 Cảm ơn bố mẹ (Nhận 500$)",
-                action: function() {
-                    gameState.money = (gameState.money || 0) + 500;
-                    gameState.happiness = Math.min(100, (gameState.happiness || 70) + 5);
-                    
-                    // Tương tác tự động cập nhật Bố & Mẹ
-                    if (typeof interactWithNPC === 'function') {
-                        interactWithNPC("father", {}, 30);
-                        interactWithNPC("mother", {}, 30);
-                    }
-                    console.log("✅ Đã nhận 500$ tiền chu cấp từ bố mẹ.");
-                }
-            },
-            {
-                text: "😎 Con tự lập được (Từ chối)",
-                action: function() {
-                    gameState.ego = Math.min(100, (gameState.ego || 30) + 5);
-                    
-                    if (typeof interactWithNPC === 'function') {
-                        interactWithNPC("father", {}, -20);
-                        interactWithNPC("mother", {}, -20);
-                    }
-                    console.log("🚫 Đã từ chối tiền chu cấp từ bố mẹ.");
-                }
-            }
-        ]
-    }
-};
-
-/**
- * =================================================================
- * ZONE 2: EVENT MODAL RENDERER & LOGIC (XỬ LÝ HIỂN THỊ MODAL SỰ KIỆN)
- * =================================================================
- */
-
-/**
- * Hiển thị Modal Sự Kiện lên màn hình
- * @param {Object} eventData Object dữ liệu sự kiện
- */
-function showEventModal(eventData) {
-    if (!eventData) return;
-
-    const modal = document.getElementById("event-modal");
-    const tagEl = document.getElementById("event-tag");
-    const iconEl = document.getElementById("event-icon");
-    const titleEl = document.getElementById("event-title");
-    const descEl = document.getElementById("event-description");
-    const container = document.getElementById("event-choices-container");
-
-    if (!modal || !container) return;
-
-    // Gán thông tin hiển thị
-    if (tagEl) tagEl.innerText = eventData.tag || "✉️ Sự Kiện";
-    if (iconEl) iconEl.innerText = eventData.icon || "🎲";
-    if (titleEl) titleEl.innerText = eventData.title || "Sự kiện";
-    if (descEl) descEl.innerText = eventData.description || "";
-
-    // Xóa các nút lựa chọn cũ
-    container.innerHTML = "";
-
-    // Render danh sách nút lựa chọn mới
-    if (eventData.choices && Array.isArray(eventData.choices)) {
-        eventData.choices.forEach((choice) => {
-            const button = document.createElement("button");
-            button.className = "w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-amber-300/40 text-center";
-            button.innerText = choice.text;
-            
-            // Lắng nghe sự kiện click nút lựa chọn
-            button.onclick = function() {
-                // Thực thi hành động của lựa chọn
-                if (typeof choice.action === 'function') {
-                    choice.action();
-                }
-
-                // Ẩn modal sự kiện
-                modal.classList.add("hidden");
-
-                // Lưu & Render lại giao diện game
-                if (typeof saveGameState === 'function') saveGameState();
-                if (typeof renderGameState === 'function') renderGameState();
-            };
-
-            container.appendChild(button);
-        });
-    }
-
-    // Hiển thị modal
-    modal.classList.remove("hidden");
-}
-
-/**
- * Hàm kiểm tra sự kiện đầu tháng khi người chơi bấm "Sang Tháng Mới"
- */
-/**
- * Kiểm tra sự kiện hàng tháng (Đã cập nhật tính năng Gia Cảnh & Phụ Tiền Nhà)
- */
-function checkMonthlyEvents() {
-    if (typeof gameState === 'undefined' || !gameState) return;
-
-    const bg = typeof getFamilyBackground === 'function' ? getFamilyBackground() : { allowance: 60, contributionChance: 0.3 };
-
-    // 1. SỰ KIỆN PHỤ GIÚP TIỀN NHÀ (Chỉ khi ở nhà Bố Mẹ 'shared')
-    if (gameState.currentHome && gameState.currentHome.type === 'shared') {
-        const shouldAskContribution = Math.random() < bg.contributionChance;
-        if (shouldAskContribution && gameState.month > 1) {
-            const costReq = Math.floor(Math.random() * 20) + 15; // 15$- 35$
-            showEventModal({
-                tag: "🏠 Chi Phí Gia Đình",
-                icon: "💡",
-                title: "Phụ Giúp Tiền Sinh Hoạt",
-                description: `Bố Mẹ bảo: "Tháng này tiền điện nước tăng cao quá, con phụ Bố Mẹ ${costReq}$ nhé?"`,
-                choices: [
-                    {
-                        text: `💚 Phụ Bố Mẹ (${costReq}$)`,
-                        action: function() {
-                            if ((gameState.money || 0) < costReq) {
-                                alert("⚠️ Bạn không đủ tiền trong túi! Bố Mẹ thở dài thất vọng.");
-                                if (typeof interactWithNPC === 'function') interactWithNPC("father", {}, -10);
-                                return;
-                            }
-                            gameState.money -= costReq;
-                            gameState.happiness = Math.min(100, (gameState.happiness || 70) + 5);
-                            if (typeof interactWithNPC === 'function') {
-                                interactWithNPC("father", {}, 15);
-                                interactWithNPC("mother", {}, 15);
-                            }
-                            alert(`✅ Bạn đã phụ Bố Mẹ ${costReq}$. Tình cảm gia đình đi lên!`);
-                        }
-                    },
-                    {
-                        text: "😎 Con không có tiền / Từ chối",
-                        action: function() {
-                            if (typeof interactWithNPC === 'function') {
-                                interactWithNPC("father", {}, -15);
-                                interactWithNPC("mother", {}, -15);
-                            }
-                            alert("💔 Bố Mẹ thở dài không hài lòng về bạn.");
-                        }
-                    }
-                ]
-            });
-            return; // Ưu tiên hiện sự kiện phụ tiền nhà trước
-        }
-    }
-
-    // 2. SỰ KIỆN CHU CẤP HÀNG THÁNG (Từ 16 đến dưới 18 tuổi)
-    if (gameState.age >= 16 && gameState.age < 18) {
-        // Tỷ lệ cho tiền phụ thuộc vào tình cảm Bố Mẹ (level > 0 mới cho đủ)
-        const father = (gameState.relationships || []).find(r => r.id === "father");
-        const fatherLvl = father ? (father.level || 0) : 0;
-        
-        let actualAllowance = bg.allowance;
-        if (fatherLvl < 0) actualAllowance = Math.floor(bg.allowance * 0.3); // Giận thì cắt 70% tiền
-        
-        // Gia đình nghèo thì có tháng có tháng không
-        if (bg.type === 'poor' && Math.random() < 0.4) {
-            actualAllowance = 0;
-        }
-
-        if (actualAllowance > 0) {
-            showEventModal({
-                tag: "👨‍👩‍👦 Gia Đình",
-                icon: "💵",
-                title: "Tiền Sinh Hoạt Hàng Tháng",
-                description: `Bố mẹ gửi cho bạn ${actualAllowance}$ (${bg.label}) để trang trải chi phí.`,
-                choices: [
-                    {
-                        text: `💚 Cảm ơn Bố Mẹ (Nhận ${actualAllowance}$)`,
-                        action: function() {
-                            gameState.money = (gameState.money || 0) + actualAllowance;
-                            gameState.happiness = Math.min(100, (gameState.happiness || 70) + 3);
-                            if (typeof interactWithNPC === 'function') {
-                                interactWithNPC("father", {}, 10);
-                                interactWithNPC("mother", {}, 10);
-                            }
-                        }
-                    },
-                    {
-                        text: "😎 Con tự lập được (Từ chối)",
-                        action: function() {
-                            gameState.ego = Math.min(100, (gameState.ego || 30) + 5);
-                        }
-                    }
-                ]
-            });
-        }
-    }
-}
-/**
- * =================================================================
- * DYNAMIC EVENT SPAWNER & FREE-TEXT DIALOGUE SYSTEM
- * =================================================================
- */
-
-let currentActiveDialogueEvent = null;
-
-/**
- * Hàm kiểm tra sinh Event ngẫu nhiên giữa tháng
- */
-/**
- * GEMINI TỰ SINH SỰ KIỆN BẤT NGỜ DỰA TRÊN THÔNG TIN NHÂN VẬT
- */
-/**
- * LỌC SỰ KIỆN KHỚP VỚI TRẠNG THÁI NHÂN VẬT (ĐỘ TUỔI, VIỆC CÔNG, NHÀ Ở)
- */
-function checkDynamicMidMonthEvents() {
-    if (!gameState || gameState.currentDay >= 30) return;
-
-    // Tỷ lệ xuất hiện ~8% mỗi ngày
-    if (Math.random() > 0.08) return;
-
-    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
-
-    const modal = document.getElementById("dialogue-event-modal");
-    if (!modal) return;
-
-    const rawList = gameEventsData.random_events || [];
-
-    // Lấy trạng thái hiện tại của nhân vật
-    const currentAge = gameState.age || 16;
-    const hasJob = !!(gameState.job && gameState.job !== "Unemployed" && gameState.job !== "Thất nghiệp");
-    const housingState = gameState.housingType || "parents"; // "parents" (ở với bố mẹ), "rented" (thủ nhà trọ), "owned" (có nhà riêng)
-
-    // 🚀 BỘ LỌC ĐIỀU KIỆN STRICT FILTER
-    const eligibleEvents = rawList.filter(ev => {
-        // 1. Kiểm tra độ tuổi
-        const minAge = ev.min_age !== undefined ? ev.min_age : 16;
-        const maxAge = ev.max_age !== undefined ? ev.max_age : 100;
-        if (currentAge < minAge || currentAge > maxAge) return false;
-
-        // 2. Kiểm tra công việc (Sự kiện công sở chỉ xuất hiện khi đã đi làm)
-        if (ev.requires_job && !hasJob) return false;
-
-        // 3. Kiểm tra hoàn cảnh nhà ở (Tăng giá nhà trọ chỉ xuất hiện khi đang thuê nhà)
-        if (ev.requires_housing && ev.requires_housing !== "any") {
-            if (ev.requires_housing !== housingState) return false;
-        }
-
-        return true;
-    });
-
-    // Bốc ngẫu nhiên từ danh sách ĐÃ LỌC CHUẨN
-    if (eligibleEvents.length > 0) {
-        const randomIndex = Math.floor(Math.random() * eligibleEvents.length);
-        const ev = eligibleEvents[randomIndex];
-        currentActiveDialogueEvent = {
-            tag: ev.tag || "🗣️ Va Chạm Giao Tiếp",
-            title: ev.title || "Tình Huống Ngẫu Nhiên",
-            prompt: ev.prompt || ev.description || "Có chuyện gì đó vừa xảy ra...",
-            category: ev.category || "life"
-        };
-    } else {
-        // Dự phòng khi chưa có event phù hợp với độ tuổi/hoàn cảnh
-        currentActiveDialogueEvent = {
-            tag: "🚶 ĐƯỜNG PHỐ",
-            title: "Xô Xát Nhẹ",
-            prompt: "Người đi đường va vào bạn rồi gắt gỏng: 'Đi đứng kiểu gì đấy hả? Không có mắt à?'",
-            category: "street"
-        };
-    }
-
-    setElementText('dialogue-tag', currentActiveDialogueEvent.tag);
-    setElementText('dialogue-title', currentActiveDialogueEvent.title);
-    setElementText('dialogue-prompt', currentActiveDialogueEvent.prompt);
-
-    // Reset giao diện Chat
-    document.getElementById("dialogue-user-bubble")?.classList.add("hidden");
-    document.getElementById("dialogue-npc-reply-bubble")?.classList.add("hidden");
-    document.getElementById("dialogue-system-badge")?.classList.add("hidden");
-    document.getElementById("dialogue-input-container")?.classList.remove("hidden");
-    document.getElementById("dialogue-close-btn")?.classList.add("hidden");
-
-    modal.classList.remove("hidden");
-}
-
-
-/**
- * =================================================================
- * SUPER ADVANCED OFFLINE DIALOGUE ENGINE (ENGINE ĐÁNH GIÁ ĐA TẦNG)
- * =================================================================
- */
-
-
-
-function showDialogueEventModal(eventData) {
-    currentActiveDialogueEvent = eventData;
-    const modal = document.getElementById("dialogue-event-modal");
-    if (!modal) return;
-
-    setElementText('dialogue-tag', eventData.tag);
-    setElementText('dialogue-title', eventData.title);
-    setElementText('dialogue-prompt', eventData.prompt);
-
-    // Reset lại trạng thái bong bóng chat
-    document.getElementById("dialogue-user-bubble")?.classList.add("hidden");
-    document.getElementById("dialogue-npc-reply-bubble")?.classList.add("hidden");
-    document.getElementById("dialogue-system-badge")?.classList.add("hidden");
-
-    document.getElementById("dialogue-input-container")?.classList.remove("hidden");
-    document.getElementById("dialogue-close-btn")?.classList.add("hidden");
-
-    // 🚀 FIX LỖI 2: Reset câu trả lời cũ
-    const inputEl = document.getElementById("dialogue-user-input");
-    if (inputEl) {
-        inputEl.value = "";
-    }
-
-    modal.classList.remove("hidden");
-
-    // 🚀 FIX LỖI 1: Focus ô nhập liệu để sẵn sàng gõ tiếng Việt
-    setTimeout(() => {
-        if (inputEl) {
-            inputEl.focus();
-        }
-    }, 150);
-}
-
-
-/**
- * HỆ THỐNG ĐÁNH GIÁ ĐỐI THOẠI ĐA TẦNG + GIAO DIỆN CHAT REAL-TIME
- */
-/**
- * =================================================================
- * LOCAL INTENT & COSINE SIMILARITY ENGINE (NLP OFFLINE SIÊU NHẸ)
- * =================================================================
- */
-
-// 1. Hàm tính Độ tương đồng Cosine (Cosine Similarity) giữa 2 chuỗi văn bản
-function calculateCosineSimilarity(str1, str2) {
-    const getTokens = (text) => text.toLowerCase().replace(/[^\w\sàáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/g, '').split(/\s+/).filter(Boolean);
-    
-    const tokens1 = getTokens(str1);
-    const tokens2 = getTokens(str2);
-
-    if (!tokens1.length || !tokens2.length) return 0;
-
-    const freq1 = {}, freq2 = {};
-    tokens1.forEach(t => freq1[t] = (freq1[t] || 0) + 1);
-    tokens2.forEach(t => freq2[t] = (freq2[t] || 0) + 1);
-
-    const allTokens = new Set([...Object.keys(freq1), ...Object.keys(freq2)]);
-    let dotProduct = 0, mag1 = 0, mag2 = 0;
-
-    allTokens.forEach(token => {
-        const v1 = freq1[token] || 0;
-        const v2 = freq2[token] || 0;
-        dotProduct += v1 * v2;
-        mag1 += v1 * v1;
-        mag2 += v2 * v2;
-    });
-
-    return dotProduct / (Math.sqrt(mag1) * Math.sqrt(mag2));
-}
-
-// 2. Hàm Đánh giá Ý định & Thái độ thông qua NLP Offline
-/**
- * =================================================================
- * BACKEND AI ENGINE (GEMINI FLASH API FOR DYNAMIC DIALOGUE & EVALUATION)
- * =================================================================
- */
-
-// API Key Gemini từ cURL của anh
-const GEMINI_API_KEY = "AQ.Ab8RN6Kgyo6YqFk2cIZ7zx4mKG5nwmbv926HFdInMFLZW_2-kw";
-
+// Lưu trữ dữ liệu sự kiện tĩnh từ events.json
 let gameEventsData = {
     allowance_events: [],
     random_events: []
 };
 
+// Sự kiện hội thoại tự do hiện tại đang kích hoạt
+let currentActiveDialogueEvent = null;
+
 /**
- * 1. TẢI FILE EVENTS.JSON THEO CẤU TRÚC MỚI
+ * Nạp dữ liệu sự kiện từ file events.json
  */
 async function loadEventsJSON() {
     try {
@@ -397,118 +27,269 @@ async function loadEventsJSON() {
         console.warn("⚠️ Chưa tìm thấy file events.json hoặc lỗi tải, đang dùng dữ liệu dự phòng.", e);
     }
 }
+
+// Tự động nạp dữ liệu khi script khởi chạy
 loadEventsJSON();
 
-/**
- * 2. KIỂM TRA CHU CẤP HÀNG THÁNG (GỌI KHI SANG THÁNG MỚI)
- */
-function checkMonthlyAllowance() {
-    if (!gameState || !gameEventsData.allowance_events) return;
 
-    const currentAge = gameState.age || 16;
-    gameEventsData.allowance_events.forEach(event => {
-        if (currentAge >= event.min_age && currentAge <= event.max_age) {
-            gameState.money = (gameState.money || 0) + event.amount;
-            if (typeof addDailyLog === 'function') {
-                addDailyLog(`💵 ${event.title}: +${event.amount}$`);
-            }
-        }
+/**
+ * =================================================================
+ * ZONE 2: DATA-DRIVEN MONTHLY EVENTS ENGINE (ENGINE SỰ KIỆN HÀNG THÁNG)
+ * =================================================================
+ */
+
+let monthlyEventQueue = [];
+
+/**
+ * Quét toàn bộ JSON và đưa các sự kiện thỏa điều kiện vào Hàng đợi
+ */
+function checkMonthlyEvents() {
+    if (typeof gameState === 'undefined' || !gameState) return;
+
+    monthlyEventQueue = [];
+    const monthlyData = gameEventsData.monthly_events || [];
+
+    // 1. Quét & Lọc Sự Kiện
+    monthlyData.forEach(ev => {
+        if (ev.min_age !== undefined && gameState.age < ev.min_age) return;
+        if (ev.max_age !== undefined && gameState.age > ev.max_age) return;
+        if (ev.requires_housing && gameState.currentHome?.type !== ev.requires_housing) return;
+        if (ev.trigger_chance !== undefined && Math.random() > ev.trigger_chance) return;
+
+        // Nếu thỏa mãn mọi điều kiện, đẩy vào hàng đợi
+        monthlyEventQueue.push(ev);
     });
+
+    // 2. Kích hoạt xử lý hàng đợi
+    processNextMonthlyEvent();
 }
 
 /**
- * 3. LẤY SỰ KIỆN BẤT NGỜ TỪ MẢNG RANDOM_EVENTS
+ * Xử lý tuần tự từng sự kiện trong Hàng đợi
+ */
+/**
+ * Xử lý tuần tự từng sự kiện trong Hàng đợi sự kiện đầu tháng
+ */
+function processNextMonthlyEvent() {
+    if (monthlyEventQueue.length === 0) return;
+
+    const ev = monthlyEventQueue.shift();
+
+    // Đánh dấu sự kiện unique đã xuất hiện
+    if (ev.is_unique && !gameState.completedEvents.includes(ev.id)) {
+        gameState.completedEvents.push(ev.id);
+    }
+
+    // 🚀 1. TÍNH TOÁN SỐ TIỀN CHU CẤP ĐỘNG ĐỂ HIỂN THỊ RA MODAL
+    let finalDescription = ev.description;
+    let calculatedAllowance = 0;
+
+    const hasAllowanceChoice = ev.choices && ev.choices.some(c => c.is_allowance_calc);
+    if (hasAllowanceChoice) {
+        const bg = typeof getFamilyBackground === 'function' ? getFamilyBackground() : { allowance: 60 };
+        const father = (gameState.relationships || []).find(r => r.id === "father");
+        calculatedAllowance = (father && father.level < 0) ? Math.floor(bg.allowance * 0.3) : bg.allowance;
+
+        // Gắn thẳng số tiền thực nhận vào đoạn mô tả để người chơi đọc được trước khi bấm
+        finalDescription = `${ev.description}\n\n💵 Tiền chu cấp thực nhận tháng này: +${calculatedAllowance}$`;
+    }
+
+    const parsedChoices = ev.choices.map(choiceJSON => {
+        return {
+            text: choiceJSON.text,
+            action: function () {
+                let actualRewardMoney = choiceJSON.reward_money || 0;
+                if (choiceJSON.is_allowance_calc) {
+                    actualRewardMoney = calculatedAllowance;
+                }
+
+                // Kiểm tra điều kiện tài chính (req_money)
+                if (choiceJSON.req_money && (gameState.money || 0) < choiceJSON.req_money) {
+                    if (typeof triggerScreenShake === 'function') triggerScreenShake();
+                    if (choiceJSON.fail_msg) alert(choiceJSON.fail_msg);
+                    if (choiceJSON.fail_npc_change && choiceJSON.npc_targets && typeof interactWithNPC === 'function') {
+                        choiceJSON.npc_targets.forEach(npcId => interactWithNPC(npcId, {}, choiceJSON.fail_npc_change));
+                    }
+                } else {
+                    // Thành công: Trừ chi phí & Cộng phần thưởng
+                    if (choiceJSON.cost_money) {
+                        gameState.money -= choiceJSON.cost_money;
+                        if (typeof showFloatingText === 'function') showFloatingText('money', `-${choiceJSON.cost_money}$`, 'neg');
+                        if (typeof triggerScreenShake === 'function') triggerScreenShake();
+                    }
+
+                    if (actualRewardMoney) {
+                        gameState.money = (gameState.money || 0) + actualRewardMoney;
+
+                        // 🚀 2. KÍCH HOẠT HIỆU ỨNG SỐ TIỀN BAY LÊN (FLOATING TEXT) KHI NHẬN TIỀN
+                        if (typeof showFloatingText === 'function') {
+                            showFloatingText('money', `+${actualRewardMoney}$`, 'pos');
+                        }
+                    }
+
+                    if (choiceJSON.reward_happiness) gameState.happiness = Math.min(100, (gameState.happiness || 70) + choiceJSON.reward_happiness);
+                    if (choiceJSON.reward_ego) gameState.ego = Math.min(100, (gameState.ego || 30) + choiceJSON.reward_ego);
+
+                    // Tác động NPC
+                    if (choiceJSON.npc_change && choiceJSON.npc_targets && typeof interactWithNPC === 'function') {
+                        choiceJSON.npc_targets.forEach(npcId => interactWithNPC(npcId, {}, choiceJSON.npc_change));
+                    }
+
+                    if (choiceJSON.success_msg) alert(choiceJSON.success_msg);
+                }
+
+                // Lưu & Cập nhật UI
+                if (typeof saveGameState === 'function') saveGameState();
+                if (typeof renderGameState === 'function') renderGameState();
+
+                // Đóng Modal hiện tại và gọi Đệ quy quét sự kiện tiếp theo
+                document.getElementById("event-modal").classList.add("hidden");
+                setTimeout(processNextMonthlyEvent, 300);
+            }
+        };
+    });
+
+    // Gọi Engine UI hiển thị Modal với mô tả động đã có số tiền
+    showEventModal({
+        tag: ev.tag,
+        icon: ev.icon,
+        title: ev.title,
+        description: finalDescription,
+        choices: parsedChoices
+    });
+}
+/**
+ * =================================================================
+ * ZONE 3: DYNAMIC MID-MONTH EVENT SPAWNER (SINH SỰ KIỆN GIỮA THÁNG)
+ * =================================================================
+ */
+
+/**
+ * Kiểm tra và kích hoạt ngẫu nhiên sự kiện va chạm giao tiếp giữa tháng
+ */
+/**
+/**
+ * Kiểm tra và kích hoạt ngẫu nhiên sự kiện va chạm giao tiếp giữa tháng
+ * (Đã sửa lỗi kẹt timer khi hết sự kiện)
  */
 function checkDynamicMidMonthEvents() {
     if (!gameState || gameState.currentDay >= 30) return;
 
-    // Tỷ lệ xuất hiện ~8% mỗi ngày
+    // Tỷ lệ 8% xuất hiện sự kiện giữa tháng
     if (Math.random() > 0.08) return;
 
-    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
-
-    const modal = document.getElementById("dialogue-event-modal");
-    if (!modal) return;
-
     const rawList = gameEventsData.random_events || [];
-
-    // Lấy trạng thái hiện tại của nhân vật
     const currentAge = gameState.age || 16;
     const hasJob = !!(gameState.job && gameState.job !== "Unemployed" && gameState.job !== "Thất nghiệp");
     const housingState = gameState.housingType || "parents";
 
-    // BỘ LỌC ĐIỀU KIỆN STRICT FILTER
+    if (!gameState.storyFlags) gameState.storyFlags = {};
+    if (!gameState.completedEvents) gameState.completedEvents = [];
+
+    // BỘ LỌC CÁC SỰ KIỆN CHƯA XUẤT HIỆN
     const eligibleEvents = rawList.filter(ev => {
+        if (gameState.completedEvents.includes(ev.id)) return false;
+
         const minAge = ev.min_age !== undefined ? ev.min_age : 16;
         const maxAge = ev.max_age !== undefined ? ev.max_age : 100;
         if (currentAge < minAge || currentAge > maxAge) return false;
 
         if (ev.requires_job && !hasJob) return false;
-
         if (ev.requires_housing && ev.requires_housing !== "any") {
             if (ev.requires_housing !== housingState) return false;
         }
 
+        if (ev.min_stress !== undefined && (gameState.stress || 0) < ev.min_stress) return false;
+        if (ev.min_ego !== undefined && (gameState.ego || 0) < ev.min_ego) return false;
+        if (ev.min_charm !== undefined && (gameState.charm || 0) < ev.min_charm) return false;
+        if (ev.max_money !== undefined && (gameState.money || 0) > ev.max_money) return false;
+        if (ev.flag_required && !gameState.storyFlags[ev.flag_required]) return false;
+
         return true;
     });
 
-    if (eligibleEvents.length > 0) {
-        const randomIndex = Math.floor(Math.random() * eligibleEvents.length);
-        const ev = eligibleEvents[randomIndex];
-        currentActiveDialogueEvent = {
-            tag: ev.tag || "🗣️ Va Chạm Giao Tiếp",
-            title: ev.title || "Tình Huống Ngẫu Nhiên",
-            prompt: ev.prompt || ev.description || "Có chuyện gì đó vừa xảy ra...",
-            category: ev.category || "life"
-        };
-    } else {
-        currentActiveDialogueEvent = {
-            tag: "🚶 ĐƯỜNG PHỐ",
-            title: "Xô Xát Nhẹ",
-            prompt: "Người đi đường va vào bạn rồi gắt gỏng: 'Đi đứng kiểu gì đấy hả? Không có mắt à?'",
-            category: "street"
-        };
+    // 🚀 NẾU HẾT SỰ KIỆN: BỎ QUA LUÔN, ĐỂ ĐỒNG HỒ CHẠY TIẾP MƯỢT MÀ, KHÔNG BỊ KẸT MODAL
+    if (eligibleEvents.length === 0) {
+        console.log("🌿 Không có sự kiện giữa tháng phù hợp, thời gian tiếp tục trôi...");
+        return; 
     }
 
-    setElementText('dialogue-tag', currentActiveDialogueEvent.tag);
-    setElementText('dialogue-title', currentActiveDialogueEvent.title);
-    setElementText('dialogue-prompt', currentActiveDialogueEvent.prompt);
+    // TẠM DỪNG ĐỒNG HỒ ĐỂ NGƯỜI CHƠI TRẢ LỜI SỰ KIỆN
+    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
 
-    // Reset giao diện Chat
+    const modal = document.getElementById("dialogue-event-modal");
+    if (!modal) return;
+
+    const randomIndex = Math.floor(Math.random() * eligibleEvents.length);
+    const ev = eligibleEvents[randomIndex];
+
+    // Ghi nhớ ID sự kiện
+    gameState.completedEvents.push(ev.id);
+    if (typeof saveGameState === 'function') saveGameState();
+
+    let targetNPC = null;
+    if (gameState.relationships && gameState.relationships.length > 0) {
+        targetNPC = gameState.relationships[Math.floor(Math.random() * gameState.relationships.length)];
+    }
+
+    let dynamicPrompt = ev.prompt || ev.description || "Có chuyện gì đó vừa xảy ra...";
+    if (targetNPC) {
+        dynamicPrompt = dynamicPrompt.replace("{NPC_NAME}", `${targetNPC.name} (${targetNPC.relation})`);
+    } else {
+        dynamicPrompt = dynamicPrompt.replace("{NPC_NAME}", "Người quen");
+    }
+
+    currentActiveDialogueEvent = {
+        id: ev.id,
+        tag: ev.tag || "🗣️ Va Chạm Giao Tiếp",
+        title: ev.title || "Tình Huống Ngẫu Nhiên",
+        prompt: dynamicPrompt,
+        category: ev.category || "life",
+        targetNpcId: targetNPC ? targetNPC.id : null,
+        set_flag: ev.set_flag || null,
+        clear_flag: ev.clear_flag || null
+    };
+
+    if (typeof setElementText === 'function') {
+        setElementText('dialogue-tag', currentActiveDialogueEvent.tag);
+        setElementText('dialogue-title', currentActiveDialogueEvent.title);
+        setElementText('dialogue-prompt', currentActiveDialogueEvent.prompt);
+    }
+
     document.getElementById("dialogue-user-bubble")?.classList.add("hidden");
     document.getElementById("dialogue-npc-reply-bubble")?.classList.add("hidden");
     document.getElementById("dialogue-system-badge")?.classList.add("hidden");
     document.getElementById("dialogue-input-container")?.classList.remove("hidden");
     document.getElementById("dialogue-close-btn")?.classList.add("hidden");
 
-    // 🚀 FIX LỖI 2: Xóa sạch nội dung cũ trong ô nhập dữ liệu
     const inputEl = document.getElementById("dialogue-user-input");
-    if (inputEl) {
-        inputEl.value = "";
-    }
+    if (inputEl) inputEl.value = "";
 
-    // Hiển thị modal
     modal.classList.remove("hidden");
 
-    // 🚀 FIX LỖI 1: Tự động Focus vào ô input để bàn phím gõ tiếng Việt ngay lập tức
     setTimeout(() => {
-        if (inputEl) {
-            inputEl.focus();
-        }
+        if (inputEl) inputEl.focus();
     }, 150);
 }
 
+
 /**
- * HÀM XỬ LÝ KHI BẤM "GỬI LỜI ĐÁP" TRONG CỬA SỔ DIALOGUE
+ * =================================================================
+ * ZONE 4: OFFLINE DIALOGUE EVALUATION ENGINE (NLP PHÂN TÍCH HỘI THOẠI)
+ * =================================================================
+ */
+
+/**
+ * Xử lý khi người chơi bấm nút "Gửi Lời Đáp"
  */
 function submitDialogueResponse() {
+    // 1. Khai báo biến (Chỉ khai báo 1 lần duy nhất)
     const inputEl = document.getElementById("dialogue-user-input");
     if (!inputEl) return;
 
     const rawText = inputEl.value.trim();
     if (!rawText) return alert("⚠️ Vui lòng nhập câu trả lời của bạn!");
 
-    // 1. Hiển thị Lời nhắn của Người chơi lên Khung Chat
     const userBubble = document.getElementById("dialogue-user-bubble");
     const userTextEl = document.getElementById("dialogue-user-text");
     if (userTextEl) userTextEl.innerText = rawText;
@@ -518,15 +299,41 @@ function submitDialogueResponse() {
 
     const text = rawText.toLowerCase();
     const eventData = currentActiveDialogueEvent || { title: "Tương tác", category: "street" };
-    const category = eventData.category || "street";
 
-    // 2. PHÂN TÍCH TỪ VỰNG & THÁI ĐỘ (ENGINE OFFLINE)
+    // 🚀 2. XỬ LÝ RIÊNG CHO SỰ KIỆN "BÌNH YÊN"
+    if (eventData.id === "fallback_peace") {
+        gameState.happiness = Math.min(100, (gameState.happiness || 70) + 1);
+        if (typeof addDailyLog === 'function') addDailyLog("Tận hưởng một ngày tĩnh lặng.");
+
+        setTimeout(() => {
+            const npcBubble = document.getElementById("dialogue-npc-reply-bubble");
+            const npcTextEl = document.getElementById("dialogue-npc-reply-text");
+            const npcIconEl = npcBubble ? npcBubble.querySelector("span") : null;
+
+            if (npcIconEl) npcIconEl.innerText = "🌿";
+            if (npcTextEl) npcTextEl.innerText = "Bạn hít một hơi thật sâu, cảm thấy tâm hồn thư thái hơn đôi chút.";
+            if (npcBubble) npcBubble.classList.remove("hidden");
+
+            const badgeEl = document.getElementById("dialogue-system-badge");
+            const fbTextEl = document.getElementById("dialogue-feedback-text");
+            if (fbTextEl) fbTextEl.innerText = "✨ Tận hưởng sự tĩnh lặng (+1 Hạnh phúc)";
+            if (badgeEl) badgeEl.classList.remove("hidden");
+
+            document.getElementById("dialogue-close-btn")?.classList.remove("hidden");
+        }, 400);
+
+        if (typeof saveGameState === 'function') saveGameState();
+        if (typeof renderGameState === 'function') renderGameState();
+        return; // Dừng tại đây, không chạy bộ đếm NLP bên dưới nữa
+    }
+
+    // 3. BỘ ĐẾM NLP CHO CÁC SỰ KIỆN GIAO TIẾP THÔNG THƯỜNG
     const words = rawText.split(/\s+/).filter(Boolean);
     const wordCount = words.length;
 
-    const politeDict = ["xin lỗi", "cảm ơn", "bình tĩnh", "thành thật", "thông cảm", "dạ", "ạ", "giúp", "nhẹ nhàng"];
-    const smartDict = ["doanh thu", "lý do", "kế hoạch", "thực tế", "phân tích", "giải pháp", "chứng minh", "xem lại", "số liệu"];
-    const aggressiveDict = ["mày", "tao", "im đi", "cút", "liên quan", "kệ", "chửi", "ngu", "mất dạy", "đéo", "đập"];
+    const politeDict = ["xin lỗi", "cảm ơn", "bình tĩnh", "thành thật", "thông cảm", "dạ", "ạ", "giúp", "nhẹ nhàng", "đồng ý", "vâng"];
+    const smartDict = ["doanh thu", "lý do", "kế hoạch", "thực tế", "phân tích", "giải pháp", "chứng minh", "xem lại", "số liệu", "chí hướng", "đầu tư"];
+    const aggressiveDict = ["mày", "tao", "im đi", "cút", "liên quan", "kệ", "chửi", "ngu", "mất dạy", "đéo", "đập", "biến"];
     const funnyDict = ["hihi", "haha", "kaka", "vui", "đùa", "dạ không có á", "ủa alo", "ngơ", "gì vậy"];
 
     let scorePolite = politeDict.filter(w => text.includes(w)).length;
@@ -540,12 +347,13 @@ function submitDialogueResponse() {
     let logSummary = "";
     let npcReply = "";
     let npcIcon = "💬";
+    let relXpChange = 0;
 
-    // 3. ĐÁNH GIÁ CHỈ SỐ & TẠO PHẢN HỒI NPC
     if (wordCount < 3 && scorePolite === 0 && scoreSmart === 0 && scoreAggressive === 0 && !isShortFunny) {
         npcIcon = "😐";
         gameState.charm = Math.max(0, (gameState.charm || 45) - 2);
-        feedback = "😐 Lời đáp cụt ngủn, thiếu đầu tư (-2 Ăn nói)";
+        relXpChange = -5;
+        feedback = "😐 Lời đáp cụt ngủn, thiếu đầu tư (-2 Ăn nói, -5 Mối quan hệ)";
         logSummary = `${eventData.title}: Trả lời hời hợt`;
         npcReply = "NPC nhếch mép gắt gỏng: 'Nói năng cụt ngủn thế? Không có tý lịch sự nào!'";
     }
@@ -554,7 +362,8 @@ function submitDialogueResponse() {
         gameState.charm = Math.min(100, (gameState.charm || 45) + 3);
         gameState.happiness = Math.min(100, (gameState.happiness || 70) + 4);
         gameState.stress = Math.max(0, (gameState.stress || 0) - 5);
-        feedback = "🤪 Lời đáp tấu hài ngơ ngác! (+3 Ăn nói, +4 Hạnh phúc, -5 Stress)";
+        relXpChange = 10;
+        feedback = "🤪 Lời đáp tấu hài ngơ ngác! (+3 Ăn nói, +4 Hạnh phúc, +10 Mối quan hệ)";
         logSummary = `${eventData.title}: Tấu hài ngơ ngác hóa giải xung đột`;
         npcReply = "NPC cạn lời ngơ ngác: 'Ủa? Trả lời cái câu huề vốn vậy mà cũng nghĩ ra được hả?!'";
     }
@@ -563,7 +372,8 @@ function submitDialogueResponse() {
         gameState.ego = Math.min(100, (gameState.ego || 30) + 5);
         gameState.stress = Math.min(100, (gameState.stress || 0) + 10);
         gameState.charm = Math.max(0, (gameState.charm || 45) - 3);
-        feedback = "🔥 Phản ứng bốc đồng, gay gắt! (+5 Cái tôi, +10 Stress, -3 Ăn nói)";
+        relXpChange = -20;
+        feedback = "🔥 Phản ứng bốc đồng, gay gắt! (+5 Cái tôi, +10 Stress, -20 Mối quan hệ)";
         logSummary = `${eventData.title}: Xô xát lời nói, thái độ ngông nghênh`;
         npcReply = "NPC đập bàn giận dữ: 'Mày thái độ gì đấy?! Ra đây nói chuyện!'";
     }
@@ -571,7 +381,8 @@ function submitDialogueResponse() {
         npcIcon = "🧠";
         gameState.smarts = Math.min(100, (gameState.smarts || 50) + 4);
         gameState.charm = Math.min(100, (gameState.charm || 45) + 2);
-        feedback = "🧠 Lập luận sắc bén, logic! (+4 Trí tuệ, +2 Ăn nói)";
+        relXpChange = 15;
+        feedback = "🧠 Lập luận sắc bén, logic! (+4 Trí tuệ, +2 Ăn nói, +15 Mối quan hệ)";
         logSummary = `${eventData.title}: Dùng lý lẽ sắc bén làm chủ cuộc đối thoại`;
         npcReply = "NPC khựng lại gật gù: 'Ừm... nghe cũng có lý. Tạm thời ghi nhận.'";
     }
@@ -580,26 +391,37 @@ function submitDialogueResponse() {
         gameState.charm = Math.min(100, (gameState.charm || 45) + 4);
         gameState.happiness = Math.min(100, (gameState.happiness || 70) + 3);
         gameState.stress = Math.max(0, (gameState.stress || 0) - 6);
-        feedback = "🕊️ Xử sự đắc nhân tâm, nhã nhặn! (+4 Ăn nói, +3 Hạnh phúc, -6 Stress)";
+        relXpChange = 20;
+        feedback = "🕊️ Xử sự đắc nhân tâm, nhã nhặn! (+4 Ăn nói, +3 Hạnh phúc, +20 Mối quan hệ)";
         logSummary = `${eventData.title}: Ứng xử đắc nhân tâm, nhã nhặn`;
         npcReply = "NPC mỉm cười dịu giọng: 'Bạn đã nói thế thì tôi không chấp nhặt nữa. Cảm ơn nhé!'";
     }
     else {
         npcIcon = "💬";
         gameState.charm = Math.min(100, (gameState.charm || 45) + 1);
+        relXpChange = 5;
         feedback = "💬 Phản hồi chừng mực, trung lập (+1 Ăn nói)";
         logSummary = `${eventData.title}: Trả lời trung lập`;
         npcReply = "NPC gật đầu nhẹ rồi quay đi.";
     }
 
-    // Ghi nhận nhật ký biến cố ngày thường
+    // 🚀 CHỈ TÁC ĐỘNG KHI CÓ ĐÍNH KÈM ĐỐI TƯỢNG NPC CỤ THỂ VÀ KHÔNG PHẢI LÀ NPC VÔ HÌNH (như hàng xã hội, đường phố)
+    if (eventData.targetNpcId && eventData.targetNpcId !== "none" && typeof interactWithNPC === 'function') {
+        interactWithNPC(eventData.targetNpcId, {}, relXpChange);
+    }
+
+    if (eventData.set_flag && (scorePolite > 0 || scoreSmart > 0)) {
+        if (!gameState.storyFlags) gameState.storyFlags = {};
+        gameState.storyFlags[eventData.set_flag] = true;
+        console.log(`🚩 Bật Cờ Cốt Truyện: ${eventData.set_flag}`);
+    }
+
     if (typeof addDailyLog === 'function') addDailyLog(logSummary);
 
-    // 4. Hiển thị Phản hồi NPC & Badge Đánh giá
     setTimeout(() => {
         const npcBubble = document.getElementById("dialogue-npc-reply-bubble");
         const npcTextEl = document.getElementById("dialogue-npc-reply-text");
-        
+
         const npcIconEl = npcBubble ? npcBubble.querySelector("span") : null;
         if (npcIconEl) npcIconEl.innerText = npcIcon;
 
@@ -619,7 +441,7 @@ function submitDialogueResponse() {
 }
 
 /**
- * HÀM ĐÓNG MODAL DIALOGUE VÀ TIẾP TỤC TIME LOOP
+ * Đóng Modal Dialogue và tiếp tục vòng lặp thời gian 30 ngày
  */
 function closeDialogueModal() {
     document.getElementById("dialogue-event-modal")?.classList.add("hidden");
@@ -627,4 +449,44 @@ function closeDialogueModal() {
 }
 
 
+/**
+ * =================================================================
+ * ZONE 5: STANDARD EVENT MODAL RENDERER
+ * =================================================================
+ */
+function showEventModal(eventData) {
+    if (!eventData) return;
 
+    const modal = document.getElementById("event-modal");
+    const tagEl = document.getElementById("event-tag");
+    const iconEl = document.getElementById("event-icon");
+    const titleEl = document.getElementById("event-title");
+    const descEl = document.getElementById("event-description");
+    const container = document.getElementById("event-choices-container");
+
+    if (!modal || !container) return;
+
+    if (tagEl) tagEl.innerText = eventData.tag || "✉️ Sự Kiện";
+    if (iconEl) iconEl.innerText = eventData.icon || "🎲";
+    if (titleEl) titleEl.innerText = eventData.title || "Sự kiện";
+    if (descEl) descEl.innerText = eventData.description || "";
+
+    container.innerHTML = "";
+
+    if (eventData.choices && Array.isArray(eventData.choices)) {
+        eventData.choices.forEach((choice) => {
+            const button = document.createElement("button");
+            button.className = "w-full py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-amber-300/40 text-center";
+            button.innerText = choice.text;
+
+            button.onclick = function () {
+                if (typeof choice.action === 'function') choice.action();
+                // Lưu ý: Việc đóng modal và gọi tiếp hàng đợi đã được xử lý bên trong choice.action ở Engine ZONE 2
+            };
+
+            container.appendChild(button);
+        });
+    }
+
+    modal.classList.remove("hidden");
+}
