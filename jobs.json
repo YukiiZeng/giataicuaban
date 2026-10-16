@@ -1,0 +1,310 @@
+{
+  "careers": [
+    {
+      "track_id": "manual_fnb",
+      "track_name": "Dịch Vụ, Lao Động Phổ Thông & F&B",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_waiter",
+          "title": "Phục Vụ Bàn / Bán Hàng",
+          "min_age": 16,
+          "required_degrees": [],
+          "required_stats": { "health": 40 },
+          "salary_per_month": 250,
+          "stress_cost": 15,
+          "exp_required_for_next": 12
+        },
+        {
+          "level": 2,
+          "id": "job_barista",
+          "title": "Pha Chế / Bếp Chính Cửa Hàng",
+          "min_age": 17,
+          "required_degrees": ["cert_barista"],
+          "required_stats": { "charm": 40 },
+          "salary_per_month": 550,
+          "stress_cost": 15,
+          "exp_required_for_next": 24
+        },
+        {
+          "level": 3,
+          "id": "job_restaurant_manager",
+          "title": "Quản Lý Quán / Cửa Hàng Trưởng",
+          "min_age": 20,
+          "required_degrees": ["cert_barista"],
+          "required_stats": { "charm": 55, "smarts": 45 },
+          "salary_per_month": 1100,
+          "stress_cost": 20,
+          "exp_required_for_next": null
+        }
+      ]
+    },
+    {
+      "track_id": "construction",
+      "track_name": "Ngành Xây Dựng & Cơ Khí",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_construction_worker",
+          "title": "Phụ Hồ / Công Nhân Cơ Bản",
+          "min_age": 16,
+          "required_degrees": [],
+          "required_stats": { "strength": 50, "health": 50 },
+          "salary_per_month": 350,
+          "stress_cost": 22,
+          "exp_required_for_next": 12
+        },
+        {
+          "level": 2,
+          "id": "job_mason",
+          "title": "Thợ Xây / Thợ Cơ Khí Chính",
+          "min_age": 17,
+          "required_degrees": ["cert_builder"],
+          "required_stats": { "strength": 60 },
+          "salary_per_month": 700,
+          "stress_cost": 22,
+          "exp_required_for_next": 24
+        },
+        {
+          "level": 3,
+          "id": "job_site_supervisor",
+          "title": "Cai Thợ / Giám Sát Công Trình",
+          "min_age": 20,
+          "required_degrees": ["cert_builder"],
+          "required_stats": { "charm": 45, "ego": 40 },
+          "salary_per_month": 1300,
+          "stress_cost": 20,
+          "exp_required_for_next": 36
+        },
+        {
+          "level": 4,
+          "id": "job_civil_engineer",
+          "title": "Kỹ Sư Xây Dựng / Cơ Khí",
+          "min_age": 22,
+          "required_degrees": ["bachelor_civil_engineering"],
+          "required_stats": { "smarts": 60 },
+          "salary_per_month": 2300,
+          "stress_cost": 20,
+          "exp_required_for_next": 48
+        },
+        {
+          "level": 5,
+          "id": "job_construction_contractor",
+          "title": "Chủ Thầu Xây Dựng / Giám Đốc",
+          "min_age": 25,
+          "required_degrees": ["bachelor_civil_engineering"],
+          "required_stats": { "charm": 65, "ego": 60, "smarts": 65 },
+          "salary_per_month": 5000,
+          "stress_cost": 28,
+          "exp_required_for_next": null
+        }
+      ]
+    },
+    {
+      "track_id": "logistics_driver",
+      "track_name": "Vận Tải & Vận Chuyển",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_shipper",
+          "title": "Tài Xế Giao Hàng Công Nghệ",
+          "min_age": 18,
+          "required_degrees": [],
+          "required_stats": { "health": 50 },
+          "salary_per_month": 450,
+          "stress_cost": 18,
+          "exp_required_for_next": 12
+        },
+        {
+          "level": 2,
+          "id": "job_truck_driver",
+          "title": "Tài Xế Chở Hàng / Ô Tô B2",
+          "min_age": 19,
+          "required_degrees": ["cert_driver"],
+          "required_stats": { "health": 55 },
+          "salary_per_month": 850,
+          "stress_cost": 20,
+          "exp_required_for_next": 24
+        }
+      ]
+    },
+    {
+      "track_id": "tech_it",
+      "track_name": "Công Nghệ Thông Tin (CNTT)",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_junior_coder",
+          "title": "Lập Trình Viên Junior / Tester",
+          "min_age": 18,
+          "required_degrees": ["cert_coder"],
+          "required_stats": { "smarts": 50 },
+          "salary_per_month": 800,
+          "stress_cost": 18,
+          "exp_required_for_next": 18
+        },
+        {
+          "level": 2,
+          "id": "job_senior_developer",
+          "title": "Lập Trình Viên Senior",
+          "min_age": 20,
+          "required_degrees": ["bachelor_it"],
+          "required_stats": { "smarts": 65 },
+          "salary_per_month": 1800,
+          "stress_cost": 22,
+          "exp_required_for_next": 36
+        },
+        {
+          "level": 3,
+          "id": "job_tech_lead",
+          "title": "Trưởng Nhóm Lập Trình (Tech Lead)",
+          "min_age": 23,
+          "required_degrees": ["bachelor_it"],
+          "required_stats": { "smarts": 75, "charm": 50 },
+          "salary_per_month": 3200,
+          "stress_cost": 25,
+          "exp_required_for_next": 48
+        },
+        {
+          "level": 4,
+          "id": "job_cto",
+          "title": "Giám Đốc Công Nghệ (CTO)",
+          "min_age": 26,
+          "required_degrees": ["bachelor_it"],
+          "required_stats": { "smarts": 85, "ego": 60 },
+          "salary_per_month": 6500,
+          "stress_cost": 30,
+          "exp_required_for_next": null
+        }
+      ]
+    },
+    {
+      "track_id": "business_finance",
+      "track_name": "Kinh Doanh & Tài Chính",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_sales_executive",
+          "title": "Nhân Viên Kinh Doanh / Sales",
+          "min_age": 18,
+          "required_degrees": ["thpt_diploma"],
+          "required_stats": { "charm": 50 },
+          "salary_per_month": 500,
+          "stress_cost": 16,
+          "exp_required_for_next": 12
+        },
+        {
+          "level": 2,
+          "id": "job_accountant",
+          "title": "Kế Toán / Chuyên Viên Finance",
+          "min_age": 22,
+          "required_degrees": ["bachelor_business"],
+          "required_stats": { "smarts": 60 },
+          "salary_per_month": 1100,
+          "stress_cost": 18,
+          "exp_required_for_next": 24
+        },
+        {
+          "level": 3,
+          "id": "job_sales_manager",
+          "title": "Trưởng Phòng Kinh Doanh",
+          "min_age": 24,
+          "required_degrees": ["bachelor_business"],
+          "required_stats": { "charm": 65, "smarts": 60 },
+          "salary_per_month": 2400,
+          "stress_cost": 24,
+          "exp_required_for_next": 36
+        },
+        {
+          "level": 4,
+          "id": "job_ceo",
+          "title": "Giám Đốc Điều Hành (CEO)",
+          "min_age": 27,
+          "required_degrees": ["bachelor_business"],
+          "required_stats": { "charm": 80, "ego": 70, "smarts": 75 },
+          "salary_per_month": 7500,
+          "stress_cost": 35,
+          "exp_required_for_next": null
+        }
+      ]
+    },
+    {
+      "track_id": "medical",
+      "track_name": "Ngành Y Dược & Sức Khỏe",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_nurse",
+          "title": "Y Tá / Điều Dưỡng Viên",
+          "min_age": 20,
+          "required_degrees": ["thpt_diploma"],
+          "required_stats": { "health": 60, "charm": 45 },
+          "salary_per_month": 750,
+          "stress_cost": 20,
+          "exp_required_for_next": 24
+        },
+        {
+          "level": 2,
+          "id": "job_general_doctor",
+          "title": "Bác Sĩ Đa Khoa",
+          "min_age": 24,
+          "required_degrees": ["bachelor_medicine"],
+          "required_stats": { "smarts": 75 },
+          "salary_per_month": 2200,
+          "stress_cost": 25,
+          "exp_required_for_next": 48
+        },
+        {
+          "level": 3,
+          "id": "job_head_doctor",
+          "title": "Trưởng Khoa Bệnh Viện",
+          "min_age": 29,
+          "required_degrees": ["bachelor_medicine"],
+          "required_stats": { "smarts": 85, "ego": 50 },
+          "salary_per_month": 4800,
+          "stress_cost": 30,
+          "exp_required_for_next": null
+        }
+      ]
+    },
+    {
+      "track_id": "creative_beauty",
+      "track_name": "Thiết Kế, Làm Đẹp & Dịch Vụ",
+      "levels": [
+        {
+          "level": 1,
+          "id": "job_spa_technician",
+          "title": "Kỹ Thuật Viên Spa / Làm Đẹp",
+          "min_age": 17,
+          "required_degrees": ["cert_beauty"],
+          "required_stats": { "looks": 55, "charm": 45 },
+          "salary_per_month": 600,
+          "stress_cost": 15,
+          "exp_required_for_next": 18
+        },
+        {
+          "level": 2,
+          "id": "job_graphic_designer",
+          "title": "Chuyên Viên Thiết Kế Đồ Họa",
+          "min_age": 22,
+          "required_degrees": ["bachelor_design"],
+          "required_stats": { "looks": 50, "smarts": 55 },
+          "salary_per_month": 1250,
+          "stress_cost": 18,
+          "exp_required_for_next": 36
+        },
+        {
+          "level": 3,
+          "id": "job_art_director",
+          "title": "Giám Đốc Nghệ Thuật (Art Director)",
+          "min_age": 25,
+          "required_degrees": ["bachelor_design"],
+          "required_stats": { "looks": 65, "charm": 60, "smarts": 70 },
+          "salary_per_month": 3500,
+          "stress_cost": 25,
+          "exp_required_for_next": null
+        }
+      ]
+    }
+  ]
+}

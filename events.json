@@ -1,0 +1,29 @@
+{
+  "allowance_events": [
+    {
+      "id": "parent_allowance",
+      "title": "Tiền chu cấp từ bố mẹ",
+      "description": "Bố mẹ gửi cho bạn 500$ tiền sinh hoạt phí hàng tháng.",
+      "min_age": 16,
+      "max_age": 18,
+      "amount": 500
+    }
+  ],
+  "random_events": [
+    { "id": "r001", "tag": "🏢 CÔNG SỞ", "title": "Sếp Soi Báo Cáo", "prompt": "Sếp đi qua bàn gõ tay xuống mặt bàn: 'Báo cáo tuần này em làm kiểu gì đấy? Sai số liệu lung tung hết cả lên!'", "category": "work", "min_age": 18, "requires_job": true, "requires_housing": "any" },
+    { "id": "r002", "tag": "🏢 CÔNG SỞ", "title": "Đồng Nghiệp Dành Công", "prompt": "Đồng nghiệp lấy slide thuyết trình của bạn đem đi trình bày với Giám đốc như thể họ tự làm hoàn toàn.", "category": "work", "min_age": 18, "requires_job": true, "requires_housing": "any" },
+    { "id": "r003", "tag": "🏢 CÔNG SỞ", "title": "Bị Ép Tăng Ca", "prompt": "Đã 5h55 chiều, Trưởng phòng đi ra bảo: 'Hôm nay cả team ở lại OT đến 10h đêm hoàn thiện dự án nhé!'", "category": "work", "min_age": 18, "requires_job": true, "requires_housing": "any" },
+    { "id": "r004", "tag": "🏢 CÔNG SỞ", "title": "Đồ Ăn Trong Tủ Lạnh", "prompt": "Hộp cơm trưa bạn để trong tủ lạnh công ty bị ai đó ăn mất một nửa mà không xin phép.", "category": "work", "min_age": 18, "requires_job": true, "requires_housing": "any" },
+    
+    { "id": "r011", "tag": "🏘️ HÀNG XÓM", "title": "Karaoke Đêm Khuya", "prompt": "Hàng xóm hát Karaoke loa kéo lúc 11h đêm. Bạn sang nhắc thì họ gắt: 'Nhà tôi tôi hát, không nghe thì biến!'", "category": "neighbor", "min_age": 16, "requires_job": false, "requires_housing": "any" },
+    { "id": "r015", "tag": "🏘️ HÀNG XÓM", "title": "Bà Cô Nhiều Chuyện", "prompt": "Bà cô hàng xóm đứng ở cổng bảo: 'Dạo này thấy đi đêm về muộn suốt, làm nghề gì bất chính đấy con?'", "category": "neighbor", "min_age": 16, "requires_job": false, "requires_housing": "any" },
+
+    { "id": "r019", "tag": "🍜 ĐƯỜNG PHỐ", "title": "Chặt Chém Quán Ăn", "prompt": "Tính tiền tô hủ tiếu bình dân, chủ quán hét giá: 'Của em 150k nhé! Tôm mực tươi ngon thế còn gì!'", "category": "street", "min_age": 16, "requires_job": false, "requires_housing": "any" },
+    { "id": "r020", "tag": "🚗 GIAO THÔNG", "title": "Quẹt Xe Ngã Ngửa", "prompt": "Một thanh niên vượt ẩu quẹt vào đầu xe bạn làm ngã ra đường rồi đứng chửi: 'Đi đứng kiểu gì đấy hả?'", "category": "street", "min_age": 16, "requires_job": false, "requires_housing": "any" },
+
+    { "id": "r026", "tag": "💖 BẠN BÈ", "title": "Vay Tiền Không Trả", "prompt": "Thằng bạn thân lâu ngày không gặp nhắn: 'Thằng đệ ơi, cho tao mượn gấp 5 củ tuần sau tao trả, kẹt quá!'", "category": "friend", "min_age": 16, "requires_job": false, "requires_housing": "any" },
+    { "id": "r031", "tag": "💖 BẠN BÈ", "title": "Bị Leo Cây", "prompt": "Hẹn bạn đi uống cà phê lúc 3h chiều, bạn ngồi chờ đến 4h gọi điện nó mới ngủ dậy bảo 'Thôi để khi khác nha'.", "category": "friend", "min_age": 16, "requires_job": false, "requires_housing": "any" },
+
+    { "id": "r035", "tag": "🏠 TRỌ TƯ HỮU", "title": "Chủ Nhà Tăng Tiền", "prompt": "Chủ nhà trọ bất ngờ thông báo: 'Từ tháng sau tiền phòng tăng lên thêm 1.5 triệu nhé, giá thị trường tăng rồi!'", "category": "finance", "min_age": 18, "requires_job": false, "requires_housing": "rented" }
+  ]
+}

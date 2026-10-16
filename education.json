@@ -1,0 +1,384 @@
+{
+  "education_programs": [
+    {
+      "id": "thpt_program",
+      "name": "Chương Trình THPT (Lớp 10 - Lớp 12)",
+      "category": "formal",
+      "min_age": 16,
+      "max_age": 22,
+      "duration_months": 36,
+      "tuition_per_month": 50,
+      "stamina_cost_per_month": 12,
+      "smarts_required": 35,
+      "prerequisites": [],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Tác phẩm 'Tắt Đèn' do ai sáng tác?",
+          "options": ["Nam Cao", "Ngô Tất Tố", "Vũ Trọng Phụng", "Xuân Diệu"],
+          "answer": 1
+        },
+        {
+          "q": "Công thức tính vận tốc chuyển động thẳng đều là gì?",
+          "options": ["v = s / t", "v = s * t", "v = a * t", "v = m * g"],
+          "answer": 0
+        },
+        {
+          "q": "Đồng bằng sông Cửu Long là vựa lúa lớn nhất nước ta đúng hay sai?",
+          "options": ["Đúng", "Sai"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "thpt_diploma",
+        "smarts_bonus": 15,
+        "charm_bonus": 5
+      }
+    },
+    {
+      "id": "degree_cntt",
+      "name": "Đại Học Công Nghệ Thông Tin (CNTT)",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 45,
+      "duration_months": 48,
+      "tuition_per_month": 250,
+      "stamina_cost_per_month": 18,
+      "smarts_required": 60,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Trong lập trình, biến kiểu Boolean nhận những giá trị nào?",
+          "options": ["True / False", "Số nguyên", "Chuỗi ký tự", "Mảng"],
+          "answer": 0
+        },
+        {
+          "q": "HTML được viết tắt từ cụm từ nào?",
+          "options": ["HyperText Markup Language", "High Tech Main Language", "Hyperlink Text Mode Logic", "Home Tool Markup Language"],
+          "answer": 0
+        },
+        {
+          "q": "Đâu là một hệ quản trị cơ sở dữ liệu phổ biến?",
+          "options": ["MySQL", "Photoshop", "NodeJS", "Tailwind"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_it",
+        "smarts_bonus": 25
+      }
+    },
+    {
+      "id": "degree_xaydung",
+      "name": "Đại Học Kỹ Thuật Xây Dựng",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 45,
+      "duration_months": 48,
+      "tuition_per_month": 220,
+      "stamina_cost_per_month": 20,
+      "smarts_required": 55,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Bê tông cốt thép là sự kết hợp giữa bê tông và vật liệu nào?",
+          "options": ["Thép", "Gỗ", "Nhựa", "Nhôm"],
+          "answer": 0
+        },
+        {
+          "q": "Bản vẽ kỹ thuật thể hiện điều gì của công trình?",
+          "options": ["Kích thước & Cấu trúc", "Giá tiền bán nhà", "Tên chủ đầu tư", "Màu sơn nội thất"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_civil_engineering",
+        "smarts_bonus": 20,
+        "strength_bonus": 10
+      }
+    },
+    {
+      "id": "degree_cokhi",
+      "name": "Đại Học Cơ Khí - Tự Động Hóa",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 45,
+      "duration_months": 48,
+      "tuition_per_month": 210,
+      "stamina_cost_per_month": 18,
+      "smarts_required": 55,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Dầu nhớt trong động cơ xe có tác dụng chính là gì?",
+          "options": ["Bôi trơn & Tản nhiệt", "Tăng tốc độ chạy", "Làm đẹp xe", "Đổi màu khói"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_mechanical",
+        "smarts_bonus": 20,
+        "strength_bonus": 5
+      }
+    },
+    {
+      "id": "degree_kinhte",
+      "name": "Đại Học Quản Trị Kinh Doanh & Tài Chính",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 50,
+      "duration_months": 48,
+      "tuition_per_month": 240,
+      "stamina_cost_per_month": 15,
+      "smarts_required": 50,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Lợi nhuận được tính bằng công thức nào?",
+          "options": ["Doanh thu - Chi phí", "Doanh thu + Chi phí", "Doanh thu * Thuế", "Vốn điều lệ / 2"],
+          "answer": 0
+        },
+        {
+          "q": "Lạm phát tăng cao ảnh hưởng thế nào đến tiền mặt?",
+          "options": ["Làm giảm sức mua", "Làm tăng giá trị", "Không ảnh hưởng", "Tự nhân đôi"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_business",
+        "smarts_bonus": 15,
+        "charm_bonus": 15
+      }
+    },
+    {
+      "id": "degree_luat",
+      "name": "Đại Học Luật",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 50,
+      "duration_months": 48,
+      "tuition_per_month": 230,
+      "stamina_cost_per_month": 16,
+      "smarts_required": 60,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Văn bản pháp luật có hiệu lực cao nhất ở Việt Nam là gì?",
+          "options": ["Hiến pháp", "Nghị định", "Thông tư", "Quyết định"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_law",
+        "smarts_bonus": 20,
+        "charm_bonus": 10
+      }
+    },
+    {
+      "id": "degree_yduoc",
+      "name": "Đại Học Y Dược (Bác Sĩ Đa Khoa)",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 35,
+      "duration_months": 72,
+      "tuition_per_month": 350,
+      "stamina_cost_per_month": 25,
+      "smarts_required": 75,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Nhiệt độ cơ thể bình thường của người khỏe mạnh là bao nhiêu?",
+          "options": ["36.5°C - 37.5°C", "39°C - 40°C", "32°C - 34°C", "42°C"],
+          "answer": 0
+        },
+        {
+          "q": "Cơ quan nào trong cơ thể chịu trách nhiệm lọc máu chính?",
+          "options": ["Thận", "Dạ dày", "Phổi", "Mắt"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_medicine",
+        "smarts_bonus": 35
+      }
+    },
+    {
+      "id": "degree_thietke",
+      "name": "Đại Học Thiết Kế Đồ Họa & Mỹ Thuật",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 45,
+      "duration_months": 48,
+      "tuition_per_month": 260,
+      "stamina_cost_per_month": 16,
+      "smarts_required": 45,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Hệ màu RGB thường dùng cho thiết kế hiển thị trên màn hình đúng hay sai?",
+          "options": ["Đúng", "Sai"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_design",
+        "looks_bonus": 10,
+        "smarts_bonus": 15
+      }
+    },
+    {
+      "id": "degree_dulich",
+      "name": "Cao Đẳng / Đại Học Quản Trị Du Lịch - Khách Sạn",
+      "category": "formal",
+      "min_age": 18,
+      "max_age": 50,
+      "duration_months": 36,
+      "tuition_per_month": 190,
+      "stamina_cost_per_month": 14,
+      "smarts_required": 40,
+      "prerequisites": ["thpt_diploma"],
+      "requires_exam": true,
+      "exam_questions": [
+        {
+          "q": "Kỹ năng quan trọng nhất của hướng dẫn viên du lịch là gì?",
+          "options": ["Giao tiếp & Ngoại ngữ", "Sửa xe máy", "Lập trình web", "Thi công cầu đường"],
+          "answer": 0
+        }
+      ],
+      "rewards": {
+        "degree_id": "bachelor_tourism",
+        "charm_bonus": 20,
+        "looks_bonus": 5
+      }
+    },
+    {
+      "id": "cert_xaydung_basic",
+      "name": "Chứng Chỉ An Toàn & Kỹ Thuật Xây Dựng",
+      "category": "vocational",
+      "min_age": 16,
+      "max_age": 60,
+      "duration_months": 6,
+      "tuition_per_month": 100,
+      "stamina_cost_per_month": 15,
+      "smarts_required": 0,
+      "prerequisites": [],
+      "requires_exam": false,
+      "rewards": {
+        "degree_id": "cert_builder",
+        "strength_bonus": 10
+      }
+    },
+    {
+      "id": "cert_barista_fnb",
+      "name": "Chứng Chỉ Pha Chế & Phục Vụ Chuyên Nghiệp",
+      "category": "vocational",
+      "min_age": 16,
+      "max_age": 50,
+      "duration_months": 3,
+      "tuition_per_month": 150,
+      "stamina_cost_per_month": 10,
+      "smarts_required": 0,
+      "prerequisites": [],
+      "requires_exam": false,
+      "rewards": {
+        "degree_id": "cert_barista",
+        "charm_bonus": 10
+      }
+    },
+    {
+      "id": "cert_chef",
+      "name": "Chứng Chỉ Nấu Ăn & Bếp Trưởng",
+      "category": "vocational",
+      "min_age": 16,
+      "max_age": 55,
+      "duration_months": 6,
+      "tuition_per_month": 170,
+      "stamina_cost_per_month": 15,
+      "smarts_required": 0,
+      "prerequisites": [],
+      "requires_exam": false,
+      "rewards": {
+        "degree_id": "cert_chef_degree",
+        "charm_bonus": 5,
+        "strength_bonus": 5
+      }
+    },
+    {
+      "id": "cert_driver_license",
+      "name": "Bằng Lái Xe Máy & Ô Tô B2",
+      "category": "vocational",
+      "min_age": 18,
+      "max_age": 65,
+      "duration_months": 4,
+      "tuition_per_month": 180,
+      "stamina_cost_per_month": 8,
+      "smarts_required": 0,
+      "prerequisites": [],
+      "requires_exam": false,
+      "rewards": {
+        "degree_id": "cert_driver",
+        "charm_bonus": 5
+      }
+    },
+    {
+      "id": "cert_coder_bootcamp",
+      "name": "Chứng Chỉ Lập Trình Cấp Tốc (Bootcamp)",
+      "category": "vocational",
+      "min_age": 16,
+      "max_age": 50,
+      "duration_months": 6,
+      "tuition_per_month": 300,
+      "stamina_cost_per_month": 20,
+      "smarts_required": 45,
+      "prerequisites": [],
+      "requires_exam": false,
+      "rewards": {
+        "degree_id": "cert_coder",
+        "smarts_bonus": 15
+      }
+    },
+    {
+      "id": "cert_spa_beauty",
+      "name": "Chứng Chỉ Chăm Sóc Sắc Đẹp & Spa",
+      "category": "vocational",
+      "min_age": 16,
+      "max_age": 50,
+      "duration_months": 4,
+      "tuition_per_month": 200,
+      "stamina_cost_per_month": 10,
+      "smarts_required": 0,
+      "prerequisites": [],
+      "requires_exam": false,
+      "rewards": {
+        "degree_id": "cert_beauty",
+        "looks_bonus": 15,
+        "charm_bonus": 5
+      }
+    },
+    {
+      "id": "cert_electrician",
+      "name": "Chứng Chỉ Sửa Chữa Điện - Dân Dụng",
+      "category": "vocational",
+      "min_age": 16,
+      "max_age": 60,
+      "duration_months": 6,
+      "tuition_per_month": 130,
+      "stamina_cost_per_month": 15,
+      "smarts_required": 20,
+      "prerequisites": [],
+      "requires_exam": false,
+      "rewards": {
+        "degree_id": "cert_electrician_degree",
+        "strength_bonus": 8,
+        "smarts_bonus": 5
+      }
+    }
+  ]
+}
