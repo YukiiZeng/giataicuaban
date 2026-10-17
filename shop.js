@@ -41,15 +41,28 @@ function buyItem(itemId) {
     // Kiểm tra nếu là Smartphone hoặc Xe cộ đã sở hữu loại tương tự
     if (item.type === 'smartphone') {
         const hasPhone = gameState.inventory.some(i => i.type === 'smartphone');
-        if (hasPhone && !confirm(`Bạn đã có điện thoại. Bạn có muốn đổi sang ${item.name}?`)) {
+        if (hasPhone) {
+            // Thay confirm() cũ bằng Modal xác nhận phong cách game
+            showGameConfirm(
+                `Bạn đã có điện thoại trong túi đồ. Bạn có muốn đổi sang ${item.name} không?`,
+                function() {
+                    executeBuyItem(item);
+                },
+                "Xác Nhận Đổi Thiết Bị",
+                "📱",
+                "🛒 Cửa Hàng"
+            );
             return;
         }
     }
 
-    // Trừ tiền
+    executeBuyItem(item);
+}
+
+// Hàm phụ trợ thực hiện giao dịch mua sau khi đã qua bước xác nhận
+function executeBuyItem(item) {
     gameState.money -= item.price;
 
-    // Thêm vào Túi Đồ
     const existingIndex = gameState.inventory.findIndex(i => i.id === item.id);
     if (existingIndex >= 0 && item.type !== 'smartphone' && item.type !== 'vehicle') {
         gameState.inventory[existingIndex].quantity = (gameState.inventory[existingIndex].quantity || 1) + 1;
@@ -57,7 +70,6 @@ function buyItem(itemId) {
         gameState.inventory.push({ ...item, quantity: 1, purchasedAt: gameState.month || 1 });
     }
 
-    // Tác động chỉ số cá nhân (Chỉ cộng 1 lần khi mua)
     if (item.effects) {
         if (item.effects.charm_bonus) gameState.charm = Math.min(100, (gameState.charm || 0) + item.effects.charm_bonus);
         if (item.effects.looks_bonus) gameState.looks = Math.min(100, (gameState.looks || 0) + item.effects.looks_bonus);
@@ -65,7 +77,6 @@ function buyItem(itemId) {
         if (item.effects.smarts_bonus) gameState.smarts = Math.min(100, (gameState.smarts || 0) + item.effects.smarts_bonus);
     }
 
-    // Ghi nhật ký & Lịch sử giao dịch
     if (typeof addDailyLog === 'function') {
         addDailyLog(`Mua sắm: ${item.name} (-${item.price}$)`);
     }
@@ -83,6 +94,7 @@ function buyItem(itemId) {
     renderShopModalList();
 }
 
+
 /**
  * Bán lại vật phẩm trong Túi Đồ (Lấy lại 60% giá trị)
  */
@@ -95,29 +107,37 @@ function sellItem(itemId) {
     const item = gameState.inventory[itemIndex];
     const resellPrice = Math.floor(item.price * 0.6);
 
-    if (confirm(`Bạn có chắc chắn muốn bán lại ${item.name} với giá ${resellPrice.toLocaleString()} $ (60% giá trị)?`)) {
-        gameState.money = (gameState.money || 0) + resellPrice;
+    // Sử dụng Modal Xác Nhận tùy chỉnh phong cách game
+    showGameConfirm(
+        `Bạn có chắc chắn muốn bán lại ${item.name} với giá ${resellPrice.toLocaleString()} $ (60% giá trị gốc)?`,
+        function() {
+            gameState.money = (gameState.money || 0) + resellPrice;
 
-        if (item.quantity && item.quantity > 1) {
-            item.quantity -= 1;
-        } else {
-            gameState.inventory.splice(itemIndex, 1);
-        }
+            if (item.quantity && item.quantity > 1) {
+                item.quantity -= 1;
+            } else {
+                gameState.inventory.splice(itemIndex, 1);
+            }
 
-        if (typeof addDailyLog === 'function') {
-            addDailyLog(`Bán đồ: ${item.name} (+${resellPrice}$)`);
-        }
-        if (typeof addTransactionHistory === 'function') {
-            addTransactionHistory(`Bán đồ: ${item.name}`, resellPrice);
-        }
+            if (typeof addDailyLog === 'function') {
+                addDailyLog(`Bán đồ: ${item.name} (+${resellPrice}$)`);
+            }
+            if (typeof addTransactionHistory === 'function') {
+                addTransactionHistory(`Bán đồ: ${item.name}`, resellPrice);
+            }
 
-        alert(`💰 Đã bán ${item.name}, nhận lại ${resellPrice.toLocaleString()} $!`);
+            alert(`💰 Đã bán ${item.name}, nhận lại ${resellPrice.toLocaleString()} $!`);
 
-        if (typeof saveGameState === 'function') saveGameState();
-        if (typeof renderGameState === 'function') renderGameState();
-        renderInventoryModalList();
-    }
+            if (typeof saveGameState === 'function') saveGameState();
+            if (typeof renderGameState === 'function') renderGameState();
+            renderInventoryModalList();
+        },
+        "Xác Nhận Bán Vật Phẩm",
+        "🏷️",
+        "🎒 Túi Đồ"
+    );
 }
+
 
 /**
  * Render Danh sách Cửa Hàng (Shop Modal)

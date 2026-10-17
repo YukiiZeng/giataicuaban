@@ -173,16 +173,25 @@ function handleDropOutEducation() {
     if (typeof gameState === 'undefined' || !gameState || !gameState.currentEducation) return;
     
     const eduName = gameState.currentEducation.name;
-    if (confirm(`Bạn có chắc chắn muốn nộp đơn THÔI HỌC chương trình: ${eduName}?`)) {
-        if (typeof addDailyLog === 'function') addDailyLog(`Đã nộp đơn xin thôi học: ${eduName}.`);
-        gameState.currentEducation = null;
-        alert(`🚪 Bạn đã chính thức thôi học ${eduName}.`);
-        
-        if (typeof saveGameState === 'function') saveGameState();
-        if (typeof renderGameState === 'function') renderGameState();
-        renderEducationModalList();
-    }
+    
+    // Sử dụng Modal Xác Nhận tùy chỉnh phong cách game
+    showGameConfirm(
+        `Bạn có chắc chắn muốn nộp đơn THÔI HỌC chương trình: ${eduName}? Mọi tiến trình học tập hiện tại sẽ mất hết!`,
+        function() {
+            if (typeof addDailyLog === 'function') addDailyLog(`Đã nộp đơn xin thôi học: ${eduName}.`);
+            gameState.currentEducation = null;
+            alert(`🚪 Bạn đã chính thức thôi học ${eduName}.`);
+            
+            if (typeof saveGameState === 'function') saveGameState();
+            if (typeof renderGameState === 'function') renderGameState();
+            renderEducationModalList();
+        },
+        "Xác Nhận Thôi Học",
+        "🚪",
+        "📜 Giáo Dục"
+    );
 }
+
 
 /**
  * Xử lý Thi Vượt Cấp (Rút ngắn 2 tháng học / 1 câu trả lời đúng)

@@ -39,10 +39,10 @@ loadJobsData();
  */
 function applyForJob(jobId) {
     if (typeof gameState === 'undefined' || !gameState) return;
-
+    
     let targetJob = null;
     let targetTrack = null;
-
+    
     // Tìm kiếm vị trí công việc trong cây danh mục
     for (const track of jobsData) {
         const found = track.levels.find(j => j.id === jobId);
@@ -52,32 +52,32 @@ function applyForJob(jobId) {
             break;
         }
     }
-
+    
     if (!targetJob) return;
-
+    
     // 1. Kiểm tra điều kiện độ tuổi
     if (gameState.age < targetJob.min_age) {
         alert(`❌ Bạn chưa đủ tuổi! Yêu cầu tối thiểu ${targetJob.min_age} tuổi.`);
         return;
     }
-
-    // 2. Kiểm tra điều kiện Bằng cấp / Chứng chỉ
+    
+    // 2. Kiểm tra điều kiện Bằng cấp / Chứng chỉ (Sử dụng hệ thống quy đổi cấp bậc)
     if (targetJob.required_degrees && targetJob.required_degrees.length > 0) {
-        const myDegrees = gameState.degrees || [];
-        const hasDegree = targetJob.required_degrees.some(deg => myDegrees.includes(deg));
-        if (!hasDegree) {
+        const hasValidDegree = checkHasRequiredDegrees(targetJob.required_degrees);
+        if (!hasValidDegree) {
             alert("❌ Bạn chưa có Bằng cấp / Chứng chỉ đáp ứng yêu cầu công việc này!");
             return;
         }
     }
-
+    
+    
     // 3. 🚀 Kiểm tra quy tắc Vừa học vừa làm (Part-time / Full-time)
     const isFormalEdu = gameState.currentEducation && gameState.currentEducation.category === 'formal';
     if (isFormalEdu && !targetJob.is_part_time) {
         alert(`❌ Bạn đang theo học chương trình chính quy! Khung thời gian bận rộn không cho phép nhận việc Full-time (${targetJob.title}). Bạn chỉ có thể làm việc bán thời gian (Part-time).`);
         return;
     }
-
+    
     // 4. Tiến hành nhận việc
     gameState.job = {
         id: targetJob.id,
@@ -90,14 +90,14 @@ function applyForJob(jobId) {
         monthsExperience: 0,
         expRequiredForNext: targetJob.exp_required_for_next
     };
-
+    
     alert(`🎉 Chúc mừng! Bạn đã nhận vị trí: ${targetJob.title} với mức lương ${targetJob.salary_per_month}$/tháng!`);
-
+    
     // Ghi nhận cột mốc xin việc thành công
     if (typeof addMilestoneLog === 'function') {
         addMilestoneLog(`Nhận việc mới: ${targetJob.title}`);
     }
-
+    
     if (typeof showJobsModal === 'function') showJobsModal(false);
     if (typeof saveGameState === 'function') saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
@@ -108,24 +108,24 @@ function applyForJob(jobId) {
  */
 function processMonthlyJob() {
     if (typeof gameState === 'undefined' || !gameState || !gameState.job) return;
-
+    
     const job = gameState.job;
-
+    
     // 1. Nhận lương & Trừ sức khỏe do áp lực công việc
     gameState.money = (gameState.money || 0) + (job.salary || 0);
     showFloatingText('money', `+${job.salary}$`, 'pos');
     gameState.health = Math.max(0, (gameState.health || 100) - (job.stressCost || 0));
-
+    
     if (typeof addDailyLog === 'function') {
         addDailyLog(`Đi làm: ${job.title} (+${job.salary}$) - Thâm niên ${job.monthsExperience + 1} tháng.`);
     }
     if (typeof addTransactionHistory === 'function') {
         addTransactionHistory(`Lương: ${job.title}`, job.salary);
     }
-
+    
     // 2. Tích lũy số tháng kinh nghiệm
     job.monthsExperience = (job.monthsExperience || 0) + 1;
-
+    
     console.log(`💼 Đi làm: ${job.title} (+${job.salary}$) - Tích lũy: ${job.monthsExperience} tháng kinh nghiệm.`);
 }
 
@@ -135,19 +135,28 @@ function processMonthlyJob() {
 function handleResignJob() {
     if (typeof gameState === 'undefined' || !gameState || !gameState.job) return;
 
-    if (confirm(`Bạn có chắc chắn muốn nghỉ việc vị trí: ${gameState.job.title}?`)) {
-        console.log(`🚪 Đã nghỉ việc: ${gameState.job.title}`);
+    const jobTitle = gameState.job.title;
 
-        if (typeof addDailyLog === 'function') {
-            addDailyLog(`Đã nộp đơn xin thôi việc vị trí: ${gameState.job.title}`);
-        }
+    // Sử dụng Modal Xác Nhận tùy chỉnh phong cách game
+    showGameConfirm(
+        `Bạn có chắc chắn muốn nộp đơn xin nghỉ việc vị trí: ${jobTitle}?`,
+        function() {
+            console.log(`🚪 Đã nghỉ việc: ${jobTitle}`);
 
-        gameState.job = null;
+            if (typeof addDailyLog === 'function') {
+                addDailyLog(`Đã nộp đơn xin thôi việc vị trí: ${jobTitle}`);
+            }
 
-        if (typeof renderJobsModalList === 'function') renderJobsModalList();
-        if (typeof saveGameState === 'function') saveGameState();
-        if (typeof renderGameState === 'function') renderGameState();
-    }
+            gameState.job = null;
+
+            if (typeof renderJobsModalList === 'function') renderJobsModalList();
+            if (typeof saveGameState === 'function') saveGameState();
+            if (typeof renderGameState === 'function') renderGameState();
+        },
+        "Xác Nhận Thôi Việc",
+        "💼",
+        "🏢 Sự Nghiệp"
+    );
 }
 
 
@@ -163,9 +172,9 @@ function handleResignJob() {
 function renderJobsModalList() {
     const modalList = document.getElementById("jobs-modal-list");
     if (!modalList) return;
-
+    
     modalList.innerHTML = "";
-
+    
     // Nếu dữ liệu JSON chưa tải xong
     if (!jobsData || jobsData.length === 0) {
         modalList.innerHTML = `
@@ -177,9 +186,9 @@ function renderJobsModalList() {
         loadJobsData();
         return;
     }
-
+    
     const currentJob = gameState ? gameState.job : null;
-
+    
     // 1. Hiển thị Banner Công Việc Hiện Tại & Nút Nghỉ Việc (nếu đang đi làm)
     if (currentJob) {
         const currentJobCard = document.createElement("div");
@@ -203,20 +212,20 @@ function renderJobsModalList() {
         `;
         modalList.appendChild(currentJobCard);
     }
-
+    
     // 2. Duyệt qua từng danh mục ngành nghề
     jobsData.forEach(track => {
         const trackTitle = document.createElement("div");
         trackTitle.className = "text-xs font-black text-amber-950 uppercase border-b border-amber-900/10 pb-1 mt-2 mb-1";
         trackTitle.innerText = `📂 ${track.track_name}`;
         modalList.appendChild(trackTitle);
-
+        
         track.levels.forEach(job => {
             const item = document.createElement("div");
             item.className = "glass-card-inner-light p-3 rounded-2xl flex flex-col gap-2 border border-amber-300/40 mb-2";
-
+            
             const isWorkingThis = currentJob && currentJob.id === job.id;
-
+            
             let buttonHTML = '';
             if (isWorkingThis) {
                 buttonHTML = `
@@ -235,7 +244,7 @@ function renderJobsModalList() {
                     </button>
                 `;
             }
-
+            
             item.innerHTML = `
                 <div class="flex justify-between items-start">
                     <div class="flex flex-col">
@@ -246,7 +255,7 @@ function renderJobsModalList() {
                 </div>
                 ${buttonHTML}
             `;
-
+            
             modalList.appendChild(item);
         });
     });
@@ -273,11 +282,11 @@ const degreeHierarchy = {
     "cert_coder": ["bachelor_it"], // Yêu cầu chứng chỉ code -> Có bằng Đại học IT là qua
     "cert_builder": ["bachelor_civil_engineering"], // Yêu cầu chứng chỉ thợ -> Có bằng Kỹ sư XD là qua
     "cert_barista": ["bachelor_tourism", "bachelor_business"], // Yêu cầu chứng chỉ pha chế -> Có bằng Du lịch hoặc Kinh doanh là qua
-    "cert_beauty": ["bachelor_design"], 
+    "cert_beauty": ["bachelor_design"],
     // Yêu cầu bằng cấp 3 -> Có BẤT KỲ bằng Đại học nào cũng được chấp nhận
     "thpt_diploma": [
-        "bachelor_it", "bachelor_civil_engineering", "bachelor_mechanical", 
-        "bachelor_business", "bachelor_law", "bachelor_medicine", 
+        "bachelor_it", "bachelor_civil_engineering", "bachelor_mechanical",
+        "bachelor_business", "bachelor_law", "bachelor_medicine",
         "bachelor_design", "bachelor_tourism"
     ]
 };
@@ -289,7 +298,7 @@ function checkHasRequiredDegrees(requiredDegreesArray) {
     if (!requiredDegreesArray || requiredDegreesArray.length === 0) return true;
     
     const myDegrees = gameState.degrees || [];
-
+    
     // Phải thỏa mãn TOÀN BỘ các điều kiện trong mảng requiredDegrees
     return requiredDegreesArray.every(reqDegree => {
         // 1. Nếu có đúng cái bằng đó -> Hợp lệ luôn

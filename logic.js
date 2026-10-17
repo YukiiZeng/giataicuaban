@@ -192,53 +192,89 @@ function nextMonth() {
     let monthlyIncome = 0;
     let monthlyExpense = 0;
     
-    // Lương hàng tháng
     if (gameState.job) {
         monthlyIncome += (gameState.job.salary || 0);
     }
-    
-    // Học phí hàng tháng
     if (gameState.currentEducation) {
         monthlyExpense += (gameState.currentEducation.tuitionPerMonth || 0);
     }
-    
-    // Tiền thuê nhà
     if (gameState.currentHome && gameState.currentHome.type === 'rented') {
         monthlyExpense += (gameState.currentHome.monthlyCost || 0);
     }
-    
-    // Chi phí sinh hoạt cơ bản
-    monthlyExpense += 50;
+    monthlyExpense += 50; // Chi phí sinh hoạt cơ bản
     
     // 3. Thực thi logic chuyên biệt hàng tháng từ các module
     if (typeof processMonthlyEducation === 'function') processMonthlyEducation();
     if (typeof processMonthlyJob === 'function') processMonthlyJob();
     if (typeof checkHousingEvents === 'function') checkHousingEvents();
     
+
     // 4. Trừ chỉ số sinh tồn (Độ no, Sức khỏe, Hạnh phúc)
     const hungerLoss = 20;
-    gameState.hunger = Math.max(0, (gameState.hunger ?? 80) - hungerLoss);
+    gameState.hunger = Math.max(0, Math.min(100, (gameState.hunger ?? 80) - hungerLoss));
     
     if (gameState.hunger === 0) {
-        gameState.health = Math.max(0, (gameState.health ?? 100) - 25);
-        gameState.happiness = Math.max(0, (gameState.happiness ?? 70) - 20);
+        gameState.health = Math.max(0, Math.min(100, (gameState.health ?? 100) - 25));
+        gameState.happiness = Math.max(0, Math.min(100, (gameState.happiness ?? 70) - 20));
     } else {
-        gameState.happiness = Math.max(0, (gameState.happiness ?? 70) - 3);
+        gameState.happiness = Math.max(0, Math.min(100, (gameState.happiness ?? 70) - 3));
     }
+    
+    // 🛡️ BƯỚC 3: KIỂM TRA NẾU SỨC KHỎE VỀ 0 -> CẤP CỨU HOẶC GAME OVER
+    if ((gameState.health || 0) <= 0) {
+        const hospitalBill = 300;
+        const currentMoney = gameState.money || 0;
+        
+        if (currentMoney >= hospitalBill) {
+            // Đủ tiền: Trừ viện phí, hồi máu tạm thời
+            gameState.money -= hospitalBill;
+            gameState.health = 10;
+            
+            if (typeof addTransactionHistory === 'function') {
+                addTransactionHistory("Y tế: Viện phí cấp cứu khẩn cấp", -hospitalBill);
+            }
+            if (typeof addDailyLog === 'function') {
+                addDailyLog(`🚨 Nguy kịch! Kiệt sức phải nhập viện cấp cứu (-${hospitalBill}$).`);
+            }
+            alert(`🚨 Sức khỏe chạm đáy 0! Bạn ngất xỉu và được đưa đi cấp cứu kịp thời, tốn mất ${hospitalBill}$ viện phí!`);
+        } else if (currentMoney > 0 || (gameState.debt || 0) < 2000) {
+            // Không đủ tiền hẳn, nhưng vẫn còn có thể ghi nợ thêm
+            const shortfall = hospitalBill - currentMoney;
+            gameState.money = 0;
+            gameState.debt = (gameState.debt || 0) + shortfall;
+            gameState.health = 10;
+            
+            if (typeof addTransactionHistory === 'function') {
+                addTransactionHistory("Y tế: Viện phí nợ (Cấp cứu)", -currentMoney);
+            }
+            if (typeof addDailyLog === 'function') {
+                addDailyLog(`🚨 Nguy kịch! Kiệt sức ngất xỉu nhưng không đủ tiền trả viện phí. Bệnh viện ghi nợ thêm ${shortfall}$.`);
+            }
+            alert(`🚨 Sức khỏe chạm đáy 0 và bạn không đủ tiền! Bệnh viện tuyến cuối đã cứu sống bạn qua cơn nguy kịch, nhưng khoản viện phí được ghi vào sổ nợ (+${shortfall}$ nợ mới)!`);
+        } else {
+            // 💀 NẾU NỢ QUÁ NẶNG HOẶC KHÔNG CÒN GÌ ĐỂ CỨU -> GỌI GAME OVER CHÍNH THỨC
+            gameState.health = 0;
+            if (typeof triggerGameOver === 'function') {
+                triggerGameOver("Do kiệt sức hoàn toàn khi sức khỏe chạm đáy 0 và gánh khoản nợ ngập đầu không thể chi trả, cuộc đời của Charlie đã chính thức khép lại tại đây.");
+            }
+            return;
+        }
+    }
+    
     
     // 5. Tích lũy tài chính trọn đời
     gameState.totalLifetimeIncome = (gameState.totalLifetimeIncome || 0) + monthlyIncome;
     gameState.totalLifetimeExpense = (gameState.totalLifetimeExpense || 0) + monthlyExpense;
     
-    // Lưu trạng thái
+    // Lưu trạng thái & Render lại toàn bộ UI
     saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
-    if (typeof renderHealthView === 'function') renderHealthView(); // Thêm dòng này để đồng bộ UI
+    if (typeof renderHealthView === 'function') renderHealthView();
     
     // 6. Hiển thị Modal Tổng Kết Báo Cáo Cuối Tháng
     const summaryData = {
         month: currentMonthNum,
-income: monthlyIncome,
+        income: monthlyIncome,
         expense: monthlyExpense,
         net: monthlyIncome - monthlyExpense,
         healthDiff: (gameState.health || 0) - startHealth,
@@ -248,13 +284,14 @@ income: monthlyIncome,
     
     if (typeof showMonthlySummaryModal === 'function') {
         showMonthlySummaryModal(summaryData, () => {
-            // Callback sau khi đóng modal tổng kết
             if (typeof checkMonthlyEvents === 'function') {
                 checkMonthlyEvents();
             }
         });
     }
 }
+
+
 
 /**
  * =================================================================
@@ -461,15 +498,15 @@ function getRelationshipTier(level = 0, xp = 0) {
 function interactWithNPC(id, info = {}, xpChange = 0) {
     if (!gameState) return;
     ensureBaseRelationships();
-
+    
     let target = gameState.relationships.find(r => r.id === id);
     if (!target) {
         target = { id: id, name: info.name || "Người quen", relation: info.relation || "Bạn bè", icon: info.icon || "👤", level: 0, xp: 0 };
         gameState.relationships.push(target);
     }
-
+    
     target.xp = (target.xp || 0) + xpChange;
-
+    
     // Logic thăng cấp (Tăng tim) khi XP >= 100
     while (target.xp >= 100) {
         if (target.level < 5) {
@@ -480,7 +517,7 @@ function interactWithNPC(id, info = {}, xpChange = 0) {
             break;
         }
     }
-
+    
     // Logic giáng cấp (Trừ tim / Chuyển sang nấm đấm) khi XP < 0
     while (target.xp < 0) {
         if (target.level > -5) {
@@ -491,7 +528,7 @@ function interactWithNPC(id, info = {}, xpChange = 0) {
             break;
         }
     }
-
+    
     saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
@@ -555,4 +592,46 @@ function addTransactionHistory(title, amount) {
         title: title,
         amount: amount
     });
+}
+
+/**
+ * =================================================================
+ * GAME OVER & LIFE ENDING SYSTEM (HỆ THỐNG KẾT THÚC VÒNG ĐỜI)
+ * =================================================================
+ */
+
+/**
+ * Kích hoạt bảng Game Over khi nhân vật kiệt sức hoặc phá sản nặng nề
+ * @param {string} reason Lý do kết thúc cuộc đời
+ */
+function triggerGameOver(reason) {
+    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
+    
+    const modal = document.getElementById("game-over-modal");
+    if (!modal) {
+        alert("Game Over: " + reason);
+        if (typeof resetCharacter === 'function') resetCharacter();
+        return;
+    }
+    
+    // Gắn thông tin tổng kết vào Modal
+    setElementText('game-over-reason', reason);
+    setElementText('go-final-age', `${gameState.age || 16} tuổi`);
+    setElementText('go-final-month', `Tháng ${gameState.month || 1}`);
+    setElementText('go-final-money', `${(gameState.money || 0).toLocaleString()} $`);
+    setElementText('go-final-debt', `${(gameState.debt || 0).toLocaleString()} $`);
+    
+    modal.classList.remove("hidden");
+}
+
+/**
+ * Xử lý khi người chơi bấm nút Tái sinh sau khi Game Over
+ */
+function handleRestartFromGameOver() {
+    const modal = document.getElementById("game-over-modal");
+    if (modal) modal.classList.add("hidden");
+    
+    if (typeof resetCharacter === 'function') {
+        resetCharacter();
+    }
 }

@@ -181,7 +181,7 @@ function checkDynamicMidMonthEvents() {
     const rawList = gameEventsData.random_events || [];
     const currentAge = gameState.age || 16;
     const hasJob = !!(gameState.job && gameState.job !== "Unemployed" && gameState.job !== "Thất nghiệp");
-    const housingState = gameState.housingType || "parents";
+    const housingState = gameState.currentHome ? gameState.currentHome.type : "parents";
 
     if (!gameState.storyFlags) gameState.storyFlags = {};
     if (!gameState.completedEvents) gameState.completedEvents = [];

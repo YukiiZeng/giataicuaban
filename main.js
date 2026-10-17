@@ -89,12 +89,18 @@ function setElementText(id, value) {
 /**
  * Render thanh chỉ số tiến trình (% width)
  */
+/**
+ * Render thanh chỉ số tiến trình (% width) với bộ lọc giới hạn 0 - 100 an toàn
+ */
 function renderStatBar(id, value) {
-    const clampedValue = Math.max(0, Math.min(100, value));
+    const clampedValue = Math.max(0, Math.min(100, Number(value) || 0));
     setElementText(id, clampedValue);
     const barEl = document.getElementById(`${id}-bar`);
-    if (barEl) barEl.style.width = `${clampedValue}%`;
+    if (barEl) {
+        barEl.style.width = `${clampedValue}%`;
+    }
 }
+
 
 
 /**
@@ -151,12 +157,17 @@ function updateCalendarUI() {
  * Xử lý khi nhấn nút "Sang Tháng Mới"
  */
 function handleNextMonth() {
+    const btn = document.getElementById("next-month-btn");
+    if (btn && btn.disabled) return;
+    if (btn) btn.disabled = true; // Khóa ngay lập tức
+
     if (typeof nextMonth === 'function') {
         nextMonth();
         gameState.currentDay = 1;
         if (typeof startMonthCalendarTimer === 'function') startMonthCalendarTimer();
     }
 }
+
 
 
 /**

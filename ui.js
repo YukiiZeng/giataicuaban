@@ -350,3 +350,62 @@ function triggerScreenShake() {
     
     setTimeout(() => mainContainer.classList.remove("animate-shake"), 300);
 }
+
+/**
+ * =================================================================
+ * CUSTOM GAME CONFIRMATION MODAL SYSTEM (HỆ THỐNG XÁC NHẬN TÙY CHỈNH)
+ * =================================================================
+ */
+
+/**
+ * Hiển thị bảng xác nhận mang phong cách game thay thế cho confirm() mặc định
+ * @param {string} title Tiêu đề bảng
+ * @param {string} message Nội dung câu hỏi
+ * @param {function} onConfirm Callback thực thi khi người chơi bấm Đồng Ý
+ * @param {string} icon Icon hiển thị (mặc định là ❓)
+ * @param {string} tag Thẻ nhỏ phía trên (mặc định là ⚠️ Xác Nhận)
+ */
+function showGameConfirm(message, onConfirm, title = "Xác Nhận Hành Động", icon = "❓", tag = "⚠️ Chú Ý") {
+    const modal = document.getElementById("game-confirm-modal");
+    const titleEl = document.getElementById("confirm-modal-title");
+    const descEl = document.getElementById("confirm-modal-description");
+    const iconEl = document.getElementById("confirm-modal-icon");
+    const tagEl = document.getElementById("confirm-modal-tag");
+    const okBtn = document.getElementById("confirm-modal-ok-btn");
+    const cancelBtn = document.getElementById("confirm-modal-cancel-btn");
+
+    if (!modal) {
+        // Fallback an toàn nếu chưa kịp nhúng HTML
+        if (confirm(message)) {
+            if (typeof onConfirm === 'function') onConfirm();
+        }
+        return;
+    }
+
+    if (titleEl) titleEl.innerText = title;
+    if (descEl) descEl.innerText = message;
+    if (iconEl) iconEl.innerText = icon;
+    if (tagEl) tagEl.innerText = tag;
+
+    // Xóa bỏ các sự kiện click cũ bằng cách clone node
+    const newOkBtn = okBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+    // Gắn sự kiện Đồng Ý
+    newOkBtn.onclick = function() {
+        modal.classList.add("hidden");
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    };
+
+    // Gắn sự kiện Hủy Bỏ
+    newCancelBtn.onclick = function() {
+        modal.classList.add("hidden");
+    };
+
+    // Hiển thị modal
+    modal.classList.remove("hidden");
+}
