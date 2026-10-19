@@ -101,6 +101,9 @@ function createCharacter(name, gender = "Nam") {
             { month: 1, age: 16, text: "Bắt đầu cuộc hành trình mới cuộc đời." }
         ],
         transactionHistory: [],
+        // Data chứng khoán ban đầu
+        stocks: null,
+        portfolio: {},
         milestoneLogs: [],
         dailyLogs: [],
         totalLifetimeIncome: 0,
@@ -475,7 +478,10 @@ function nextMonth() {
     if (typeof processMonthlyEducation === 'function') processMonthlyEducation();
     if (typeof processMonthlyJob === 'function') processMonthlyJob();
     if (typeof checkHousingEvents === 'function') checkHousingEvents();
-    processMonthlySubscriptions(); // Trừ tiền gói Gym/Yoga tháng
+    if (typeof processMonthlyStockMarket === 'function') processMonthlyStockMarket(); // 🚀 Tích hợp sàn chứng khoán vào đây
+    processMonthlySubscriptions();
+    
+    // Trừ tiền gói Gym/Yoga tháng
     
     // 4. CƠ CHẾ SINH TỒN & SỨC KHỎE TẬP TRUNG
     modifyStat('hunger', -20); // Dinh dưỡng tự nhiên trừ 20%/tháng
@@ -1060,7 +1066,7 @@ function handleAskForMoney(npcId) {
 
 function interactWithNPC(npcId, options = {}, xpChange = 0) {
     if (!gameState || !gameState.relationships) return;
-     // Reset bộ đếm 3 tháng không tương tác vì người chơi vừa tương tác
+    // Reset bộ đếm 3 tháng không tương tác vì người chơi vừa tương tác
     
     let npc = gameState.relationships.find(r => r.id === npcId);
     
@@ -1105,7 +1111,7 @@ function interactWithNPC(npcId, options = {}, xpChange = 0) {
         }
     }
     
- // 🚀 Ghi nhận Log biến động quan hệ
+    // 🚀 Ghi nhận Log biến động quan hệ
     if (!gameState.relationshipLogs) gameState.relationshipLogs = [];
     const changeSymbol = xpChange >= 0 ? `+${xpChange}` : `${xpChange}`;
     gameState.relationshipLogs.unshift({
