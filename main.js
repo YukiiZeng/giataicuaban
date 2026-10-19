@@ -742,6 +742,33 @@ function getRelationshipTier(level, xp) {
     };
 }
 
+// Biến trạng thái tab quan hệ hiện tại ('list' hoặc 'history')
+let currentRelationshipTab = 'list';
+
+function setRelationshipTab(tabName) {
+    currentRelationshipTab = tabName;
+    const listBtn = document.getElementById("rel-tab-list");
+    const historyBtn = document.getElementById("rel-tab-history");
+    const listContainer = document.getElementById("relationship-modal-list");
+    const historyContainer = document.getElementById("relationship-modal-history");
+    const sortContainer = document.getElementById("rel-sort-container");
+
+    if (tabName === 'list') {
+        if (listBtn) listBtn.className = "flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm";
+        if (historyBtn) historyBtn.className = "flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900";
+        if (listContainer) listContainer.classList.remove("hidden");
+        if (historyContainer) historyContainer.classList.add("hidden");
+        if (sortContainer) sortContainer.classList.remove("hidden");
+    } else {
+        if (historyBtn) historyBtn.className = "flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm";
+        if (listBtn) listBtn.className = "flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900";
+        if (historyContainer) historyContainer.classList.remove("hidden");
+        if (listContainer) listContainer.classList.add("hidden");
+        if (sortContainer) sortContainer.classList.add("hidden");
+        renderRelationshipHistory();
+    }
+}
+
 function renderRelationships() {
     if (typeof gameState === 'undefined' || !gameState) return;
     const rels = gameState.relationships || [];
@@ -756,8 +783,18 @@ function renderRelationships() {
         modalList.innerHTML = `<p class="text-xs text-center font-bold text-amber-800/60 py-4">Chưa có mối quan hệ nào.</p>`;
         return;
     }
+
+    // 🚀 SẮP XẾP THEO BỘ LỌC (Thân nhất ➔ Ghét nhất HOẶC Ngược lại)
+    const sortSelect = document.getElementById("rel-sort-select");
+    const sortOrder = sortSelect ? sortSelect.value : 'desc';
+
+    const sortedRels = [...rels].sort((a, b) => {
+        const scoreA = (a.level || 0) * 100 + (a.xp || 0);
+        const scoreB = (b.level || 0) * 100 + (b.xp || 0);
+        return sortOrder === 'desc' ? scoreB - scoreA : scoreA - scoreB;
+    });
     
-    rels.forEach(rel => {
+    sortedRels.forEach(rel => {
         const lvl = typeof rel.level === 'number' ? rel.level : 0;
         const xp = typeof rel.xp === 'number' ? rel.xp : 0;
         const tier = getRelationshipTier(lvl, xp);
@@ -766,7 +803,6 @@ function renderRelationships() {
         item.className = "glass-card-inner-light p-3 rounded-2xl flex items-center justify-between border border-amber-300/40 shrink-0 gap-2";
         item.innerHTML = `
             <div class="flex flex-col w-full gap-2">
-                <!-- Thông tin & Nút Tương tác -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <span class="text-3xl drop-shadow-sm">${rel.icon || '👤'}</span>
@@ -780,7 +816,6 @@ function renderRelationships() {
                     </button>
                 </div>
 
-                <!-- Thanh Level Tình Cảm -->
                 <div class="flex flex-col items-end gap-1 w-full mt-1">
                     <div class="flex justify-between w-full text-[9px] font-extrabold text-amber-900">
                         <span class="truncate">${tier.label}</span>
@@ -796,15 +831,41 @@ function renderRelationships() {
     });
 }
 
+function renderRelationshipHistory() {
+    const historyContainer = document.getElementById("relationship-modal-history");
+    if (!historyContainer) return;
+    historyContainer.innerHTML = "";
+
+    const logs = gameState.relationshipLogs || [];
+    if (logs.length === 0) {
+        historyContainer.innerHTML = `<p class="text-xs text-center font-bold text-amber-800/60 py-6">Chưa có lịch sử biến động quan hệ nào.</p>`;
+        return;
+    }
+
+    logs.forEach(log => {
+        const item = document.createElement("div");
+        item.className = "glass-card-inner-light p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold border border-amber-300/30";
+        item.innerHTML = `
+            <span class="text-[9px] font-mono bg-amber-900/10 text-amber-950 px-1.5 py-0.5 rounded-md">T${log.month} (${log.age}t)</span>
+            <span class="text-amber-900">${log.text}</span>
+        `;
+        historyContainer.appendChild(item);
+    });
+}
 
 function showRelationshipModal(show) {
     const modal = document.getElementById("relationship-modal");
     if (modal) {
-        if (show) { renderRelationships();
-            modal.classList.remove("hidden"); }
-        else { modal.classList.add("hidden"); }
+        if (show) { 
+            setRelationshipTab('list'); // Mặc định mở tab danh sách
+            renderRelationships();
+            modal.classList.remove("hidden"); 
+        } else { 
+            modal.classList.add("hidden"); 
+        }
     }
 }
+
 
 function renderHousing() {
     if (!gameState) return;

@@ -17,7 +17,7 @@ const ZODIAC_DATA = {
 /**
  * Sinh một NPC ngẫu nhiên hoàn chỉnh kèm theo hệ thống tâm lý hành vi & kiên nhẫn
  */
-function generateRandomNPC(relationType = "Người Quen", category = "street") {
+function generateRandomNPC(relationType = "Người Quen", category = "street", addToRelationships = true) {
     const namesMale = ["Minh", "Hoàng", "Tuấn", "Khang", "Đức", "Huy", "Phong", "Nam", "Bảo", "Sơn"];
     const namesFemale = ["Linh", "Trang", "Hương", "Mai", "Vy", "Thảo", "Nhi", "Hà", "An", "Yến"];
     
@@ -29,7 +29,7 @@ function generateRandomNPC(relationType = "Người Quen", category = "street") 
     const randomZodiac = zodiacKeys[Math.floor(Math.random() * zodiacKeys.length)];
     const zodiacInfo = ZODIAC_DATA[randomZodiac];
 
-    const newNPC = {
+        const newNPC = {
         id: "npc_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
         name: firstName,
         relation: relationType,
@@ -37,11 +37,12 @@ function generateRandomNPC(relationType = "Người Quen", category = "street") 
         category: category,
         level: 0,
         xp: 10,
+        inactiveMonths: 0, // 🚀 Thêm dòng này để theo dõi thời gian không tương tác
         _zodiac: randomZodiac,
         personality: zodiacInfo.nlp_bias || "polite",
         trait: zodiacInfo.trait || "normal",
-        patience: 100, // Thanh kiên nhẫn (0 - 100). Về 0 sẽ block tương tác
-        has_offended: false, // Cờ ghi nhớ nếu từng bị người chơi xúc phạm
+        patience: 100,
+        has_offended: false,
         intrinsic_stats: {
             happiness: Math.floor(Math.random() * 40) + 50,
             wealth: Math.floor(Math.random() * 200) + 50,
@@ -49,9 +50,12 @@ function generateRandomNPC(relationType = "Người Quen", category = "street") 
         }
     };
 
-    if (typeof gameState !== 'undefined' && gameState && gameState.relationships) {
+
+    // 🚀 Chỉ tự động push vào danh sách nếu cờ addToRelationships bật true
+    if (addToRelationships && typeof gameState !== 'undefined' && gameState && gameState.relationships) {
         gameState.relationships.push(newNPC);
     }
 
     return newNPC;
 }
+

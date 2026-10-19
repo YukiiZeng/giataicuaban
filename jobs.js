@@ -128,18 +128,18 @@ function processMonthlyJob() {
     job.monthsExperience = (job.monthsExperience || 0) + 1;
     
     console.log(`💼 Đi làm: ${job.title} (+${job.salary}$) - Tích lũy: ${job.monthsExperience} tháng kinh nghiệm.`);
-
+    
     // 🚀 TÍNH TỶ LỆ KẾT BẠN TỪ CÔNG VIỆC (5% cơ bản + 1%/tháng thâm niên, tối đa +10%)
     const baseChance = 0.05;
     const expBonus = Math.min(0.10, (job.monthsExperience || 0) * 0.01);
     const totalChance = baseChance + expBonus;
-
+    
     if (Math.random() < totalChance) {
         // Xác định loại mối quan hệ dựa trên công việc
         let relationTitle = "Đồng nghiệp";
         if (job.id.includes("shipper") || job.id.includes("driver")) relationTitle = "Khách quen";
         else if (job.id.includes("manager") || job.id.includes("lead") || job.id.includes("ceo")) relationTitle = "Đối tác làm ăn";
-
+        
         if (typeof generateRandomNPC === 'function') {
             const newColleague = generateRandomNPC(relationTitle, "work");
             if (typeof addDailyLog === 'function') {
@@ -155,21 +155,21 @@ function processMonthlyJob() {
  */
 function handleResignJob() {
     if (typeof gameState === 'undefined' || !gameState || !gameState.job) return;
-
+    
     const jobTitle = gameState.job.title;
-
+    
     // Sử dụng Modal Xác Nhận tùy chỉnh phong cách game
     showGameConfirm(
         `Bạn có chắc chắn muốn nộp đơn xin nghỉ việc vị trí: ${jobTitle}?`,
         function() {
             console.log(`🚪 Đã nghỉ việc: ${jobTitle}`);
-
+            
             if (typeof addDailyLog === 'function') {
                 addDailyLog(`Đã nộp đơn xin thôi việc vị trí: ${jobTitle}`);
             }
-
+            
             gameState.job = null;
-
+            
             if (typeof renderJobsModalList === 'function') renderJobsModalList();
             if (typeof saveGameState === 'function') saveGameState();
             if (typeof renderGameState === 'function') renderGameState();
@@ -258,12 +258,14 @@ function renderJobsModalList() {
                 `;
             } else {
                 const btnText = currentJob ? "🔄 Chuyển Sang Việc Này" : "💼 Nộp Đơn Xin Việc";
+                // Thay vì gọi applyForJob trực tiếp, đổi thành:
                 buttonHTML = `
-                    <button onclick="applyForJob('${job.id}')" 
-                        class="w-full py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95">
-                        ${btnText}
-                    </button>
-                `;
+    <button onclick="showJobDetailModal('${job.id}', true)" 
+        class="w-full py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95">
+        🔍 Xem Chi Tiết & Ứng Tuyển
+    </button>
+`;
+                
             }
             
             item.innerHTML = `
@@ -329,4 +331,199 @@ function checkHasRequiredDegrees(requiredDegreesArray) {
         const higherDegrees = degreeHierarchy[reqDegree] || [];
         return higherDegrees.some(higher => myDegrees.includes(higher));
     });
+}
+
+/**
+ * Mở bảng thông tin chi tiết công việc trước khi ứng tuyển
+ */
+function showJobDetailModal(jobId, show) {
+    const modal = document.getElementById("job-detail-modal");
+    if (!modal) return;
+
+    if (!show || !jobId) {
+        modal.classList.add("hidden");
+        return;
+    }
+
+    let targetJob = null;
+    let targetTrack = null;
+
+    for (const track of jobsData) {
+        const found = track.levels.find(j => j.id === jobId);
+        if (found) {
+            targetJob = found;
+            targetTrack = track;
+            break;
+        }
+    }
+
+    if (!targetJob) return;
+
+    // Gán thông tin cơ bản lên Header Modal
+    setElementText("job-detail-track", `📂 ${targetTrack.track_name} (Level ${targetJob.level})`);
+    setElementText("job-detail-title", targetJob.title);
+
+    // Kiểm tra các điều kiện thực tế của nhân vật
+    const playerAge = gameState.age || 16;
+    const isAgeValid = playerAge >= targetJob.min_age;
+    
+    // 🌟 1. TỪ ĐIỂN QUY ĐỔI TÊN BẰNG CẤP / CHỨNG CHỈ THÂN THIỆN
+    const degreeNamesMap = {
+        "cert_coder": "Chứng chỉ Lập trình",
+        "cert_driver" : "Bằng Lái Xe Máy & Ô Tô B2",
+        "cert_builder": "Chứng chỉ Thợ xây",
+        "cert_barista": "Chứng chỉ Pha chế",
+        "cert_beauty": "Chứng chỉ Thẩm mỹ",
+        "thpt_diploma": "Bằng tốt nghiệp THPT",
+        "bachelor_it": "Cử nhân Công nghệ thông tin",
+        "bachelor_civil_engineering": "Kỹ sư Xây dựng",
+        "bachelor_mechanical": "Kỹ sư Cơ khí",
+        "bachelor_business": "Cử nhân Quản trị Kinh doanh",
+        "bachelor_law": "Cử nhân Luật",
+        "bachelor_medicine": "Cử nhân Y khoa",
+        "bachelor_design": "Cử nhân Thiết kế",
+        "bachelor_tourism": "Cử nhân Du lịch"
+    };
+
+    const reqDegrees = targetJob.required_degrees || [];
+    let degreeCheckHTML = "";
+    let hasValidDegree = checkHasRequiredDegrees(reqDegrees);
+
+    if (reqDegrees.length === 0) {
+        degreeCheckHTML = `
+            <div class="flex justify-between items-center text-[11px] bg-white/60 p-1.5 rounded-xl border border-amber-300/30">
+                <span class="text-amber-900">Bằng cấp / Chứng chỉ:</span>
+                <span class="font-mono font-bold text-emerald-700">Không yêu cầu ✨</span>
+            </div>
+        `;
+    } else {
+        const myDegrees = gameState.degrees || [];
+        let degreeItemsHTML = reqDegrees.map(degId => {
+            const degName = degreeNamesMap[degId] || degId;
+            let isSatisfied = myDegrees.includes(degId);
+            if (!isSatisfied && typeof degreeHierarchy !== 'undefined' && degreeHierarchy[degId]) {
+                isSatisfied = degreeHierarchy[degId].some(higher => myDegrees.includes(higher));
+            }
+            return `
+                <div class="flex justify-between items-center text-[11px] bg-white/60 p-1.5 rounded-xl border border-amber-300/30 mt-1">
+                    <span class="text-amber-900">• ${degName}</span>
+                    <span class="font-mono font-black ${isSatisfied ? 'text-emerald-700' : 'text-rose-700'}">${isSatisfied ? 'Đạt ✅' : 'Chưa có ❌'}</span>
+                </div>
+            `;
+        }).join('');
+
+        degreeCheckHTML = `
+            <div class="flex flex-col gap-1">
+                <span class="text-[10px] font-extrabold text-amber-900 uppercase">📜 Yêu cầu bằng cấp / chứng chỉ:</span>
+                ${degreeItemsHTML}
+            </div>
+        `;
+    }
+
+    // 2. Kiểm tra Chỉ số cần thiết
+    const reqStats = targetJob.required_stats || {};
+    let statsCheckHTML = "";
+    let isStatsValid = true;
+
+    for (const [statKey, reqVal] of Object.entries(reqStats)) {
+        const playerVal = gameState[statKey] || 0;
+        const passed = playerVal >= reqVal;
+        if (!passed) isStatsValid = false;
+        
+        const statNames = { smarts: "Trí tuệ", strength: "Sức mạnh", charm: "Ăn nói", looks: "Ngoại hình", ego: "Cái tôi" };
+        statsCheckHTML += `
+            <div class="flex justify-between items-center text-[11px] bg-white/60 p-1.5 rounded-xl border border-amber-300/30">
+                <span class="text-amber-900">${statNames[statKey] || statKey}:</span>
+                <span class="font-mono font-black ${passed ? 'text-emerald-700' : 'text-rose-700'}">${playerVal} / ${reqVal} ${passed ? '✅' : '❌'}</span>
+            </div>
+        `;
+    }
+    if (!statsCheckHTML) statsCheckHTML = `<span class="text-[11px] text-amber-800/70 font-bold">Không yêu cầu chỉ số đặc biệt.</span>`;
+
+    // 3. Kiểm tra Mối quan hệ NPC chuyên môn
+    const reqField = targetJob.required_npc_field; 
+    let npcCheckHTML = "";
+    let isNpcValid = true;
+
+    if (reqField) {
+        const rels = gameState.relationships || [];
+        const qualifiedNpc = rels.find(n => n.category === reqField && (n.level || 0) >= 1);
+        isNpcValid = !!qualifiedNpc;
+
+        npcCheckHTML = `
+            <div class="flex flex-col gap-1 bg-amber-900/5 p-2 rounded-xl border border-amber-900/10 mt-1">
+                <span class="text-[10px] font-extrabold text-amber-900 uppercase">🤝 Yêu cầu mối quan hệ ngành nghề:</span>
+                <span class="text-[11px] font-bold ${isNpcValid ? 'text-emerald-700' : 'text-rose-700'}">
+                    ${isNpcValid ? `✅ Đã quen biết: ${qualifiedNpc.name} (${qualifiedNpc.relation})` : `❌ Cần có quan hệ bạn bè (Lvl 1+) với một NPC thuộc lĩnh vực [${reqField}]`}
+                </span>
+            </div>
+        `;
+    }
+
+    // 4. Buff / Tác động từ Thành phố hiện tại
+    const currentCity = gameState.currentCity || "Thành phố Ung Dung";
+    let citySalaryMultiplier = 1.0;
+    let cityBuffText = "Mức lương chuẩn (x1.0)";
+
+    if (currentCity === "Thành phố Vội Vàng") {
+        citySalaryMultiplier = 1.25;
+        cityBuffText = "🔥 Nhịp sống nhanh: Lương x1.25, Stress tăng nhanh hơn.";
+    } else if (currentCity === "Thành phố Phồn Hoa" || currentCity === "Thành phố Hiện Đại") {
+        citySalaryMultiplier = 1.15;
+        cityBuffText = "🌟 Trung tâm phát triển: Lương x1.15, Kinh nghiệm tích lũy nhanh.";
+    }
+
+    const finalCalculatedSalary = Math.round((targetJob.salary_per_month || 0) * citySalaryMultiplier);
+
+    // Render toàn bộ nội dung vào Modal Chi Tiết
+    const contentEl = document.getElementById("job-detail-content");
+    if (contentEl) {
+        contentEl.innerHTML = `
+            <div class="flex justify-between items-center bg-emerald-50 p-2 rounded-xl border border-emerald-300/40">
+                <span class="text-emerald-900 font-bold">💰 Mức lương cơ bản:</span>
+                <span class="font-mono font-black text-emerald-700 text-sm">${finalCalculatedSalary.toLocaleString()} $/tháng</span>
+            </div>
+            <span class="text-[10px] text-amber-800/80 italic">(${cityBuffText})</span>
+
+            <div class="flex flex-col gap-1 mt-1">
+                <span class="text-[10px] font-extrabold text-amber-900 uppercase">📋 Điều kiện ứng tuyển:</span>
+                <div class="flex justify-between items-center text-[11px] bg-white/60 p-1.5 rounded-xl border border-amber-300/30">
+                    <span class="text-amber-900">Độ tuổi tối thiểu:</span>
+                    <span class="font-mono font-black ${isAgeValid ? 'text-emerald-700' : 'text-rose-700'}">${playerAge} / ${targetJob.min_age} tuổi ${isAgeValid ? '✅' : '❌'}</span>
+                </div>
+            </div>
+
+            <div class="mt-1">
+                ${degreeCheckHTML}
+            </div>
+
+            <div class="flex flex-col gap-1 mt-1">
+                <span class="text-[10px] font-extrabold text-amber-900 uppercase">📊 Chỉ số yêu cầu:</span>
+                ${statsCheckHTML}
+            </div>
+
+            ${npcCheckHTML}
+        `;
+    }
+
+    // Gắn sự kiện cho nút Nộp đơn trong Modal
+    const applyBtn = document.getElementById("job-detail-apply-btn");
+    if (applyBtn) {
+        const canApply = isAgeValid && hasValidDegree && isStatsValid && isNpcValid;
+        if (canApply) {
+            applyBtn.disabled = false;
+            applyBtn.className = "w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md active:scale-95 transition-all cursor-pointer";
+            applyBtn.onclick = function() {
+                applyForJob(targetJob.id);
+                showJobDetailModal(null, false);
+                showJobsModal(false);
+            };
+        } else {
+            applyBtn.disabled = true;
+            applyBtn.className = "w-full py-3 bg-gray-300 text-gray-500 font-display font-extrabold rounded-2xl text-xs cursor-not-allowed text-center";
+            applyBtn.onclick = null;
+        }
+    }
+
+    modal.classList.remove("hidden");
 }

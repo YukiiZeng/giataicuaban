@@ -4,18 +4,13 @@
  * =================================================================
  */
 
-// Lưu trữ dữ liệu sự kiện tĩnh từ events.json
 let gameEventsData = {
     allowance_events: [],
     random_events: []
 };
 
-// Sự kiện hội thoại tự do hiện tại đang kích hoạt
 let currentActiveDialogueEvent = null;
 
-/**
- * Nạp dữ liệu sự kiện từ file events.json
- */
 async function loadEventsJSON() {
     try {
         const response = await fetch('events.json');
@@ -28,7 +23,6 @@ async function loadEventsJSON() {
     }
 }
 
-// Tự động nạp dữ liệu khi script khởi chạy
 loadEventsJSON();
 
 
@@ -40,16 +34,12 @@ loadEventsJSON();
 
 let monthlyEventQueue = [];
 
-/**
- * Quét toàn bộ JSON và đưa các sự kiện thỏa điều kiện vào Hàng đợi
- */
 function checkMonthlyEvents() {
     if (typeof gameState === 'undefined' || !gameState) return;
     
     monthlyEventQueue = [];
     const monthlyData = gameEventsData.monthly_events || [];
     
-    // 1. Quét & Lọc Sự Kiện Tĩnh (từ file JSON)
     monthlyData.forEach(ev => {
         if (ev.min_age !== undefined && gameState.age < ev.min_age) return;
         if (ev.max_age !== undefined && gameState.age > ev.max_age) return;
@@ -59,65 +49,56 @@ function checkMonthlyEvents() {
         monthlyEventQueue.push(ev);
     });
     
-    // 2. 🚀 CẬP NHẬT ĐỜI SỐNG NGẦM & SINH SỰ KIỆN NPC ĐỘNG
     generateDynamicNPCEvents();
-    
-    // 3. Kích hoạt xử lý hàng đợi
     processNextMonthlyEvent();
 }
 
-/**
- * Giả lập cuộc sống của NPC: Tự động dao động tâm trạng, tài chính
- * và kích hoạt các sự kiện ngẫu nhiên dựa trên chỉ số ẩn.
- */
 function generateDynamicNPCEvents() {
     if (!gameState.relationships) return;
-    const pName = gameState.name || "bạn"; // Bắt tên nhân vật
+    const pName = gameState.name || "bạn";
     
     gameState.relationships.forEach(npc => {
         if (!npc.intrinsic_stats) return;
         
-        // A. Cập nhật sinh hoạt ngầm
         npc.intrinsic_stats.wealth += Math.floor(Math.random() * 30);
         const moodSwing = Math.floor(Math.random() * 15) - 7;
         npc.intrinsic_stats.happiness = Math.max(0, Math.min(100, npc.intrinsic_stats.happiness + moodSwing));
-        // 🚀 TỶ LỆ 3.5% NPC THÂN THIẾT GIỚI THIỆU NGƯỜI MỚI (< 5%)
-gameState.relationships.forEach(npc => {
-    const isCloseRelation = (npc.level && npc.level >= 2) || (npc.xp && npc.xp >= 50);
-    
-    if (isCloseRelation && Math.random() < 0.035) {
-        let introducedRelation = "Bạn của " + npc.name;
-        if (npc.id === 'mother' || npc.id === 'father') introducedRelation = "Họ hàng / Người quen gia đình";
+        
+        gameState.relationships.forEach(n => {
+            const isCloseRelation = (n.level && n.level >= 2) || (n.xp && n.xp >= 50);
+            
+            if (isCloseRelation && Math.random() < 0.035) {
+                let introducedRelation = "Bạn của " + n.name;
+                if (n.id === 'mother' || n.id === 'father') introducedRelation = "Họ hàng / Người quen gia đình";
 
-        // Sinh NPC mới trước
-        const newFriend = generateRandomNPC(introducedRelation, "social");
+                const newFriend = generateRandomNPC(introducedRelation, "social", false);
 
-        const referralEvent = {
-            id: "referral_" + Date.now(),
-            tag: "🤝 GIỚI THIỆU MỐI QUAN HỆ",
-            icon: "💌",
-            title: `${npc.name} Giới Thiệu Người Quen`,
-            description: `${npc.name} vừa giới thiệu ${newFriend.name} với bạn: "${npc.name === 'Mẹ' ? 'Con giao lưu với đứa này đi, ngoan lắm!' : 'Thằng bạn này của tao vui tính lắm, giao lưu nhé!'}"`,
-            choices: [
-                {
-                    text: `🥰 Chào hỏi và kết bạn với ${newFriend.name}`,
-                    reward_happiness: 5,
-                    npc_targets: [newFriend.id],
-                    npc_change: 20, // Tăng điểm thiện cảm ban đầu với người mới
-                    success_msg: `Bạn đã vui vẻ làm quen với ${newFriend.name}! Danh sách quan hệ +1.`
-                },
-                {
-                    text: "😅 Ngại ngùng từ chối",
-                    success_msg: "Bạn đã khéo léo từ chối cơ hội làm quen."
-                }
-            ]
-        };
+                const referralEvent = {
+                    id: "referral_" + Date.now(),
+                    tag: "🤝 GIỚI THIỆU MỐI QUAN HỆ",
+                    icon: "💌",
+                    title: `${n.name} Giới Thiệu Người Quen`,
+                    description: `${n.name} vừa giới thiệu ${newFriend.name} với bạn: "${n.id === 'mother' ? 'Con giao lưu với đứa này đi, ngoan lắm!' : 'Thằng bạn này của tao vui tính lắm, giao lưu nhé!'}"`,
+                    choices: [
+                        {
+                            text: `🥰 Chào hỏi và kết bạn với ${newFriend.name}`,
+                            reward_happiness: 5,
+                            npc_targets: [newFriend.id],
+                            npc_change: 20,
+                            add_new_npc: newFriend,
+                            success_msg: `Bạn đã vui vẻ làm quen với ${newFriend.name}! Danh sách quan hệ +1.`
+                        },
+                        {
+                            text: "😅 Ngại ngùng từ chối",
+                            success_msg: "Bạn đã khéo léo từ chối cơ hội làm quen."
+                        }
+                    ]
+                };
 
-        monthlyEventQueue.push(referralEvent);
-    }
-});
+                monthlyEventQueue.push(referralEvent);
+            }
+        });
 
-        // B. Kích hoạt sự kiện
         if (Math.random() < 0.05) {
             let eventObj = null;
             
@@ -214,25 +195,16 @@ gameState.relationships.forEach(npc => {
     });
 }
 
-
-/**
- * Xử lý tuần tự từng sự kiện trong Hàng đợi
- */
-/**
-/**
- * Xử lý tuần tự từng sự kiện trong Hàng đợi sự kiện đầu tháng
- */
 function processNextMonthlyEvent() {
     if (monthlyEventQueue.length === 0) return;
     
     const ev = monthlyEventQueue.shift();
-    const pName = gameState.name || "bạn"; // Biến bắt tên
+    const pName = gameState.name || "bạn";
     
     if (ev.is_unique && !gameState.completedEvents.includes(ev.id)) {
         gameState.completedEvents.push(ev.id);
     }
     
-    // Tự động dịch mã {NAME} trong file JSON thành Tên nhân vật
     let finalDescription = ev.description.replace(/{NAME}/g, pName);
     let calculatedAllowance = 0;
     
@@ -247,7 +219,7 @@ function processNextMonthlyEvent() {
     
     const parsedChoices = ev.choices.map(choiceJSON => {
         return {
-            text: choiceJSON.text.replace(/{NAME}/g, pName), // Dịch {NAME} ở nút bấm
+            text: choiceJSON.text.replace(/{NAME}/g, pName),
             action: function() {
                 let actualRewardMoney = choiceJSON.reward_money || 0;
                 if (choiceJSON.is_allowance_calc) actualRewardMoney = calculatedAllowance;
@@ -277,6 +249,13 @@ function processNextMonthlyEvent() {
                         choiceJSON.npc_targets.forEach(npcId => interactWithNPC(npcId, {}, choiceJSON.npc_change));
                     }
                     
+                    if (choiceJSON.add_new_npc) {
+                        if (!gameState.relationships) gameState.relationships = [];
+                        if (!gameState.relationships.some(r => r.id === choiceJSON.add_new_npc.id)) {
+                            gameState.relationships.push(choiceJSON.add_new_npc);
+                        }
+                    }
+                    
                     if (choiceJSON.success_msg) alert(choiceJSON.success_msg.replace(/{NAME}/g, pName));
                 }
                 
@@ -301,25 +280,13 @@ function processNextMonthlyEvent() {
 
 /**
  * =================================================================
- * ZONE 3: DYNAMIC MID-MONTH EVENT SPAWNER (SINH SỰ KIỆN GIỮA THÁNG)
+ * ZONE 3: DYNAMIC MID-MONTH EVENT SPAWNER
  * =================================================================
  */
 
-/**
- * Kiểm tra và kích hoạt ngẫu nhiên sự kiện va chạm giao tiếp giữa tháng
- */
-/**
-/**
- * Kiểm tra và kích hoạt ngẫu nhiên sự kiện va chạm giao tiếp giữa tháng
- * (Đã sửa lỗi kẹt timer khi hết sự kiện)
- */
 function checkDynamicMidMonthEvents() {
     if (!gameState || gameState.currentDay >= 30) return;
-    // 🚀 BỔ SUNG: NẾU ĐANG BẬT CỜ SKIP TRONG DEBUG -> BỎ QUA LUÔN
-    if (gameState.debugSkipMidMonthEvents) {
-        return;
-    }
-    // Tỷ lệ 8% xuất hiện sự kiện giữa tháng
+    if (gameState.debugSkipMidMonthEvents) return;
     if (Math.random() > 0.08) return;
     
     const rawList = gameEventsData.random_events || [];
@@ -330,7 +297,6 @@ function checkDynamicMidMonthEvents() {
     if (!gameState.storyFlags) gameState.storyFlags = {};
     if (!gameState.completedEvents) gameState.completedEvents = [];
     
-    // BỘ LỌC CÁC SỰ KIỆN CHƯA XUẤT HIỆN
     const eligibleEvents = rawList.filter(ev => {
         if (gameState.completedEvents.includes(ev.id)) return false;
         
@@ -352,13 +318,8 @@ function checkDynamicMidMonthEvents() {
         return true;
     });
     
-    // 🚀 NẾU HẾT SỰ KIỆN: BỎ QUA LUÔN, ĐỂ ĐỒNG HỒ CHẠY TIẾP MƯỢT MÀ, KHÔNG BỊ KẸT MODAL
-    if (eligibleEvents.length === 0) {
-        console.log("🌿 Không có sự kiện giữa tháng phù hợp, thời gian tiếp tục trôi...");
-        return;
-    }
+    if (eligibleEvents.length === 0) return;
     
-    // TẠM DỪNG ĐỒNG HỒ ĐỂ NGƯỜI CHƠI TRẢ LỜI SỰ KIỆN
     if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
     
     const modal = document.getElementById("dialogue-event-modal");
@@ -367,14 +328,11 @@ function checkDynamicMidMonthEvents() {
     const randomIndex = Math.floor(Math.random() * eligibleEvents.length);
     const ev = eligibleEvents[randomIndex];
     
-    // Ghi nhớ ID sự kiện
     gameState.completedEvents.push(ev.id);
     if (typeof saveGameState === 'function') saveGameState();
     
-    // Chọn một NPC từ danh sách quan hệ nếu có
     let targetNPC = null;
     if (gameState.relationships && gameState.relationships.length > 0) {
-        // Ưu tiên chọn NPC không phải Bố/Mẹ nếu là sự kiện đường phố/bạn bè, hoặc chọn ngẫu nhiên
         targetNPC = gameState.relationships[Math.floor(Math.random() * gameState.relationships.length)];
     }
     
@@ -395,11 +353,10 @@ function checkDynamicMidMonthEvents() {
         title: ev.title || "Tình Huống Ngẫu Nhiên",
         prompt: dynamicPrompt,
         category: ev.category || "life",
-        targetNpcId: targetNPC ? targetNPC.id : null, // 🚀 Gán chuẩn ID NPC vào đây
+        targetNpcId: targetNPC ? targetNPC.id : null,
         set_flag: ev.set_flag || null,
         clear_flag: ev.clear_flag || null
     };
-    
     
     if (typeof setElementText === 'function') {
         setElementText('dialogue-tag', currentActiveDialogueEvent.tag);
@@ -430,15 +387,6 @@ function checkDynamicMidMonthEvents() {
  * =================================================================
  */
 
-/**
- * Xử lý khi người chơi bấm nút "Gửi Lời Đáp"
- */
-/**
- * HỆ THỐNG ĐÁNH GIÁ HỘI THOẠI NÂNG CAO (CÓ BỘ LỌC NGỮ CẢNH "MÀY - TAO" & 12 CUNG HOÀNG ĐẠO)
- */
-/**
- * 🚀 HỆ THỐNG CHẤM ĐIỂM HỘI THOẠI THEO CHỦ ĐỀ NGỮ CẢNH & TÂM LÝ NPC
- */
 function submitDialogueResponse() {
     const inputEl = document.getElementById("dialogue-user-input");
     if (!inputEl) return;
@@ -455,15 +403,13 @@ function submitDialogueResponse() {
     
     const text = rawText.toLowerCase();
     const eventData = currentActiveDialogueEvent || { title: "Tương tác", category: "street" };
-    const topic = eventData.topicContext || "life"; // Lấy ngữ cảnh hiện tại
+    const topic = eventData.topicContext || "life";
     
-    // 1. Lấy thông tin NPC mục tiêu
     let targetNPC = null;
     if (eventData.targetNpcId && gameState.relationships) {
         targetNPC = gameState.relationships.find(r => r.id === eventData.targetNpcId);
     }
 
-    // Nếu NPC đã cạn kiệt kiên nhẫn (patience <= 0)
     if (targetNPC && targetNPC.patience <= 0) {
         setTimeout(() => {
             const npcBubble = document.getElementById("dialogue-npc-reply-bubble");
@@ -489,13 +435,11 @@ function submitDialogueResponse() {
         return;
     }
     
-    // 2. PHÂN TÍCH HÌNH THỨC CÂU
     const words = rawText.split(/\s+/).filter(Boolean);
     const wordCount = words.length;
     const isAllUpperCase = rawText === rawText.toUpperCase() && rawText.length > 3;
     const hasSarcasmMarks = text.includes("...") && (text.includes("ghê") || text.includes("lắm") || text.includes("nhỉ"));
 
-    // 3. TỪ ĐIỂN ĐA TRỤC & NGỮ CẢNH "MÀY - TAO"
     const politeWords = ["xin lỗi", "cảm ơn", "bình tĩnh", "thành thật", "thông cảm", "dạ", "ạ", "giúp", "nhẹ nhàng", "vâng", "thưa"];
     const smartWords = ["doanh thu", "lý do", "kế hoạch", "thực tế", "phân tích", "giải pháp", "chứng minh", "số liệu", "chiến lược", "đầu tư", "cố gắng"];
     const toxicWords = ["cút", "liên quan", "kệ", "chửi", "ngu", "mất dạy", "đéo", "đập", "biến", "điên", "xéo"];
@@ -506,7 +450,6 @@ function submitDialogueResponse() {
     let scoreFunny = funnyWords.filter(w => text.includes(w)).length * 2;
     let scoreAggressive = toxicWords.filter(w => text.includes(w)).length * 4;
 
-    // Bộ lọc xưng hô "mày - tao" thông minh theo quan hệ
     const usesMayTao = text.includes("mày") || text.includes("tao");
     let isCloseRelation = false;
     if (targetNPC) {
@@ -517,14 +460,13 @@ function submitDialogueResponse() {
     }
 
     if (usesMayTao) {
-        if (!isCloseRelation) scoreAggressive += 4; // Người lạ/sếp nghe thấy -> Phạt nặng
-        else scoreFunny += 1; // Bạn thân nghe thấy -> Thoải mái, gần gũi
+        if (!isCloseRelation) scoreAggressive += 4;
+        else scoreFunny += 1;
     }
 
     if (isAllUpperCase) scoreAggressive += 5;
     if (hasSarcasmMarks) { scoreSmart -= 2; scoreAggressive += 3; }
 
-    // 4. CHẤM ĐIỂM THEO CHỦ ĐỀ NGỮ CẢNH (TOPIC CONTEXT EVALUATION)
     let topicBonusText = "";
     if (topic === "work" && (scoreSmart > 0 || text.includes("làm") || text.includes("việc"))) {
         scoreSmart += 2;
@@ -547,7 +489,6 @@ function submitDialogueResponse() {
     let relXpChange = 0;
     let patienceChange = 0;
 
-  // 5. KẾT QUẢ ĐÁNH GIÁ CUỐI CÙNG
     if (scoreAggressive > scorePolite && scoreAggressive > scoreSmart && scoreAggressive > scoreFunny) {
         npcIcon = "🤬";
         gameState.ego = Math.min(100, (gameState.ego || 30) + 5);
@@ -567,7 +508,7 @@ function submitDialogueResponse() {
 
         feedback = `😒 Trả lời hời hợt, nhạt nhẽo (-10 Mối quan hệ)`;
         logSummary = `${eventData.title}: Trò chuyện hời hợt`;
-        npcReply = `${targetNPC ? targetNPC.name : 'NPC'} thở dài: "Hỏi thế mà cũng trả lời được, đúng làó chán."`;
+        npcReply = `${targetNPC ? targetNPC.name : 'NPC'} thở dài: "Hỏi thế mà cũng trả lời được, đúng là chán."`;
     }
     else if (scoreFunny > 0 || (wordCount <= 5 && scoreSmart === 0)) {
         npcIcon = "🤣";
@@ -600,7 +541,6 @@ function submitDialogueResponse() {
         npcReply = `${targetNPC ? targetNPC.name : 'NPC'} mỉm cười ấm áp: "Cảm ơn vì đã lắng nghe và chia sẻ chân thành với tôi nhé."`;
     }
     
-    // 6. CẬP NHẬT TRẠNG THÁI VÀO NPC[span_1](start_span)[span_1](end_span)
     if (targetNPC) {
         if (typeof targetNPC.patience === 'undefined') targetNPC.patience = 100;
         targetNPC.patience = Math.max(0, Math.min(100, targetNPC.patience + patienceChange));
@@ -634,16 +574,10 @@ function submitDialogueResponse() {
     if (typeof renderGameState === 'function') renderGameState();
 }
 
-
-/**
- * Đóng Modal Dialogue và tiếp tục vòng lặp thời gian 30 ngày
- */
 function closeDialogueModal() {
     document.getElementById("dialogue-event-modal")?.classList.add("hidden");
     if (typeof startMonthCalendarTimer === 'function') startMonthCalendarTimer();
 }
-
-
 /**
  * =================================================================
  * ZONE 5: STANDARD EVENT MODAL RENDERER
@@ -676,7 +610,6 @@ function showEventModal(eventData) {
             
             button.onclick = function() {
                 if (typeof choice.action === 'function') choice.action();
-                // Lưu ý: Việc đóng modal và gọi tiếp hàng đợi đã được xử lý bên trong choice.action ở Engine ZONE 2
             };
             
             container.appendChild(button);

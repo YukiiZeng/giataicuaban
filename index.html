@@ -193,9 +193,16 @@
                     <span>🗓️ Tiến trình tháng:</span>
                     <span id="calendar-day-text" class="font-mono font-extrabold text-orange-700">Ngày 1 / 30</span>
                 </span>
-                <span id="calendar-status-badge" class="text-[9px] font-extrabold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full animate-pulse">
-                    ⏳ Đang trôi thời gian...
-                </span>
+                
+                <!-- 🚀 BỔ SUNG: Khung chứa Badge trạng thái và Nút Tăng Tốc độ ngày -->
+                <div class="flex items-center gap-1.5">
+                    <span id="calendar-status-badge" class="text-[9px] font-extrabold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full animate-pulse">
+                        ⏳ Đang trôi thời gian...
+                    </span>
+                    <button id="calendar-speed-btn" onclick="toggleCalendarSpeed()" class="text-[9px] font-black text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-2.5 py-0.5 rounded-full shadow-sm transition-all active:scale-95 border border-amber-400/50 flex items-center gap-0.5">
+                        ⚡ x1
+                    </button>
+                </div>
             </div>
             
             <div class="w-full bg-amber-950/10 h-2.5 rounded-full overflow-hidden p-0.5 border border-amber-300/60">
@@ -208,6 +215,7 @@
                 <span>⏳</span>
             </button>
         </section>
+        
         
         <!-- NÚT MỞ MODAL: HỌC VẤN, TÌM VIỆC, CỬA HÀNG, TÚI ĐỒ -->
         <div class="grid grid-cols-4 gap-1.5">
@@ -780,20 +788,46 @@
         </div>
     </div>
     
-    <!-- 4. MODAL MẠNG LƯỚI QUAN HỆ -->
-    <div id="relationship-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
-            <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="text-xl">👥</span>
-                    <h2 class="font-serif font-black text-amber-950 text-base">DANH SÁCH QUAN HỆ</h2>
-                </div>
-                <button onclick="showRelationshipModal(false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2">✕</button>
+<!-- 4. MODAL MẠNG LƯỚI QUAN HỆ -->
+<div id="relationship-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
+        <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">👥</span>
+                <h2 class="font-serif font-black text-amber-950 text-base">MẠNG LƯỚI QUAN HỆ</h2>
             </div>
-            <div id="relationship-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
-            <button onclick="showRelationshipModal(false)" class="w-full py-2.5 bg-amber-200/80 hover:bg-amber-300/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs transition-all active:scale-95 border border-amber-300">Đóng</button>
+            <button onclick="showRelationshipModal(false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2">✕</button>
         </div>
+        
+        <!-- 🚀 1. TAB CHUYỂN ĐỔI (DANH SÁCH / LỊCH SỬ) -->
+        <div class="flex bg-amber-900/10 p-1 rounded-xl gap-1">
+            <button onclick="setRelationshipTab('list')" id="rel-tab-list" class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm">
+                Danh Sách
+            </button>
+            <button onclick="setRelationshipTab('history')" id="rel-tab-history" class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900">
+                Lịch Sử (Log)
+            </button>
+        </div>
+
+        <!-- 🚀 2. BỘ LỌC SẮP XẾP (Chỉ hiện ở Tab Danh Sách) -->
+        <div id="rel-sort-container" class="flex items-center justify-between text-xs font-bold px-1 bg-amber-900/5 p-2 rounded-xl border border-amber-900/10">
+            <span class="text-[10px] text-amber-900 font-extrabold">Sắp xếp:</span>
+            <select id="rel-sort-select" onchange="renderRelationships()" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-[10px] font-bold text-amber-950 focus:outline-none">
+                <option value="desc">Thân nhất ➔ Ghét nhất</option>
+                <option value="asc">Ghét nhất ➔ Thân nhất</option>
+            </select>
+        </div>
+
+        <!-- Danh sách quan hệ -->
+        <div id="relationship-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[48vh] custom-scrollbar"></div>
+        
+        <!-- Lịch sử quan hệ (Log) -->
+        <div id="relationship-modal-history" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[48vh] custom-scrollbar hidden"></div>
+
+        <button onclick="showRelationshipModal(false)" class="w-full py-2.5 bg-amber-200/80 hover:bg-amber-300/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs transition-all active:scale-95 border border-amber-300">Đóng</button>
     </div>
+</div>
+
     
     <!-- 5. MODAL SỰ KIỆN ĐỊNH KỲ -->
     <div id="event-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
@@ -827,7 +861,7 @@
             <button id="admin-skip-midmonth-btn" onclick="handleAdminToggleSkipMidMonthEvents()" class="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-display font-extrabold rounded-2xl text-xs border border-purple-300/40 shadow-sm transition-all active:scale-95">
                 ⚡ TẮT SỰ KIỆN GIỮA THÁNG (DEBUG: OFF)
             </button>
-
+            
             <!-- Nút 3: Xóa tất cả Players trên Firestore Cloud -->
             <button onclick="handleAdminDeleteAllPlayers()" class="w-full py-3 px-4 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-display font-black rounded-2xl text-xs border border-rose-300/40 shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5">
                 <span>🔥</span>
@@ -839,7 +873,7 @@
             </button>
         </div>
     </div>
-
+    
     
     <!-- 7. MODAL THUÊ NHÀ TRỌ -->
     <div id="housing-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
@@ -927,7 +961,9 @@
             </div>
             
             <div id="dialogue-input-container" class="flex flex-col gap-1.5">
-                <input type="text" id="dialogue-user-input" placeholder="Nhập câu trả lời bằng tiếng Việt..." autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" class="w-full bg-white/90 border border-amber-300 rounded-xl px-3 py-2 text-xs font-bold text-amber-950 focus:outline-none focus:border-amber-500 shadow-inner">
+                <input type="text" id="dialogue-user-input" placeholder="Nhập câu trả lời bằng tiếng Việt..." autocorrect="on" autocapitalize="sentences" spellcheck="true" class="w-full bg-white/90 border border-amber-300 rounded-xl px-3 py-2 text-xs font-bold text-amber-950 focus:outline-none focus:border-amber-500 shadow-inner">
+                
+                
                 
                 <button onclick="submitDialogueResponse()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
                     💬 GỬI LỜI ĐÁP
@@ -1097,7 +1133,31 @@
         </div>
     </div>
     
-    
+    <!-- 16. MODAL CHI TIẾT CÔNG VIỆC & YÊU CẦU -->
+<div id="job-detail-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[116] flex items-center justify-center p-4 hidden">
+    <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3.5 animate-scale-up">
+        
+        <!-- Header tiêu đề công việc -->
+        <div class="flex justify-between items-start border-b border-amber-900/10 pb-2.5">
+            <div class="flex flex-col">
+                <span id="job-detail-track" class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md w-fit mb-1">Lĩnh vực</span>
+                <h2 id="job-detail-title" class="font-serif font-black text-amber-950 text-base">Tên Công Việc</h2>
+            </div>
+            <button onclick="showJobDetailModal(null, false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2 py-1 bg-amber-200/50 rounded-lg">✕</button>
+        </div>
+        
+        <!-- Nội dung chi tiết các yêu cầu -->
+        <div id="job-detail-content" class="flex flex-col gap-2.5 text-xs font-bold text-amber-950 max-h-[50vh] overflow-y-auto custom-scrollbar pr-1">
+            <!-- Được render động bằng JS -->
+        </div>
+
+        <!-- Nút xác nhận nộp đơn -->
+        <button id="job-detail-apply-btn" onclick="" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md active:scale-95 transition-all text-center">
+            💼 Nộp Đơn Ứng Tuyển
+        </button>
+    </div>
+</div>
+
     <!-- ================================================================= -->
     <!-- ZONE 5: THIRD-PARTY LIBRARIES & SCRIPT INJECTION (KẾT NỐI SCRIPTS) -->
     <!-- ================================================================= -->

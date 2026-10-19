@@ -421,7 +421,7 @@ function handleMedicalCare(type) {
             if (typeof addTransactionHistory === 'function') addTransactionHistory("Y tế: Nhập viện điều trị", -200);
         }
     }
-     // 🚀 BỔ SUNG DÒNG NÀY
+    // 🚀 BỔ SUNG DÒNG NÀY
     if (typeof renderGameState === 'function') renderGameState();
     
     if (typeof saveGameState === 'function') saveGameState();
@@ -541,10 +541,30 @@ function nextMonth() {
             }
         });
     }
+    // 🚀 Kiểm tra dọn dẹp quan hệ không tương tác sau 3 tháng (Level 0)
+    if (gameState.relationships) {
+        gameState.relationships = gameState.relationships.filter(npc => {
+            if (typeof npc.level === 'undefined') npc.level = 0;
+            if (npc.level === 0) {
+                npc.inactiveMonths = (npc.inactiveMonths || 0) + 1;
+                if (npc.inactiveMonths >= 3) {
+                    if (!gameState.relationshipLogs) gameState.relationshipLogs = [];
+                    gameState.relationshipLogs.unshift({
+                        month: gameState.month,
+                        age: gameState.age,
+                        text: `${npc.name} (${npc.relation}) đã rời đi vì không có tương tác trong 3 tháng qua.`
+                    });
+                    return false; // Xóa khỏi danh sách
+                }
+            }
+            return true;
+        });
+    }
+    
 }
 /**
  * =================================================================
- * ZONE 4: WEB WORKER CALENDAR TIMER
+ * ZONE 4: WEB WORKER CALENDAR TIMER & SPEED CONTROLLER
  * =================================================================
  */
 
@@ -553,8 +573,40 @@ let lastWorkerTickTime = Date.now();
 let workerWatchdogTimer = null;
 
 const TOTAL_DAYS_IN_MONTH = 30;
-const SECONDS_PER_MONTH = 60;
-const TICK_INTERVAL = (SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000;
+const BASE_SECONDS_PER_MONTH = 60; // Mặc định 60 giây / tháng (2 giây / ngày ở x1)
+
+// 🚀 Biến trạng thái tốc độ hiện tại (1 = x1, 2 = x2, 3 = x3)
+let currentCalendarSpeed = 1;
+
+/**
+ * Tính toán khoảng thời gian tick (ms) dựa trên tốc độ hiện tại
+ */
+function getTickInterval() {
+    const baseInterval = (BASE_SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000; // 2000ms cho x1
+    return baseInterval / currentCalendarSpeed; // x2 = 1000ms, x3 ≈ 667ms
+}
+
+/**
+ * 🚀 Chuyển đổi tốc độ qua ngày khi bấm nút (x1 -> x2 -> x3 -> x1)
+ */
+function toggleCalendarSpeed() {
+    currentCalendarSpeed = currentCalendarSpeed >= 3 ? 1 : currentCalendarSpeed + 1;
+    
+    // Cập nhật nhãn hiển thị trên nút bấm
+    const speedBtn = document.getElementById("calendar-speed-btn");
+    if (speedBtn) {
+        speedBtn.innerText = `⚡ x${currentCalendarSpeed}`;
+    }
+    
+    // Khởi động lại bộ đếm ngay lập tức với tốc độ mới để áp dụng liền tay
+    if (gameState && gameState.currentDay < TOTAL_DAYS_IN_MONTH) {
+        startMonthCalendarTimer();
+    }
+    
+    if (typeof showToast === 'function') {
+        showToast(`Đã đẩy nhanh tốc độ thời gian lên x${currentCalendarSpeed}!`, "⚡", "Tốc Độ Ngày");
+    }
+}
 
 function startMonthCalendarTimer() {
     if (!gameState) return;
@@ -563,6 +615,8 @@ function startMonthCalendarTimer() {
     stopMonthCalendarTimer();
     lastWorkerTickTime = Date.now();
     if (typeof updateCalendarUI === 'function') updateCalendarUI();
+    
+    const tickInterval = getTickInterval();
     
     if (window.Worker) {
         try {
@@ -575,13 +629,13 @@ function startMonthCalendarTimer() {
                 }
             };
             
-            gameTimerWorker.postMessage({ cmd: 'start', interval: TICK_INTERVAL });
-            console.log("⚡ Web Worker Timer đã kích hoạt!");
+            gameTimerWorker.postMessage({ cmd: 'start', interval: tickInterval });
+            console.log(`⚡ Web Worker Timer đã kích hoạt với tốc độ x${currentCalendarSpeed}!`);
             
             workerWatchdogTimer = setInterval(() => {
                 if (gameState && gameState.currentDay < TOTAL_DAYS_IN_MONTH) {
                     const timeSinceLastTick = Date.now() - lastWorkerTickTime;
-                    if (timeSinceLastTick > 4500) {
+                    if (timeSinceLastTick > (tickInterval * 2.5)) {
                         console.warn("⚠️ Đồng hồ bị khựng! Đang kích hoạt lại Worker...");
                         startMonthCalendarTimer();
                     }
@@ -629,20 +683,12 @@ function stopMonthCalendarTimer() {
     }
 }
 
-function skipDays(daysToAdd) {
-    if (!gameState) return;
-    gameState.currentDay = Math.min(TOTAL_DAYS_IN_MONTH, (gameState.currentDay || 1) + daysToAdd);
-    if (typeof updateCalendarUI === 'function') updateCalendarUI();
-    if (gameState.currentDay >= TOTAL_DAYS_IN_MONTH) {
-        stopMonthCalendarTimer();
-    }
-}
-
 let fallbackTimer = null;
 
 function startFallbackTimer() {
     if (fallbackTimer) clearInterval(fallbackTimer);
-    fallbackTimer = setInterval(handleTimerTick, TICK_INTERVAL);
+    const tickInterval = getTickInterval();
+    fallbackTimer = setInterval(handleTimerTick, tickInterval);
 }
 
 
@@ -786,14 +832,14 @@ function handleEatMeal(type) {
         modifyStat('hunger', 20);
         if (typeof addTransactionHistory === 'function') addTransactionHistory("Ăn uống: Bánh mì / Đồ ăn nhanh", -10);
         alert("🥪 Đã ăn bánh mì (+20 Dinh dưỡng)!");
-
+        
     } else if (type === 'normal') {
         if ((gameState.money ?? 0) < 25) return alert("❌ Bạn không đủ 25 $!");
         modifyStat('money', -25);
         modifyStat('hunger', 45);
         if (typeof addTransactionHistory === 'function') addTransactionHistory("Ăn uống: Cơm phần bình dân", -25);
         alert("🍜 Đã ăn cơm phần (+45 Dinh dưỡng)!");
-
+        
     } else if (type === 'healthy') {
         if ((gameState.money ?? 0) < 60) return alert("❌ Bạn không đủ 60 $!");
         modifyStat('money', -60);
@@ -818,7 +864,7 @@ function handleEatMeal(type) {
 function toggleSubscription(type) {
     if (!gameState) return;
     if (!gameState.subscriptions) gameState.subscriptions = { gym: false, yoga: false };
-
+    
     if (type === 'gym') {
         gameState.subscriptions.gym = !gameState.subscriptions.gym;
         alert(gameState.subscriptions.gym ? "🏋️ Đã bật đăng ký Gym (60$/tháng)!" : "🚪 Đã hủy gói tập Gym.");
@@ -826,13 +872,13 @@ function toggleSubscription(type) {
         gameState.subscriptions.yoga = !gameState.subscriptions.yoga;
         alert(gameState.subscriptions.yoga ? "🧘 Đã bật đăng ký Yoga (40$/tháng)!" : "🚪 Đã hủy gói tập Yoga.");
     }
-
+    
     if (typeof saveGameState === 'function') saveGameState();
     
     // 🚀 BỔ SUNG DÒNG NÀY
     if (typeof renderGameState === 'function') renderGameState();
     
-    renderHealthView(); 
+    renderHealthView();
 }
 
 
@@ -1013,6 +1059,7 @@ function handleAskForMoney(npcId) {
 
 function interactWithNPC(npcId, options = {}, xpChange = 0) {
     if (!gameState || !gameState.relationships) return;
+     // Reset bộ đếm 3 tháng không tương tác vì người chơi vừa tương tác
     
     let npc = gameState.relationships.find(r => r.id === npcId);
     
@@ -1035,7 +1082,7 @@ function interactWithNPC(npcId, options = {}, xpChange = 0) {
     if (typeof npc.level === 'undefined') npc.level = 0;
     
     npc.xp += xpChange;
-    
+    npc.inactiveMonths = 0;
     if (npc.xp >= 100) {
         const levelUp = Math.floor(npc.xp / 100);
         npc.level += levelUp;
@@ -1056,6 +1103,15 @@ function interactWithNPC(npcId, options = {}, xpChange = 0) {
             npc.xp = 0;
         }
     }
+    
+ // 🚀 Ghi nhận Log biến động quan hệ
+    if (!gameState.relationshipLogs) gameState.relationshipLogs = [];
+    const changeSymbol = xpChange >= 0 ? `+${xpChange}` : `${xpChange}`;
+    gameState.relationshipLogs.unshift({
+        month: gameState.month || 1,
+        age: gameState.age || 16,
+        text: `Tương tác với ${npc.name}: ${changeSymbol} XP (Cấp hiện tại: Lvl ${npc.level})`
+    });
     
     if (typeof showFloatingText === 'function') {
         const sign = xpChange > 0 ? '+' : '';
