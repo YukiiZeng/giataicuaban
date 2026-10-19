@@ -10,7 +10,7 @@
  */
 function saveGameStateToFirebase(userId) {
     if (typeof db === 'undefined' || !gameState) return;
-
+    
     db.collection("players").doc(userId).set(gameState, { merge: true })
         .then(() => {
             console.log("☁️ Đã đồng bộ tiến trình lên Firebase thành công!");
@@ -22,11 +22,19 @@ function saveGameStateToFirebase(userId) {
 
 function loadGameStateFromFirebase(userId) {
     if (typeof db === 'undefined') return;
-
+    
     db.collection("players").doc(userId).get()
         .then((doc) => {
             if (doc.exists) {
                 gameState = doc.data();
+                
+                // 🌟 THÊM ĐOẠN NÀY VÀO ĐÂY: Cập nhật màu giao diện theo thành phố khi tải Cloud
+                if (gameState && gameState.currentCity) {
+                    document.body.className = `city-${gameState.currentCity}`;
+                } else {
+                    document.body.className = `city-ung-dung`;
+                }
+                
                 if (typeof saveGameState === 'function') saveGameState();
                 if (typeof renderGameState === 'function') renderGameState();
                 if (typeof startMonthCalendarTimer === 'function') startMonthCalendarTimer();
@@ -38,7 +46,7 @@ function loadGameStateFromFirebase(userId) {
                 localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
                 gameState = null;
                 if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
-
+                
                 // Bật màn hình tạo nhân vật cho tài khoản mới
                 if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
             }
@@ -46,6 +54,11 @@ function loadGameStateFromFirebase(userId) {
         .catch((error) => {
             console.error("❌ Lỗi nạp dữ liệu từ Firebase:", error);
         });
+    // Khi tải xong gameState từ LocalStorage hoặc Firebase:
+    if (typeof updateCityTheme === 'function') {
+        updateCityTheme();
+    }
+    
 }
 
 
@@ -56,7 +69,7 @@ if (typeof auth !== 'undefined') {
     auth.onAuthStateChanged((user) => {
         const cloudUserDisplay = document.getElementById("cloud-username-display");
         const authBtnText = document.getElementById("auth-status-btn-text");
-
+        
         if (user && user.email) {
             const displayUsername = user.email.replace(DOMAIN_SUFFIX, "");
             
@@ -65,14 +78,14 @@ if (typeof auth !== 'undefined') {
             
             checkAdminAccess(displayUsername);
             console.log("👤 Đang đăng nhập với Username:", displayUsername);
-
+            
             // Tải dữ liệu của tài khoản vừa đăng nhập
             loadGameStateFromFirebase(user.uid);
         } else {
             if (cloudUserDisplay) cloudUserDisplay.innerText = "Chưa đăng nhập";
             if (authBtnText) authBtnText.innerText = "Đăng nhập";
             checkAdminAccess(null);
-
+            
             // Xóa sạch bộ nhớ khi không có user
             localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
             gameState = null;
@@ -104,7 +117,7 @@ function showAuthModal(show) {
         handleLogout();
         return;
     }
-
+    
     const modal = document.getElementById("auth-modal");
     if (modal) {
         if (show) modal.classList.remove("hidden");
@@ -123,9 +136,9 @@ function toggleAuthMode() {
     const switchText = document.getElementById("auth-switch-text");
     const switchBtn = document.getElementById("auth-switch-btn");
     const errorMsg = document.getElementById("auth-error-msg");
-
+    
     if (errorMsg) errorMsg.classList.add("hidden");
-
+    
     if (isSignUpMode) {
         if (title) title.innerText = "ĐĂNG KÝ TÀI KHOẢN";
         if (submitBtn) submitBtn.innerText = "✨ TẠO TÀI KHOẢN MỚI";
@@ -153,24 +166,24 @@ function usernameToEmail(username) {
 function handleAuthSubmit() {
     const usernameInput = document.getElementById("auth-username");
     const passwordInput = document.getElementById("auth-password");
-
+    
     if (!usernameInput || !passwordInput) return;
-
+    
     const rawUsername = usernameInput.value.trim();
     const password = passwordInput.value.trim();
-
+    
     if (!rawUsername || !password) {
         showAuthError("Vui lòng nhập đầy đủ Tên đăng nhập và Mật khẩu!");
         return;
     }
-
+    
     if (rawUsername.length < 3) {
         showAuthError("Tên đăng nhập phải có ít nhất 3 ký tự!");
         return;
     }
-
+    
     const email = usernameToEmail(rawUsername);
-
+    
     if (isSignUpMode) {
         auth.createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
@@ -238,15 +251,15 @@ function handleLogout() {
                 auth.signOut().then(() => {
                     // 1. Dừng đồng hồ đếm thời gian
                     if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
-
+                    
                     // 2. Xóa sạch LocalStorage & biến gameState trong RAM
                     localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
                     gameState = null;
-
+                    
                     // 3. Ẩn tất cả Modal đang mở
                     const openModals = document.querySelectorAll('.fixed:not(.hidden)');
                     openModals.forEach(m => m.classList.add('hidden'));
-
+                    
                     // 4. Bật Modal Đăng nhập / Đăng ký hoặc Tạo nhân vật mới
                     if (typeof showAuthModal === 'function') showAuthModal(true);
                     
@@ -366,46 +379,46 @@ async function handleAdminDeleteAllPlayers() {
     showGameConfirm(
         "🚨 CẢNH BÁO CỰC NGHIỆM: Bạn có chắc chắn muốn XÓA SẠCH TOÀN BỘ dữ liệu của TẤT CẢ NGƯỜI CHƠI trên Firebase Cloud? Hành động này không thể hoàn tác!",
         async function() {
-            if (typeof db === 'undefined') {
-                alert("❌ Lỗi: Chưa kết nối được với Firebase Firestore!");
-                return;
-            }
-
-            try {
-                // 1. Lấy toàn bộ documents trong collection 'players'
-                const snapshot = await db.collection("players").get();
-                if (snapshot.empty) {
-                    alert("ℹ️ Collection 'players' hiện đang trống, không có dữ liệu để xóa.");
+                if (typeof db === 'undefined') {
+                    alert("❌ Lỗi: Chưa kết nối được với Firebase Firestore!");
                     return;
                 }
-
-                // 2. Dùng WriteBatch để xóa hàng loạt
-                const batch = db.batch();
-                snapshot.docs.forEach((doc) => {
-                    batch.delete(doc.ref);
-                });
-
-                await batch.commit();
-
-                // 3. Xóa dữ liệu local hiện tại và reset giao diện
-                localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
-                gameState = null;
-                if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
-
-                alert(`💥 Đã xóa thành công toàn bộ ${snapshot.size} hồ sơ người chơi trên Cloud!`);
-
-                // Ẩn Admin Panel và mở Modal tạo nhân vật
-                showAdminPanel(false);
-                if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
-
-            } catch (error) {
-                console.error("❌ Lỗi khi xóa collection players:", error);
-                alert("❌ Không thể xóa collection: " + error.message);
-            }
-        },
-        "XÓA SẠCH FIREBASE CLOUD",
-        "🔥",
-        "🚨 Admin Danger Zone"
+                
+                try {
+                    // 1. Lấy toàn bộ documents trong collection 'players'
+                    const snapshot = await db.collection("players").get();
+                    if (snapshot.empty) {
+                        alert("ℹ️ Collection 'players' hiện đang trống, không có dữ liệu để xóa.");
+                        return;
+                    }
+                    
+                    // 2. Dùng WriteBatch để xóa hàng loạt
+                    const batch = db.batch();
+                    snapshot.docs.forEach((doc) => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    await batch.commit();
+                    
+                    // 3. Xóa dữ liệu local hiện tại và reset giao diện
+                    localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+                    gameState = null;
+                    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
+                    
+                    alert(`💥 Đã xóa thành công toàn bộ ${snapshot.size} hồ sơ người chơi trên Cloud!`);
+                    
+                    // Ẩn Admin Panel và mở Modal tạo nhân vật
+                    showAdminPanel(false);
+                    if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
+                    
+                } catch (error) {
+                    console.error("❌ Lỗi khi xóa collection players:", error);
+                    alert("❌ Không thể xóa collection: " + error.message);
+                }
+            },
+            "XÓA SẠCH FIREBASE CLOUD",
+            "🔥",
+            "🚨 Admin Danger Zone"
     );
 }
 
@@ -426,25 +439,25 @@ function showToast(message, icon = "💡", title = "Thông Báo") {
     const msgEl = document.getElementById("toast-message");
     const iconEl = document.getElementById("toast-icon");
     const titleEl = document.getElementById("toast-title");
-
+    
     if (!toast || !msgEl) {
         console.log(`[Notification]: ${message}`);
         return;
     }
-
+    
     // Tự động nhận diện Icon dựa trên từ khóa trong thông báo
     if (message.includes("❌") || message.includes("lỗi") || message.includes("không đủ")) icon = "⚠️";
     else if (message.includes("🎉") || message.includes("Chúc mừng") || message.includes("thành công")) icon = "🎉";
     else if (message.includes("💊") || message.includes("🏥") || message.includes("🥗")) icon = "🏥";
-
+    
     if (iconEl) iconEl.innerText = icon;
     if (titleEl) titleEl.innerText = title;
     msgEl.innerText = message.replace(/^[❌🎉⚠️💊🏥🥗🍜🏋️🏃🚪📝]/g, '').trim();
-
+    
     // Hiển thị Toast trượt mượt mà
     toast.classList.remove("opacity-0", "pointer-events-none", "-translate-y-4");
     toast.classList.add("opacity-100", "pointer-events-auto", "translate-y-0");
-
+    
     if (toastTimeout) clearTimeout(toastTimeout);
     
     // Tự động ẩn sau 3.2 giây
@@ -484,10 +497,10 @@ window.alert = function(msg) {
 function showFloatingText(targetId, text, type = 'pos') {
     const targetEl = document.getElementById(targetId);
     if (!targetEl) return;
-
+    
     // Lấy tọa độ thực tế của phần tử trên màn hình
     const rect = targetEl.getBoundingClientRect();
-
+    
     // Tạo thẻ span chứa số bay lên
     const floatingEl = document.createElement('span');
     floatingEl.innerText = text;
@@ -497,9 +510,9 @@ function showFloatingText(targetId, text, type = 'pos') {
     const randomOffsetX = (Math.random() - 0.5) * 20;
     floatingEl.style.left = `${rect.left + (rect.width / 2) + randomOffsetX}px`;
     floatingEl.style.top = `${rect.top}px`;
-
+    
     document.body.appendChild(floatingEl);
-
+    
     // Tự dọn rác DOM sau khi animation 1.2s kết thúc
     setTimeout(() => floatingEl.remove(), 1200);
 }
@@ -536,7 +549,7 @@ function showGameConfirm(message, onConfirm, title = "Xác Nhận Hành Động"
     const tagEl = document.getElementById("confirm-modal-tag");
     const okBtn = document.getElementById("confirm-modal-ok-btn");
     const cancelBtn = document.getElementById("confirm-modal-cancel-btn");
-
+    
     if (!modal) {
         // Fallback an toàn nếu chưa kịp nhúng HTML
         if (confirm(message)) {
@@ -544,18 +557,18 @@ function showGameConfirm(message, onConfirm, title = "Xác Nhận Hành Động"
         }
         return;
     }
-
+    
     if (titleEl) titleEl.innerText = title;
     if (descEl) descEl.innerText = message;
     if (iconEl) iconEl.innerText = icon;
     if (tagEl) tagEl.innerText = tag;
-
+    
     // Xóa bỏ các sự kiện click cũ bằng cách clone node
     const newOkBtn = okBtn.cloneNode(true);
     const newCancelBtn = cancelBtn.cloneNode(true);
     okBtn.parentNode.replaceChild(newOkBtn, okBtn);
     cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-
+    
     // Gắn sự kiện Đồng Ý
     newOkBtn.onclick = function() {
         modal.classList.add("hidden");
@@ -563,12 +576,12 @@ function showGameConfirm(message, onConfirm, title = "Xác Nhận Hành Động"
             onConfirm();
         }
     };
-
+    
     // Gắn sự kiện Hủy Bỏ
     newCancelBtn.onclick = function() {
         modal.classList.add("hidden");
     };
-
+    
     // Hiển thị modal
     modal.classList.remove("hidden");
 }
@@ -584,7 +597,7 @@ function showGamePrompt(message, defaultValue, onConfirm, title = "Nhập Dữ L
         if (val !== null && typeof onConfirm === 'function') onConfirm(val);
         return;
     }
-
+    
     document.getElementById("prompt-modal-title").innerText = title;
     document.getElementById("prompt-modal-description").innerText = message;
     document.getElementById("prompt-modal-icon").innerText = icon;
@@ -592,26 +605,209 @@ function showGamePrompt(message, defaultValue, onConfirm, title = "Nhập Dữ L
     
     const inputEl = document.getElementById("prompt-modal-input");
     inputEl.value = defaultValue || "";
-
+    
     const okBtn = document.getElementById("prompt-modal-ok-btn");
     const cancelBtn = document.getElementById("prompt-modal-cancel-btn");
-
+    
     // Clone node để dọn dẹp các sự kiện click rác của lần mở trước
     const newOkBtn = okBtn.cloneNode(true);
     const newCancelBtn = cancelBtn.cloneNode(true);
     okBtn.parentNode.replaceChild(newOkBtn, okBtn);
     cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-
+    
     newOkBtn.onclick = function() {
         modal.classList.add("hidden");
         if (typeof onConfirm === 'function') onConfirm(inputEl.value);
     };
-
+    
     newCancelBtn.onclick = function() {
         modal.classList.add("hidden");
     };
-
+    
     modal.classList.remove("hidden");
     // Tự động focus vào ô nhập số sau khi modal bật lên
     setTimeout(() => inputEl.focus(), 100);
+}
+
+/**
+ * Di chuyển sang thành phố mới với điều kiện chi phí và thay đổi giao diện trực quan
+ * @param {string} cityId ID thành phố ('ung_dung', 'voi_vang', 'phon_hoa')
+ * @param {string} cityName Tên hiển thị của thành phố
+ * @param {number} travelCost Chi phí di cư (VNĐ / $)
+ */
+/**
+ * Cập nhật giao diện theo thành phố hiện tại bằng thuộc tính data-city
+ */
+function updateCityTheme() {
+    const currentCity = (gameState && gameState.currentCity) ? gameState.currentCity : 'ung_dung';
+    document.body.setAttribute('data-city', currentCity);
+    console.log("🎨 Đã cập nhật theme giao diện cho thành phố:", currentCity);
+}
+
+/**
+ * =================================================================
+ * ZONE 6: CITY MIGRATION & MAP SYSTEM (HỆ THỐNG DI CƯ & BẢN ĐỒ)
+ * =================================================================
+ */
+
+// Danh sách các thành phố và thông số tác động (travelCost đang để 0 để debug)
+const CITIES_DATA = [
+{
+    id: 'ung_dung',
+    name: 'Thành phố Ung Dung',
+    icon: '🏡',
+    description: 'Bình yên, chi phí sinh hoạt thấp, nhịp sống chậm rãi và thư thái.',
+    travelCost: 0, // Đang để 0 để anh debug
+    wageMultiplier: 1.0,
+    stressMultiplier: 0.7,
+    themeClass: 'city-ung-dung'
+},
+{
+    id: 'voi_vang',
+    name: 'Thành phố Vội Vàng',
+    icon: '⚡',
+    description: 'Nhịp độ công nghiệp cao, lương thưởng hấp dẫn nhưng áp lực công việc lớn.',
+    travelCost: 0, // Đang để 0 để anh debug
+    wageMultiplier: 1.25,
+    stressMultiplier: 1.4,
+    themeClass: 'city-voi-vang'
+},
+{
+    id: 'phon_hoa',
+    name: 'Thành phố Phồn Hoa',
+    icon: '🌆',
+    description: 'Trung tâm tài chính xa hoa rực rỡ ánh đèn, mở khóa các ngành nghề đỉnh cao.',
+    travelCost: 0, // Đang để 0 để anh debug
+    wageMultiplier: 1.4,
+    stressMultiplier: 1.6,
+    themeClass: 'city-phon-hoa'
+}];
+
+/**
+ * Cập nhật màu sắc giao diện body dựa theo thành phố hiện tại của nhân vật
+ */
+function updateCityTheme() {
+    const currentCity = (gameState && gameState.currentCity) ? gameState.currentCity : 'ung_dung';
+    
+    // Dùng setAttribute để không đè mất class Tailwind dàn trang của thẻ <body>
+    document.body.setAttribute('data-city', currentCity);
+    
+    console.log("🎨 Đã cập nhật theme giao diện cho thành phố:", currentCity);
+}
+
+
+/**
+ * Thực hiện di cư sang thành phố mới
+ * @param {string} cityId ID thành phố ('ung_dung', 'voi_vang', 'phon_hoa')
+ */
+function relocateToCity(cityId) {
+    if (!gameState) return;
+    const cityInfo = CITIES_DATA.find(c => c.id === cityId);
+    if (!cityInfo) return;
+    
+    if (gameState.currentCity === cityId) {
+        alert(`⚠️ Bạn đang sinh sống tại ${cityInfo.name} rồi!`);
+        return;
+    }
+    
+    // Kiểm tra tiền (đang để 0 để debug)
+    if ((gameState.money || 0) < cityInfo.travelCost) {
+        if (typeof triggerScreenShake === 'function') triggerScreenShake();
+        alert(`❌ Không đủ tiền! Cần ${cityInfo.travelCost.toLocaleString()} $ để di cư.`);
+        return;
+    }
+    
+    showGameConfirm(
+        `Xác nhận di cư sang ${cityInfo.name}? Phí di chuyển: ${cityInfo.travelCost === 0 ? 'MIỄN PHÍ (DEBUG)' : cityInfo.travelCost.toLocaleString() + ' $'}. Môi trường sống và không gian sẽ thay đổi hoàn toàn!`,
+        function() {
+            gameState.money -= cityInfo.travelCost;
+            gameState.currentCity = cityId;
+            
+            // 🌟 Cập nhật ngay lập tức giao diện màu sắc body
+            updateCityTheme();
+            
+            if (typeof addDailyLog === 'function') {
+                addDailyLog(`Di cư thành công đến ${cityInfo.name}`);
+            }
+            if (typeof showFloatingText === 'function' && cityInfo.travelCost > 0) {
+                showFloatingText('money', `-${cityInfo.travelCost}$`, 'neg');
+            }
+            
+            if (typeof triggerScreenShake === 'function') triggerScreenShake();
+            alert(`🌟 Chào mừng bạn đã đặt chân đến ${cityInfo.name}! Không gian xung quanh đã lột xác hoàn toàn.`);
+            
+            if (typeof saveGameState === 'function') saveGameState();
+            if (typeof renderGameState === 'function') renderGameState();
+            showCityMapModal(false);
+        },
+        "Xác Nhận Di Cư",
+        "✈️",
+        "🌆 Hệ Thống Bản Đồ"
+    );
+    updateCityTheme();
+}
+
+/**
+ * Render danh sách các thành phố ra Modal Bản Đồ
+ */
+function renderCityMapList() {
+    const listEl = document.getElementById("city-map-modal-list");
+    if (!listEl) return;
+    listEl.innerHTML = "";
+    
+    const currentCity = gameState ? (gameState.currentCity || 'ung_dung') : 'ung_dung';
+    
+    CITIES_DATA.forEach(city => {
+        const isCurrent = currentCity === city.id;
+        const card = document.createElement("div");
+        card.className = "glass-card-inner-light p-4 rounded-2xl flex flex-col gap-3 border border-amber-300/40 shrink-0";
+        
+        let actionBtnHTML = `
+            <button onclick="relocateToCity('${city.id}')" 
+                class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-xl text-xs shadow-sm transition-all active:scale-95">
+                ✈️ Di Cư Ngay (${city.travelCost === 0 ? '0 $ (DEBUG)' : city.travelCost.toLocaleString() + ' $'})
+            </button>
+        `;
+        
+        if (isCurrent) {
+            actionBtnHTML = `
+                <button disabled class="w-full py-2.5 bg-amber-800/20 text-amber-950 font-display font-extrabold rounded-xl text-xs cursor-not-allowed border border-amber-900/20">
+                    📍 Đang Sinh Sống Tại Đây
+                </button>
+            `;
+        }
+        
+        card.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">${city.icon}</span>
+                    <div>
+                        <h4 class="text-sm font-extrabold text-amber-950">${city.name}</h4>
+                        <p class="text-[11px] text-amber-800/80">${city.description}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] bg-white/50 p-2 rounded-xl text-amber-900 font-semibold">
+                <span>💵 Lương: x${city.wageMultiplier}</span>
+                <span>⚡ Stress: x${city.stressMultiplier}</span>
+            </div>
+            ${actionBtnHTML}
+        `;
+        listEl.appendChild(card);
+    });
+}
+
+/**
+ * Ẩn / Hiện Modal Bản Đồ Thành Phố
+ */
+function showCityMapModal(show) {
+    const modal = document.getElementById("city-map-modal");
+    if (modal) {
+        if (show) {
+            renderCityMapList();
+            modal.classList.remove("hidden");
+        } else {
+            modal.classList.add("hidden");
+        }
+    }
 }

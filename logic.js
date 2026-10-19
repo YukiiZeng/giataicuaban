@@ -50,6 +50,7 @@ function createCharacter(name, gender = "Nam") {
         gender: gender,
         age: 16,
         month: 1,
+        currentCity: 'ung_dung',
         currentDay: 1,
         money: 0,
         

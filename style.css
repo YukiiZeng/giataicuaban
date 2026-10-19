@@ -106,3 +106,146 @@ body {
 .modal-transition {
     transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
+
+/* =================================================================
+   ZONE 5: DYNAMIC CITY CSS VARIABLES & THEMES (GIAO DIỆN ĐỘNG)
+   ================================================================= */
+
+/* Định nghĩa màu sắc mặc định (Thành phố Ung Dung - Ấm áp, Mộc mạc) */
+body {
+    --bg-main: linear-gradient(135deg, #fdfbf7 0%, #fceddd 50%, #f7e8d8 100%);
+    --text-main: #2d2420;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-inner: rgba(254, 243, 199, 0.35);
+    --border-color: rgba(251, 191, 36, 0.3);
+    --glow-shadow: 0 10px 30px -5px rgba(180, 83, 9, 0.08);
+
+    background: var(--bg-main);
+    color: var(--text-main);
+    background-attachment: fixed;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+/* 1. Thành phố Vội Vàng (Sleek Cyber / Ánh Sáng Xanh Công Nghệ) */
+body[data-city="voi_vang"] {
+    --bg-main: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
+    --text-main: #f8fafc;
+    /* Giảm opacity xuống 0.55 để lộ hiệu ứng kính mờ thực sự */
+    --card-bg: rgba(15, 23, 42, 0.55);
+    --card-inner: rgba(30, 41, 59, 0.5);
+    --border-color: rgba(56, 189, 248, 0.4); /* Viền Xanh Cyan */
+    --glow-shadow: 0 8px 32px 0 rgba(56, 189, 248, 0.2);
+}
+
+/* 2. Thành phố Phồn Hoa (Luxury Neon / Tím Hồng Quyến Rũ) */
+body[data-city="phon_hoa"] {
+    --bg-main: linear-gradient(135deg, #2e1065 0%, #701a75 50%, #171717 100%);
+    --text-main: #fdf2f8;
+    --card-bg: rgba(46, 16, 101, 0.55);
+    --card-inner: rgba(74, 4, 78, 0.5);
+    --border-color: rgba(236, 72, 153, 0.4); /* Viền Hồng Neon */
+    --glow-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.25);
+}
+
+/* Tự động áp dụng biến màu vào các thẻ kính (glass-card) */
+.glass-card-light {
+    background: var(--card-bg) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    box-shadow: var(--glow-shadow) !important;
+    transition: all 0.4s ease;
+}
+
+.glass-card-inner-light {
+    background: var(--card-inner) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    transition: all 0.4s ease;
+}
+
+/* =================================================================
+   🔥 MAGIC FIX: ÉP TỰ ĐỘNG ĐẢO MÀU TAILWIND ĐỂ KHỚP VỚI THEME TỐI
+   ================================================================= */
+
+/* 1. Đảo màu chữ đen/nâu (amber-950, amber-900, amber-700) sang Trắng Sáng */
+body[data-city="voi_vang"] [class*="text-amber-9"],
+body[data-city="phon_hoa"] [class*="text-amber-9"],
+body[data-city="voi_vang"] [class*="text-amber-7"],
+body[data-city="phon_hoa"] [class*="text-amber-7"] {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+}
+
+body[data-city="voi_vang"] [class*="text-amber-8"],
+body[data-city="phon_hoa"] [class*="text-amber-8"] {
+    color: #e2e8f0 !important;
+}
+
+/* 🛡️ Bảo vệ chữ trong các Nút (Button) không bị biến thành màu trắng (Giữ nguyên độ nổi) */
+body[data-city="voi_vang"] button [class*="text-amber-"],
+body[data-city="phon_hoa"] button [class*="text-amber-"],
+body[data-city="voi_vang"] button[class*="text-amber-"],
+body[data-city="phon_hoa"] button[class*="text-amber-"] {
+    color: #451a03 !important; 
+    text-shadow: none !important;
+}
+
+/* 2. Đổi các mảng nền tối mù (bg-amber-900/10) thành Kính trắng đục (Frosted Glass) sang trọng */
+body[data-city="voi_vang"] [class*="bg-amber-900"],
+body[data-city="phon_hoa"] [class*="bg-amber-900"] {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 3. Làm dịu Khung "Tài Sản" và các Badge vàng rực để không bị chói trên nền tối */
+body[data-city="voi_vang"] [class*="from-amber-100"],
+body[data-city="phon_hoa"] [class*="from-amber-100"],
+body[data-city="voi_vang"] [class*="bg-amber-200"],
+body[data-city="phon_hoa"] [class*="bg-amber-200"] {
+    background: rgba(255, 255, 255, 0.15) !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 4. Đổi viền cam nhạt thành viền Neon theo tone của từng thành phố */
+body[data-city="voi_vang"] [class*="border-amber-3"] {
+    border-color: rgba(56, 189, 248, 0.3) !important;
+}
+body[data-city="phon_hoa"] [class*="border-amber-3"] {
+    border-color: rgba(236, 72, 153, 0.3) !important;
+}
+/* 🛡️ Bảo vệ hiệu ứng chữ Gradient trên Bảng Gỗ không bị tàng hình */
+body[data-city="voi_vang"] .wooden-sign h1,
+body[data-city="phon_hoa"] .wooden-sign h1 {
+    background: linear-gradient(to bottom, #fef3c7, #fde68a, #fcd34d) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+}
+/* =================================================================
+   ZONE 6: BOTTOM NAV BAR STYLES 
+   ================================================================= */
+#bottom-nav-menu {
+    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.15) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+/* Đổi bóng tối hơn khi ở theme Vội Vàng / Phồn Hoa */
+body[data-city="voi_vang"] #bottom-nav-menu,
+body[data-city="phon_hoa"] #bottom-nav-menu {
+    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Tự động đổi màu chữ Nav Menu thành Trắng khi sang Theme Tối */
+body[data-city="voi_vang"] #bottom-nav-menu span,
+body[data-city="phon_hoa"] #bottom-nav-menu span {
+    color: #e2e8f0 !important;
+}
+
+/* Hiệu ứng nền khung Icon sáng lên ở Theme Tối */
+body[data-city="voi_vang"] #bottom-nav-menu .nav-icon-bg,
+body[data-city="phon_hoa"] #bottom-nav-menu .nav-icon-bg {
+    background-color: rgba(255, 255, 255, 0.08);
+}

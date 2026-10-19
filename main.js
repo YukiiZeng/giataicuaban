@@ -71,7 +71,10 @@ function renderGameState() {
     setElementText('looks', gameState.looks ?? 60);
     setElementText('charm', gameState.charm ?? 45);
     setElementText('ego', gameState.ego ?? 30);
-    
+      // 🌟 Đảm bảo gọi updateCityTheme() mỗi khi render lại game
+    if (typeof updateCityTheme === 'function') {
+        updateCityTheme();
+    }
     // Render các Sub-Panels
     renderRelationships();
     renderHousing();
