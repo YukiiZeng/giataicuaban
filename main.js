@@ -56,15 +56,36 @@ function renderGameState() {
     const newsTickerEl = document.getElementById('game-news-ticker');
     if (newsTickerEl) {
         const tips = [
-            "💡 Mẹo: Ăn uống đầy đủ giúp duy trì Sức khỏe và Hạnh phúc hàng tháng!",
-            "💼 Tin tức: Đừng quên nâng cao học vấn để ứng tuyển các vị trí lương cao hơn.",
-            "🏋️ Mẹo: Đi chạy bộ hoặc tập Gym giúp giải tỏa Stress do áp lực công việc.",
-            "🏠 Tin tức: Hãy cân nhắc chi phí thuê nhà phù hợp với thu nhập hàng tháng.",
-            "👨‍👩‍👦 Mẹo: Giữ mối quan hệ tốt với Bố Mẹ để nhận hỗ trợ khi gặp khó khăn!"
+            // --- MẸO CHỨNG KHOÁN & ĐẦU TƯ ---
+            "📈 Mẹo Chứng Khoán: Cổ phiếu Blue-chip (SBM, LGC, QCP) rất an toàn và sẽ chia 'Cổ tức' tự động cho bạn vào tháng 12 hàng năm!",
+            "🚨 Cảnh Báo Đầu Tư: Tránh xa các mã Penny hoặc Crypto nếu bạn không giỏi chịu đựng rủi ro. Có thể cháy tài khoản chỉ sau một đêm!",
+            "💡 Mẹo Chứng Khoán: Nếu lỡ mua hớ ở đỉnh, hãy mua thêm khi giá giảm để hạ 'Giá vốn trung bình' (DCA) xuống thấp hơn.",
+            "⚖️ Tin Tức Thị Trường: Khi Tâm lý thị trường chuyển sang 'Suy thoái (Downtrend)', đó lại là cơ hội vàng để gom cổ phiếu giá rẻ.",
+            "💰 Mẹo Tài Chính: Tiền mặt mất giá theo thời gian. Hãy dùng tiền nhàn rỗi mua một ít tài sản an toàn để sinh lời.",
+            
+            // --- MẸO HỌC TẬP & CÔNG VIỆC ---
+            "🎓 Mẹo Khởi Nghiệp: Vừa học Chính Quy vừa làm Toàn thời gian sẽ khiến cơ thể suy nhược nghiêm trọng do quá tải (-8 Sức khỏe/tháng)!",
+            "💼 Tin Tức Nghề Nghiệp: Một số công việc cấp cao yêu cầu bạn phải có mối quan hệ tốt với những người trong ngành đó.",
+            "✈️ Mẹo Di Cư: Tới Thành phố Phồn Hoa lương sẽ tăng mạnh (x1.4), nhưng hãy cẩn thận vì Áp lực (Stress) cũng tăng theo cấp số nhân!",
+            
+            // --- MẸO SỨC KHỎE & XÃ HỘI ---
+            "🏥 Mẹo Y Tế: Đừng bao giờ để Sức khỏe tụt dưới 20%. Bạn sẽ bị ép nhập viện cấp cứu khẩn cấp và tốn cả đống tiền viện phí!",
+            "🍔 Mẹo Dinh Dưỡng: Hãy giữ Độ no (Hunger) trên 50. Nếu để cơ thể đói khát, bạn sẽ bị trừ Sức khỏe rất nặng khi sang tháng mới.",
+            "👥 Mẹo Xã Hội: Đừng bỏ bê bạn bè! Nếu không tương tác quá 3 tháng liên tục, họ sẽ dần xa cách và rời bỏ bạn đấy.",
+            "🧘 Mẹo Sức Khỏe: Căng thẳng (Stress) quá cao? Đi ăn uống cùng bạn bè, tập Thiền, hoặc đăng ký lớp Yoga sẽ giúp giải tỏa cực kỳ hiệu quả."
         ];
-        const currentTip = tips[(gameState.month || 1) % tips.length];
+        // Lấy 3 tin tức khác nhau đan xen dựa trên số tháng để tạo thành 1 dải tin dài
+        const idx = gameState.month || 1;
+        const tip1 = tips[idx % tips.length];
+        const tip2 = tips[(idx + 3) % tips.length];
+        const tip3 = tips[(idx + 7) % tips.length];
+        
+        // Nối lại bằng icon chấm đỏ báo hiệu chuyển tin
+        const currentTip = `${tip1} 🔴 ${tip2} 🔴 ${tip3}`;
         newsTickerEl.innerText = currentTip;
+
     }
+
     
     // Cập nhật 4 thuộc tính năng lực
     setElementText('strength', gameState.strength ?? 50);

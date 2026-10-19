@@ -75,7 +75,7 @@ body {
 }
 .animate-marquee {
     display: inline-block;
-    animation: marquee 16s linear infinite;
+    animation: marquee 48s linear infinite;
 }
 .animate-marquee:hover {
     animation-play-state: paused;
@@ -248,4 +248,26 @@ body[data-city="phon_hoa"] #bottom-nav-menu span {
 body[data-city="voi_vang"] #bottom-nav-menu .nav-icon-bg,
 body[data-city="phon_hoa"] #bottom-nav-menu .nav-icon-bg {
     background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* =================================================================
+   ZONE 7: TV SCREEN & LED EFFECTS (HIỆU ỨNG TIVI)
+   ================================================================= */
+
+/* 1. Sọc nhiễu màn hình CRT */
+.tv-scanlines {
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0,0,0,0.3) 50%,
+        rgba(0,0,0,0.3)
+    );
+    background-size: 100% 4px;
+}
+
+/* 2. Làm mờ 2 bên viền màn hình để chữ trượt vào/ra tự nhiên */
+.mask-edges {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }

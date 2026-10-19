@@ -162,16 +162,25 @@
             
             <!-- Bảng Tin & 4 Thuộc tính năng lực -->
             <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-2 border border-amber-300/40 overflow-hidden">
-                <div class="flex items-center gap-2 border-b border-amber-900/10 pb-1.5 min-w-0">
-                    <span class="text-[10px] text-amber-900 font-extrabold uppercase shrink-0 flex items-center gap-1">
-                        <span>📰 Bảng Tin:</span>
-                    </span>
-                    <div class="flex-1 overflow-hidden relative h-6 flex items-center">
-                        <div id="game-news-ticker" class="whitespace-nowrap animate-marquee text-xs font-bold text-amber-950 inline-block">
-                            💡 Mẹo: Hãy nhớ chú ý Độ no và Sức khỏe đầu tháng • Đi làm sẽ tích lũy kinh nghiệm thăng tiến • Ăn uống & Tập Gym giúp giảm Stress hiệu quả!
-                        </div>
-                    </div>
-                </div>
+               <!-- KHUNG MÀN HÌNH TIVI / LED TICKER -->
+<div class="relative bg-slate-900 rounded-xl p-1.5 border-2 border-slate-700 shadow-[inset_0_2px_10px_rgba(0,0,0,0.9)] overflow-hidden flex items-center gap-2 mb-2">
+    <!-- Hiệu ứng Sọc màn hình CRT -->
+    <div class="tv-scanlines absolute inset-0 pointer-events-none opacity-30 z-20"></div>
+    
+    <!-- Đèn báo LIVE nhấp nháy -->
+    <div class="flex items-center gap-1 shrink-0 bg-rose-900/40 px-1.5 py-0.5 rounded border border-rose-500/50 z-10">
+        <div class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_6px_#f43f5e]"></div>
+        <span class="text-[8px] font-black text-rose-400 uppercase tracking-widest drop-shadow-md">LIVE</span>
+    </div>
+    
+    <!-- Chữ LED chạy -->
+    <div class="flex-1 overflow-hidden relative h-5 flex items-center z-10 mask-edges">
+        <div id="game-news-ticker" class="whitespace-nowrap animate-marquee text-[11px] font-mono font-bold text-amber-400 inline-block drop-shadow-[0_0_3px_rgba(251,191,36,0.8)] tracking-wide">
+            💡 Đang tải bản tin...
+        </div>
+    </div>
+</div>
+
                 
                 <div class="grid grid-cols-4 gap-1 text-center pt-0.5">
                     <div class="flex flex-col items-center">
