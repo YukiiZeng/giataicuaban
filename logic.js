@@ -6,6 +6,7 @@
 
 // Biến toàn cục lưu trữ trạng thái game
 let gameState = null;
+
 // BỘ TỪ ĐIỂN 10 LOẠI BỆNH PHỔ BIẾN & MỨC ĐỘ TRỪ SỨC KHỎE HÀNG THÁNG
 const DISEASES_DB = {
     "Cảm cúm": { name: "Cảm cúm", drain: 7 },
@@ -21,16 +22,21 @@ const DISEASES_DB = {
 };
 
 /**
+ * Hàm phụ trợ gán text an toàn cho DOM (Tránh lỗi ReferenceError)
+ */
+function setElementText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = value;
+}
+
+/**
  * Khởi tạo nhân vật mới và thiết lập gameState ban đầu
  * @param {string} name Tên nhân vật
  * @param {string} gender Giới tính ("Nam" | "Nữ" | "Khác")
  */
 function createCharacter(name, gender = "Nam") {
-        // Nếu người chơi bỏ trống, mặc định là "Kẻ Vô Danh" thay vì "Charlie"
     const characterName = name && name.trim() !== "" ? name.trim() : "Kẻ Vô Danh";
-
     
-    // Random Gia cảnh xuất thân
     const bgTypes = [
         { type: "wealthy", label: "🏡 Gia đình khá giả", allowance: 150, contributionChance: 0.1 },
         { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 },
@@ -60,6 +66,10 @@ function createCharacter(name, gender = "Nam") {
         looks: 60,
         charm: 45,
         ego: 30,
+        
+        // Gói đăng ký & Cờ Y tế
+        subscriptions: { gym: false, yoga: false },
+        hasCheckedHealthThisMonth: false,
         
         // Học vấn & Nghề nghiệp
         job: null,
@@ -103,63 +113,52 @@ function createCharacter(name, gender = "Nam") {
 
 /**
  * Đảm bảo các mối quan hệ nền tảng (Bố, Mẹ) luôn tồn tại
- * ĐÃ TÍCH HỢP HỆ THỐNG CHIỈ SỐ ẨN (HIDDEN MECHANICS)
  */
 function ensureBaseRelationships() {
     if (!gameState) return;
     if (!gameState.relationships) gameState.relationships = [];
     
-    // Đảm bảo lấy được danh sách cung từ file npcs.js (fallback nếu chưa load kịp)
-    const zodiacKeys = typeof ZODIAC_DATA !== 'undefined' ? Object.keys(ZODIAC_DATA) : 
-        ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
+    const zodiacKeys = typeof ZODIAC_DATA !== 'undefined' ? Object.keys(ZODIAC_DATA) : ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
     
-    // Khởi tạo Bố
     let father = gameState.relationships.find(r => r.id === "father");
     if (!father) {
         const randomZodiac = zodiacKeys[Math.floor(Math.random() * zodiacKeys.length)];
-        gameState.relationships.push({ 
-            id: "father", 
-            name: "Bố", 
-            relation: "Bố", 
-            icon: "👨", 
-            level: 2, 
+        gameState.relationships.push({
+            id: "father",
+            name: "Bố",
+            relation: "Bố",
+            icon: "👨",
+            level: 2,
             xp: 0,
-            // Các chỉ số ẨN - Người chơi không được thấy
             _zodiac: randomZodiac,
-            intrinsic_stats: { 
-                happiness: 70, 
-                wealth: getFamilyBackground().allowance * 2, // Quỹ đen của bố
-                generosity: Math.floor(Math.random() * 50) + 30 // Rộng lượng ngẫu nhiên
+            intrinsic_stats: {
+                happiness: 70,
+                wealth: getFamilyBackground().allowance * 2,
+                generosity: Math.floor(Math.random() * 50) + 30
             }
         });
     }
     
-    // Khởi tạo Mẹ
     let mother = gameState.relationships.find(r => r.id === "mother");
     if (!mother) {
         const randomZodiac = zodiacKeys[Math.floor(Math.random() * zodiacKeys.length)];
-        gameState.relationships.push({ 
-            id: "mother", 
-            name: "Mẹ", 
-            relation: "Mẹ", 
-            icon: "👩", 
-            level: 2, 
+        gameState.relationships.push({
+            id: "mother",
+            name: "Mẹ",
+            relation: "Mẹ",
+            icon: "👩",
+            level: 2,
             xp: 0,
-            // Các chỉ số ẨN - Người chơi không được thấy
             _zodiac: randomZodiac,
-            intrinsic_stats: { 
-                happiness: 80, 
-                wealth: getFamilyBackground().allowance, // Quỹ của mẹ
-                generosity: Math.floor(Math.random() * 50) + 50 // Mẹ thường hay cho tiền hơn
+            intrinsic_stats: {
+                happiness: 80,
+                wealth: getFamilyBackground().allowance,
+                generosity: Math.floor(Math.random() * 50) + 50
             }
         });
     }
 }
 
-
-/**
- * Lấy thông tin gia cảnh của nhân vật
- */
 function getFamilyBackground() {
     if (!gameState) return { type: "normal", label: "🏠 Gia đình bình thường", allowance: 60, contributionChance: 0.3 };
     if (!gameState.familyBackground) {
@@ -168,33 +167,24 @@ function getFamilyBackground() {
     return gameState.familyBackground;
 }
 
-/**
- * TỐI ƯU CƠ CHẾ: Hàm xử lý tăng/giảm chỉ số tập trung, tự động chặn ở 0 và max
- * Tránh lỗi toán học và việc code lặp lại dài dòng ở các file khác.
- */
 function modifyStat(statKey, amount, maxLimit = 100) {
     if (!gameState) return;
     
-    // Nếu là tiền bạc, nợ nần thì không có giới hạn trên/dưới
     if (statKey === 'money' || statKey === 'debt') {
         gameState[statKey] = (gameState[statKey] ?? 0) + amount;
         return;
     }
-
-    // Lấy giá trị hiện tại (Dùng ?? để bảo toàn số 0)
+    
     let current = gameState[statKey];
     if (current === undefined || current === null) {
-        // Giá trị khởi tạo dự phòng nếu lỗi save/load
         if (statKey === 'stress') current = 0;
         else if (statKey === 'hunger') current = 80;
         else if (statKey === 'health') current = 100;
-        else current = 50; 
+        else current = 50;
     }
-
-    // Tính toán và giới hạn trong khoảng 0 -> maxLimit
+    
     gameState[statKey] = Math.max(0, Math.min(maxLimit, current + amount));
 }
-
 
 
 /**
@@ -203,9 +193,6 @@ function modifyStat(statKey, amount, maxLimit = 100) {
  * =================================================================
  */
 
-/**
- * Lưu tiến trình game vào LocalStorage & Firebase Cloud
- */
 function saveGameState() {
     if (typeof gameState !== 'undefined' && gameState) {
         localStorage.setItem("GIA_TAI_CUA_BAN_GAME_STATE", JSON.stringify(gameState));
@@ -217,9 +204,6 @@ function saveGameState() {
     }
 }
 
-/**
- * Nạp tiến trình game từ LocalStorage
- */
 function loadGameState() {
     const saved = localStorage.getItem("GIA_TAI_CUA_BAN_GAME_STATE");
     if (saved) {
@@ -228,9 +212,6 @@ function loadGameState() {
     return null;
 }
 
-/**
- * Reset nhân vật và xóa toàn bộ dữ liệu lưu trữ
- */
 function resetCharacter() {
     localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
     if (typeof auth !== 'undefined' && auth.currentUser && typeof db !== 'undefined') {
@@ -240,8 +221,6 @@ function resetCharacter() {
     if (typeof showAdminPanel === 'function') showAdminPanel(false);
     if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
 }
-
-
 /**
  * =================================================================
  * ZONE 3: MONTHLY PROGRESSION & LIFECYCLE (TIẾN TRÌNH THÁNG & SINH TỒN)
@@ -249,12 +228,219 @@ function resetCharacter() {
  */
 
 /**
- * Chuyển sang tháng tiếp theo và tính toán chi phí / thu nhập
+ * 🚀 HEALTH ENGINE 2.0: Tính toán biến động Sức khỏe hàng tháng tập trung & chuẩn xác
+ */
+function processMonthlyHealthSystem() {
+    if (!gameState) return;
+    
+    let baseDrain = 0;
+    const logs = [];
+    
+    // 1. Áp lực thể chất từ Công việc / Học tập cơ bản
+    const hasJob = !!gameState.job;
+    const hasEdu = !!gameState.currentEducation;
+    
+    if (hasJob && gameState.job.stressCost) {
+        baseDrain += Math.round(gameState.job.stressCost * 0.3);
+    }
+    if (hasEdu && gameState.currentEducation.staminaCost) {
+        baseDrain += Math.round(gameState.currentEducation.staminaCost * 0.3);
+    }
+    
+    // 🌟 1.5. CƠ CHẾ PHẠT ÁP LỰC KẾP: VỪA HỌC VỪA LÀM
+    if (hasJob && hasEdu) {
+        const isFormalEdu = gameState.currentEducation.category === 'formal';
+        
+        if (isFormalEdu) {
+            const overloadPenalty = 8;
+            baseDrain += overloadPenalty;
+            logs.push(`Quá tải do vừa học Chính Quy vừa đi làm (-${overloadPenalty} Sức khỏe)`);
+        } else {
+            const overloadPenalty = 3;
+            baseDrain += overloadPenalty;
+            logs.push(`Mệt mỏi do vừa học nghề vừa đi làm (-${overloadPenalty} Sức khỏe)`);
+        }
+    }
+    
+    // 2. Dinh dưỡng & Đói khát
+    const hunger = gameState.hunger ?? 80;
+    if (hunger < 20) {
+        baseDrain += 15;
+        logs.push("Cơ thể kiệt sức vì đói trầm trọng (-15 Sức khỏe)");
+    } else if (hunger < 50) {
+        baseDrain += 6;
+        logs.push("Thiếu dinh dưỡng nhẹ (-6 Sức khỏe)");
+    }
+    
+    // 3. Môi trường Nơi ở
+    const homeType = gameState.currentHome ? gameState.currentHome.type : 'shared';
+    if (homeType === 'homeless') {
+        baseDrain += 15;
+        logs.push("Sống lang thang xơ xác (-15 Sức khỏe)");
+    } else if (homeType === 'rented' && gameState.currentHome.monthlyCost < 200) {
+        baseDrain += 3;
+    } else if (homeType === 'shared') {
+        baseDrain -= 4; // Bố Mẹ chăm sóc: Giảm 4 điểm gánh nặng!
+    }
+    
+    // 4. BÙ TRỪ: Khả năng chống chịu từ Chỉ số Sức mạnh (Strength)
+    const strength = gameState.strength ?? 50;
+    const resistance = Math.floor(strength * 0.25); // Strength 50 = Giảm 12 điểm gánh nặng!
+    
+    let finalDrain = Math.max(2, baseDrain - resistance); // Tối thiểu chỉ mất 2 điểm sinh hoạt phí/tháng
+    
+    // 5. Tác động Bệnh tật (Có tỷ lệ 2% phát bệnh ngẫu nhiên nếu chưa bị bệnh)
+    if (Math.random() < 0.02) {
+        const diseaseNames = Object.keys(DISEASES_DB);
+        const randomDisease = diseaseNames[Math.floor(Math.random() * diseaseNames.length)];
+        if (!gameState.ailments) gameState.ailments = [];
+        if (!gameState.ailments.includes(randomDisease)) {
+            gameState.ailments.push(randomDisease);
+            logs.push(`⚠️ Dấu hiệu bất thường: Cơ thể xuất hiện triệu chứng của bệnh ${randomDisease}!`);
+        }
+    }
+    
+    if (gameState.ailments && gameState.ailments.length > 0) {
+        let diseaseDamage = 0;
+        gameState.ailments.forEach(disease => {
+            if (DISEASES_DB[disease]) {
+                diseaseDamage += Math.round(DISEASES_DB[disease].drain * 0.5);
+            }
+        });
+        finalDrain += diseaseDamage;
+        logs.push(`Bệnh tật tàn phá cơ thể (-${diseaseDamage} Sức khỏe)`);
+    }
+    
+    // 6. Lão hóa (Tuổi già > 60t)
+    const age = gameState.age ?? 16;
+    if (age > 60) {
+        const agePenalty = Math.floor((age - 60) * 0.5);
+        finalDrain += agePenalty;
+        logs.push(`Dấu hiệu tuổi già (-${agePenalty} Sức khỏe)`);
+    }
+    
+    // 💥 Thực thi trừ sức khỏe an toàn
+    modifyStat('health', -finalDrain);
+    
+    if (logs.length > 0 && typeof addDailyLog === 'function') {
+        addDailyLog(`🩺 Thể trạng tháng này: -${finalDrain} Sức khỏe. (${logs.join(', ')})`);
+    }
+}
+
+/**
+ * Xử lý trừ tiền gói đăng ký tháng Gym/Yoga & Reset cờ y tế đầu tháng
+ */
+function processMonthlySubscriptions() {
+    if (!gameState) return;
+    if (!gameState.subscriptions) gameState.subscriptions = { gym: false, yoga: false };
+    
+    // 🚀 RESET SẠCH 2 CỜ Y TẾ KHI BƯỚC SANG THÁNG MỚI
+    gameState.hasCheckupThisMonth = false;
+    gameState.hasTreatedThisMonth = false;
+    // 1. Gói Gym (60$/tháng)
+    if (gameState.subscriptions.gym) {
+        if ((gameState.money || 0) >= 60) {
+            gameState.money -= 60;
+            gameState.stress = Math.max(0, (gameState.stress || 0) - 25);
+            gameState.strength = Math.min(100, (gameState.strength || 0) + 5);
+            if (typeof addTransactionHistory === 'function') addTransactionHistory("Gói tháng: Thẻ tập Gym", -60);
+        } else {
+            gameState.subscriptions.gym = false;
+        }
+    }
+    
+    // 2. Gói Yoga (40$/tháng)
+    if (gameState.subscriptions.yoga) {
+        if ((gameState.money || 0) >= 40) {
+            gameState.money -= 40;
+            gameState.stress = Math.max(0, (gameState.stress || 0) - 35);
+            gameState.looks = Math.min(100, (gameState.looks || 0) + 3);
+            if (typeof addTransactionHistory === 'function') addTransactionHistory("Gói tháng: Lớp Yoga", -40);
+        } else {
+            gameState.subscriptions.yoga = false;
+        }
+    }
+}
+
+/**
+ * Xử lý logic Y tế mới: Khám bệnh độc lập, dùng thuốc/nhập viện khóa chung nhau
+ */
+function handleMedicalCare(type) {
+    if (!gameState) return;
+    
+    // Khởi tạo cờ nếu save cũ chưa có
+    if (typeof gameState.hasCheckupThisMonth === 'undefined') gameState.hasCheckupThisMonth = false;
+    if (typeof gameState.hasTreatedThisMonth === 'undefined') gameState.hasTreatedThisMonth = false;
+    
+    if (type === 'checkup') {
+        if (gameState.hasCheckupThisMonth) {
+            return alert("⏳ Tháng này bạn đã khám sức khỏe định kỳ rồi! Hãy chờ sang tháng sau.");
+        }
+        if ((gameState.money ?? 0) < 50) return alert("❌ Bạn không đủ 50 $!");
+        
+        modifyStat('money', -50);
+        gameState.hasCheckupThisMonth = true;
+        
+        const ailments = gameState.ailments || [];
+        if (typeof addTransactionHistory === 'function') addTransactionHistory("Y tế: Khám sức khỏe định kỳ", -50);
+        
+        if (ailments.length === 0) {
+            alert("🩺 KẾT QUẢ KHÁM: Thể trạng hoàn toàn khỏe mạnh, không phát hiện bệnh lý ẩn!");
+        } else {
+            alert(`🔍 KẾT QUẢ KHÁM: Phát hiện cơ thể bạn đang mắc ${ailments.length} bệnh:\n- ${ailments.join('\n- ')}\n\nHãy nhập viện điều trị sớm!`);
+        }
+        
+    } else {
+        // Dịch vụ điều trị (Mua thuốc hoặc Nhập viện chung một hạn mức trong tháng)
+        if (gameState.hasTreatedThisMonth) {
+            return alert("⏳ Tháng này bạn đã sử dụng dịch vụ điều trị (Thuốc/Nhập viện) rồi! Chỉ được chọn 1 trong 2 mỗi tháng.");
+        }
+        
+        if (type === 'pharmacy') {
+            if ((gameState.money ?? 0) < 30) return alert("❌ Bạn không đủ 30 $!");
+            modifyStat('money', -30);
+            gameState.hasTreatedThisMonth = true; // Khóa cả 2 nút điều trị
+            modifyStat('health', 10);
+            
+            if (typeof addTransactionHistory === 'function') addTransactionHistory("Y tế: Mua thuốc tây", -30);
+            alert("💊 Đã uống thuốc tây (+10 Sức khỏe). Bệnh nhẹ đã thuyên giảm đôi chút!");
+            
+        } else if (type === 'hospital') {
+            if ((gameState.money ?? 0) < 200) return alert("❌ Bạn không đủ 200 $!");
+            modifyStat('money', -200);
+            gameState.hasTreatedThisMonth = true; // Khóa cả 2 nút điều trị
+            modifyStat('health', 25);
+            
+            if (gameState.ailments && gameState.ailments.length > 0) {
+                const cured = gameState.ailments.pop();
+                alert(`🏥 Bệnh viện đã chữa khỏi triệt để bệnh: ${cured}! (+25 Sức khỏe)`);
+            } else {
+                alert("🏥 Đã truyền nước và điều trị chuyên sâu (+25 Sức khỏe)!");
+            }
+            
+            if (typeof addTransactionHistory === 'function') addTransactionHistory("Y tế: Nhập viện điều trị", -200);
+        }
+    }
+     // 🚀 BỔ SUNG DÒNG NÀY
+    if (typeof renderGameState === 'function') renderGameState();
+    
+    if (typeof saveGameState === 'function') saveGameState();
+    if (typeof renderHealthView === 'function') renderHealthView();
+}
+
+
+/**
+ * Chuyển sang tháng tiếp theo và tính toán toàn bộ chi phí / thu nhập / sức khỏe
  */
 function nextMonth() {
     if (typeof gameState === 'undefined' || !gameState) return;
     
-    // Snapshot các chỉ số trước khi sang tháng
+    // 🚀 RESET SẠCH CỜ Y TẾ MỖI KHI SANG THÁNG MỚI
+    gameState.hasCheckupThisMonth = false;
+    gameState.hasTreatedThisMonth = false;
+    
+    
+    
     const startMoney = gameState.money || 0;
     const startHealth = gameState.health || 100;
     const startHunger = gameState.hunger || 80;
@@ -266,7 +452,7 @@ function nextMonth() {
     gameState.month = currentMonthNum + 1;
     if (gameState.month % 12 === 0) {
         gameState.age = (gameState.age || 16) + 1;
-        addMilestoneLog(`Tròn ${gameState.age} tuổi.`);
+        if (typeof addMilestoneLog === 'function') addMilestoneLog(`Tròn ${gameState.age} tuổi.`);
     }
     
     // 2. Tính toán tài chính trong tháng
@@ -288,97 +474,37 @@ function nextMonth() {
     if (typeof processMonthlyEducation === 'function') processMonthlyEducation();
     if (typeof processMonthlyJob === 'function') processMonthlyJob();
     if (typeof checkHousingEvents === 'function') checkHousingEvents();
+    processMonthlySubscriptions(); // Trừ tiền gói Gym/Yoga tháng
     
-
-    // 4. CƠ CHẾ SỨC KHỎE, DINH DƯỠNG & BỆNH TẬT MỚI
+    // 4. CƠ CHẾ SINH TỒN & SỨC KHỎE TẬP TRUNG
+    modifyStat('hunger', -20); // Dinh dưỡng tự nhiên trừ 20%/tháng
     
-    // 4.1. Trừ dinh dưỡng (Hunger) hàng tháng
-    modifyStat('hunger', -20);
+    // 🚀 TÍNH TOÁN SỨC KHỎE TẬP TRUNG
+    processMonthlyHealthSystem();
     
-    // Sức khỏe giảm 10 nếu Dinh dưỡng dưới 50%
-    if ((gameState.hunger ?? 80) < 50) {
-        modifyStat('health', -10);
-        if (typeof addDailyLog === 'function') addDailyLog("Cơ thể suy nhược do thiếu dinh dưỡng (-10 Sức khỏe).");
-    }
-    
-    // Hạnh phúc giảm tùy theo độ đói
-    if ((gameState.hunger ?? 80) === 0) {
-        modifyStat('happiness', -20);
-    } else {
-        modifyStat('happiness', -3);
-    }
-
-    // 4.2. Khởi phát Bệnh tật (<2% mỗi tháng)
-    if (!gameState.ailments) gameState.ailments = [];
-    if (Math.random() < 0.02) {
-        const diseaseKeys = Object.keys(DISEASES_DB);
-        const randomDisease = diseaseKeys[Math.floor(Math.random() * diseaseKeys.length)];
-        
-        // Tránh mắc trùng một bệnh
-        if (!gameState.ailments.includes(randomDisease)) {
-            gameState.ailments.push(randomDisease);
-            if (typeof triggerScreenShake === 'function') triggerScreenShake();
-            alert(`🦠 Cảnh báo: Bạn vừa mắc phải bệnh ${randomDisease}! Hãy đến bệnh viện chữa trị ngay kẻo tụt sức khỏe mỗi tháng.`);
-            if (typeof addDailyLog === 'function') addDailyLog(`Phát bệnh: ${randomDisease}.`);
-        }
-    }
-
-    // 4.3. Suy giảm sức khỏe do Bệnh tật đang mang
-    if (gameState.ailments.length > 0) {
-        let totalDamage = 0;
-        gameState.ailments.forEach(disease => {
-            if (DISEASES_DB[disease]) totalDamage += DISEASES_DB[disease].drain;
-        });
-        if (totalDamage > 0) {
-            modifyStat('health', -totalDamage);
-            if (typeof addDailyLog === 'function') addDailyLog(`Bệnh tật tàn phá cơ thể (-${totalDamage} Sức khỏe).`);
-        }
-    }
-
-    // 4.4. Suy giảm sức khỏe do Lão hóa (Tuổi già)
-    const currentAge = gameState.age ?? 16;
-    let ageDamage = 0;
-    
-    if (currentAge > 90) {
-        ageDamage = Math.floor(Math.random() * (80 - 50 + 1)) + 50; // Giảm 50-80
-    } else if (currentAge > 80) {
-        ageDamage = Math.floor(Math.random() * (30 - 10 + 1)) + 10; // Giảm 10-30
-    } else if (currentAge > 50 && gameState.ailments.length === 0) {
-        ageDamage = Math.floor(Math.random() * (5 - 2 + 1)) + 2; // Giảm 2-5 (chỉ khi không có bệnh)
-    }
-    
-    if (ageDamage > 0) {
-        modifyStat('health', -ageDamage);
-        if (typeof addDailyLog === 'function') addDailyLog(`Dấu hiệu sinh lão bệnh tử (-${ageDamage} Sức khỏe).`);
-    }
-
     // 4.5. Xử lý Sinh - Tử & Buộc Nhập Viện
     const currentHealth = gameState.health ?? 100;
     
     if (currentHealth <= 0) {
-        // 💀 Tử vong
         gameState.health = 0;
         if (typeof triggerGameOver === 'function') {
-            triggerGameOver("Sức khỏe cạn kiệt, cơ thể không thể chịu đựng thêm. Cuộc đời của Charlie đã chính thức khép lại.");
+            triggerGameOver("Sức khỏe cạn kiệt, cơ thể không thể chịu đựng thêm. Cuộc đời của nhân vật đã chính thức khép lại.");
         }
-        return; // Dừng tiến trình tháng tại đây
+        return;
         
     } else if (currentHealth < 20) {
-        // 🚨 Nguy kịch (<20%) -> Buộc nhập viện
-        const hospitalBill = 500; // Tiền viện phí bắt buộc
+        const hospitalBill = 500;
         const currentMoney = gameState.money ?? 0;
         
-        // Bệnh viện tuyến cuối sẽ kéo máu lên 40 và xóa sạch bệnh tật
         gameState.health = 40;
-        gameState.ailments = []; 
-
+        gameState.ailments = [];
+        
         if (currentMoney >= hospitalBill) {
             modifyStat('money', -hospitalBill);
             if (typeof addTransactionHistory === 'function') addTransactionHistory("Y tế: Viện phí cấp cứu khẩn cấp", -hospitalBill);
             if (typeof addDailyLog === 'function') addDailyLog(`🚨 Nguy kịch! Bị ép nhập viện cấp cứu (-${hospitalBill}$).`);
             alert(`🚨 Sức khỏe rơi xuống mức NGUY KỊCH (<20%)! Bạn buộc phải nhập viện cấp cứu, tốn ${hospitalBill}$ viện phí. Bệnh viện đã chữa khỏi các bệnh tật hiện tại.`);
         } else {
-            // Không đủ tiền -> Ghi nợ
             const shortfall = hospitalBill - currentMoney;
             gameState.money = 0;
             modifyStat('debt', shortfall);
@@ -387,14 +513,13 @@ function nextMonth() {
             alert(`🚨 Sức khỏe rơi xuống mức NGUY KỊCH (<20%)! Bệnh viện đã cấp cứu và chữa trị cho bạn. Phần viện phí thiếu được ghi vào sổ nợ (+${shortfall}$ nợ mới)!`);
         }
     }
-
-
+    
     // 5. Tích lũy tài chính trọn đời
     gameState.totalLifetimeIncome = (gameState.totalLifetimeIncome || 0) + monthlyIncome;
     gameState.totalLifetimeExpense = (gameState.totalLifetimeExpense || 0) + monthlyExpense;
     
     // Lưu trạng thái & Render lại toàn bộ UI
-    saveGameState();
+    if (typeof saveGameState === 'function') saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
     if (typeof renderHealthView === 'function') renderHealthView();
     
@@ -417,12 +542,9 @@ function nextMonth() {
         });
     }
 }
-
-
-
 /**
  * =================================================================
- * ZONE 4: WEB WORKER CALENDAR TIMER (ĐỒNG HỒ SIÊU BỌC GIÁP CHỐNG ĐỨNG 100%)
+ * ZONE 4: WEB WORKER CALENDAR TIMER
  * =================================================================
  */
 
@@ -432,11 +554,8 @@ let workerWatchdogTimer = null;
 
 const TOTAL_DAYS_IN_MONTH = 30;
 const SECONDS_PER_MONTH = 60;
-const TICK_INTERVAL = (SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000; // 2000ms
+const TICK_INTERVAL = (SECONDS_PER_MONTH / TOTAL_DAYS_IN_MONTH) * 1000;
 
-/**
- * Khởi tạo & Kích hoạt Web Worker với cơ chế Chó săn giám sát (Watchdog)
- */
 function startMonthCalendarTimer() {
     if (!gameState) return;
     if (typeof gameState.currentDay === 'undefined') gameState.currentDay = 1;
@@ -451,7 +570,7 @@ function startMonthCalendarTimer() {
             
             gameTimerWorker.onmessage = function(e) {
                 if (e.data.type === 'tick') {
-                    lastWorkerTickTime = Date.now(); // Ghi nhận tim vẫn đập
+                    lastWorkerTickTime = Date.now();
                     handleTimerTick();
                 }
             };
@@ -459,11 +578,10 @@ function startMonthCalendarTimer() {
             gameTimerWorker.postMessage({ cmd: 'start', interval: TICK_INTERVAL });
             console.log("⚡ Web Worker Timer đã kích hoạt!");
             
-            // 🚀 BỘ GIÁM SÁT (WATCHDOG): Tự động đánh thức nếu Worker bị đứng quá 5s
             workerWatchdogTimer = setInterval(() => {
                 if (gameState && gameState.currentDay < TOTAL_DAYS_IN_MONTH) {
                     const timeSinceLastTick = Date.now() - lastWorkerTickTime;
-                    if (timeSinceLastTick > 4500) { // Quá 4.5s không nhích
+                    if (timeSinceLastTick > 4500) {
                         console.warn("⚠️ Đồng hồ bị khựng! Đang kích hoạt lại Worker...");
                         startMonthCalendarTimer();
                     }
@@ -479,9 +597,6 @@ function startMonthCalendarTimer() {
     }
 }
 
-/**
- * Xử lý mỗi nhịp ngày trôi qua (Có bọc try-catch chống sập)
- */
 function handleTimerTick() {
     if (!gameState) return;
     
@@ -489,7 +604,6 @@ function handleTimerTick() {
         gameState.currentDay += 1;
         if (typeof updateCalendarUI === 'function') updateCalendarUI();
         
-        // Bọc an toàn: Lỗi sự kiện không bao giờ làm dừng đồng hồ
         try {
             if (typeof checkDynamicMidMonthEvents === 'function') {
                 checkDynamicMidMonthEvents();
@@ -503,9 +617,6 @@ function handleTimerTick() {
     }
 }
 
-/**
- * Dừng Web Worker & Watchdog
- */
 function stopMonthCalendarTimer() {
     if (gameTimerWorker) {
         gameTimerWorker.postMessage({ cmd: 'stop' });
@@ -518,9 +629,6 @@ function stopMonthCalendarTimer() {
     }
 }
 
-/**
- * Bỏ qua ngày
- */
 function skipDays(daysToAdd) {
     if (!gameState) return;
     gameState.currentDay = Math.min(TOTAL_DAYS_IN_MONTH, (gameState.currentDay || 1) + daysToAdd);
@@ -537,15 +645,13 @@ function startFallbackTimer() {
     fallbackTimer = setInterval(handleTimerTick, TICK_INTERVAL);
 }
 
+
 /**
  * =================================================================
- * ZONE 5: HOUSING MARKET & PROPERTY LOGIC (THỊ TRƯỜNG NHÀ Ở)
+ * ZONE 5: HOUSING MARKET & PROPERTY LOGIC
  * =================================================================
  */
 
-/**
- * Làm mới tin rao vặt nhà trọ hàng tháng
- */
 function refreshHousingMarket() {
     if (!gameState) return;
     const hasListings = Math.random() < 0.6;
@@ -561,9 +667,6 @@ function refreshHousingMarket() {
     }
 }
 
-/**
- * Kiểm tra việc thu tiền nhà trọ và siết phòng nếu không đủ tiền
- */
 function checkHousingEvents() {
     if (!gameState || !gameState.currentHome) return;
     if (gameState.currentHome.type === "rented" && gameState.currentHome.monthlyCost > 0) {
@@ -578,20 +681,18 @@ function checkHousingEvents() {
     refreshHousingMarket();
 }
 
-
 /**
  * =================================================================
- * ZONE 6: HEALTH, FITNESS & MEDICAL VIEW HANDLERS (SỨC KHỎE & Y TẾ)
+ * ZONE 6: HEALTH, FITNESS & MEDICAL VIEW HANDLERS (SỨC KHỎE & Y TẾ NEW)
  * =================================================================
  */
 
 function renderHealthView() {
     if (!gameState) return;
+    if (!gameState.subscriptions) gameState.subscriptions = { gym: false, yoga: false };
     
-    // Cập nhật Ví tiền trong View Sức khỏe
     setElementText('health-view-money', (gameState.money ?? 0).toLocaleString());
     
-    // Dùng ?? để đảm bảo số 0 không bị render lỗi thành 100 hoặc 80
     const healthVal = Math.max(0, Math.min(100, gameState.health ?? 100));
     const hungerVal = Math.max(0, Math.min(100, gameState.hunger ?? 80));
     const stressVal = Math.max(0, Math.min(100, gameState.stress ?? 0));
@@ -609,20 +710,49 @@ function renderHealthView() {
     const stressBar = document.getElementById('hv-stress-bar');
     if (stressBar) stressBar.style.width = `${stressVal}%`;
     
+    // Nút Đăng ký tháng Gym / Yoga
+    const gymBtn = document.getElementById("btn-sub-gym");
+    if (gymBtn) {
+        gymBtn.innerText = gameState.subscriptions.gym ? "Đã Đăng Ký (Hủy)" : "Đăng ký (60$/T)";
+        gymBtn.className = gameState.subscriptions.gym ?
+            "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm" :
+            "py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm";
+    }
+    
+    const yogaBtn = document.getElementById("btn-sub-yoga");
+    if (yogaBtn) {
+        yogaBtn.innerText = gameState.subscriptions.yoga ? "Đã Đăng Ký (Hủy)" : "Đăng ký (40$/T)";
+        yogaBtn.className = gameState.subscriptions.yoga ?
+            "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm" :
+            "py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm";
+    }
+    
+    // Cờ Giới hạn Y tế
+    const checkBadge = document.getElementById("health-check-badge");
+    if (checkBadge) {
+        if (gameState.hasCheckedHealthThisMonth) {
+            checkBadge.innerText = "Đã sử dụng tháng này";
+            checkBadge.className = "text-[9px] font-bold text-rose-900 bg-rose-200 px-2 py-0.5 rounded-md";
+        } else {
+            checkBadge.innerText = "Chưa sử dụng";
+            checkBadge.className = "text-[9px] font-bold text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-md";
+        }
+    }
+    
     // Khung Chẩn Đoán Thông Minh
     const advisoryEl = document.getElementById("health-advisory-box");
     if (advisoryEl) {
-        let adviceText = "🟢 Thể trạng hoàn hảo. Hãy tiếp tục duy trì lối sống điều độ!";
+        let adviceText = "🟢 Thể trạng bình thường. Hãy duy trì lối sống điều độ!";
         let adviceBg = "bg-emerald-100/80 border-emerald-300 text-emerald-950";
         
         if (hungerVal < 30) {
-            adviceText = "⚠️ Đói khát trầm trọng! Hãy ăn ngay để tránh tụt sức khỏe.";
+            adviceText = "⚠️ Đói khát! Hãy ăn uống ngay để tránh tổn hại sức khỏe khi sang tháng.";
             adviceBg = "bg-rose-100/80 border-rose-300 text-rose-950 animate-pulse";
         } else if (stressVal >= 60) {
-            adviceText = "🧠 Căng thẳng đỉnh điểm! Cần đi chạy bộ hoặc tập gym ngay lập tức.";
+            adviceText = "🧠 Căng thẳng cao! Nên tập Thiền hoặc đăng ký Gym/Yoga để giải tỏa.";
             adviceBg = "bg-amber-100/80 border-amber-300 text-amber-950 animate-pulse";
         } else if (healthVal < 50) {
-            adviceText = "🩺 Sức khỏe báo động! Nên mua thuốc hoặc đến bệnh viện khám tổng quát.";
+            adviceText = "🩺 Sức khỏe báo động! Hãy đi khám hoặc mua thuốc tây điều trị.";
             adviceBg = "bg-rose-100/80 border-rose-300 text-rose-950";
         }
         
@@ -639,96 +769,91 @@ function renderHealthView() {
             statusEl.innerText = "🟢 Khỏe mạnh";
         } else {
             statusEl.className = "text-[10px] font-black text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-300";
-            statusEl.innerText = `🔴 Đang bị bệnh: ${ailments.join(', ')}`;
+            statusEl.innerText = `🔴 Bệnh mắc phải: ${ailments.length} bệnh`;
         }
     }
 }
 
+/**
+ * Xử lý hành động ăn uống (Fastfood, Bình dân, Healthy)
+ */
 function handleEatMeal(type) {
     if (!gameState) return;
     
     if (type === 'fastfood') {
-        if ((gameState.money ?? 0) < 15) return alert("❌ Bạn không đủ 15 $!");
-        modifyStat('money', -15);
-        modifyStat('hunger', 30);
-        
-        if (typeof addTransactionHistory === 'function') addTransactionHistory("Ăn uống: Cơm bình dân / Đồ ăn nhanh", -15);
-        if (typeof addDailyLog === 'function') addDailyLog("Ăn cơm bình dân (+30 Dinh dưỡng).");
-        
-        alert("🍜 Ăn cơm bình dân (+30 Độ no)!");
+        if ((gameState.money ?? 0) < 10) return alert("❌ Bạn không đủ 10 $!");
+        modifyStat('money', -10);
+        modifyStat('hunger', 20);
+        if (typeof addTransactionHistory === 'function') addTransactionHistory("Ăn uống: Bánh mì / Đồ ăn nhanh", -10);
+        alert("🥪 Đã ăn bánh mì (+20 Dinh dưỡng)!");
+
+    } else if (type === 'normal') {
+        if ((gameState.money ?? 0) < 25) return alert("❌ Bạn không đủ 25 $!");
+        modifyStat('money', -25);
+        modifyStat('hunger', 45);
+        if (typeof addTransactionHistory === 'function') addTransactionHistory("Ăn uống: Cơm phần bình dân", -25);
+        alert("🍜 Đã ăn cơm phần (+45 Dinh dưỡng)!");
+
     } else if (type === 'healthy') {
-        if ((gameState.money ?? 0) < 50) return alert("❌ Bạn không đủ 50 $!");
-        modifyStat('money', -50);
-        modifyStat('hunger', 60);
-        modifyStat('health', 10);
+        if ((gameState.money ?? 0) < 60) return alert("❌ Bạn không đủ 60 $!");
+        modifyStat('money', -60);
+        modifyStat('hunger', 70);
+        modifyStat('stress', -5);
         
-        if (typeof addTransactionHistory === 'function') addTransactionHistory("Ăn uống: Bữa ăn dinh dưỡng cao cấp", -50);
-        if (typeof addDailyLog === 'function') addDailyLog("Thưởng thức bữa ăn dinh dưỡng cao cấp (+60 Dinh dưỡng, +10 Sức khỏe).");
-        
-        alert("🥗 Bữa ăn dinh dưỡng (+60 Độ no, +10 Sức khỏe)!");
+        if (typeof addTransactionHistory === 'function') addTransactionHistory("Ăn uống: Bữa ăn Dinh dưỡng", -60);
+        alert("🥗 Bữa ăn dinh dưỡng ngon miệng (+70 Dinh dưỡng, -5 Stress)!");
     }
     
     if (typeof saveGameState === 'function') saveGameState();
+    
+    // 🚀 BỔ SUNG DÒNG NÀY ĐỂ RENDER LẠI MÀN HÌNH CHÍNH
+    if (typeof renderGameState === 'function') renderGameState();
+    
     renderHealthView();
 }
 
-function handleMedicalCare(type) {
+
+
+
+function toggleSubscription(type) {
     if (!gameState) return;
-    
-    if (type === 'pharmacy') {
-        if ((gameState.money ?? 0) < 30) return alert("❌ Bạn không đủ 30 $!");
-        modifyStat('money', -30);
-        modifyStat('health', 15);
-        gameState.ailments = [];
-        
-        if (typeof addTransactionHistory === 'function') addTransactionHistory("Y tế: Mua thuốc cảm sốt", -30);
-        if (typeof addDailyLog === 'function') addDailyLog("Mua thuốc tiệm tây (+15 Sức khỏe, chữa hết bệnh nhẹ).");
-        
-        alert("💊 Đã uống thuốc. Chữa sạch bệnh vặt (+15 Sức khỏe)!");
-    } else if (type === 'hospital') {
-        if ((gameState.money ?? 0) < 150) return alert("❌ Bạn không đủ 150 $!");
-        modifyStat('money', -150);
-        modifyStat('health', 40);
-        modifyStat('stress', -20);
-        gameState.ailments = [];
-        
-        if (typeof addTransactionHistory === 'function') addTransactionHistory("Y tế: Khám & Chữa bệnh tổng quát Bệnh viện", -150);
-        if (typeof addDailyLog === 'function') addDailyLog("Nhập viện điều trị tổng quát (+40 Sức khỏe, giảm Stress).");
-        
-        alert("🏥 Đã điều trị tại bệnh viện (+40 Sức khỏe, giảm Stress)!");
+    if (!gameState.subscriptions) gameState.subscriptions = { gym: false, yoga: false };
+
+    if (type === 'gym') {
+        gameState.subscriptions.gym = !gameState.subscriptions.gym;
+        alert(gameState.subscriptions.gym ? "🏋️ Đã bật đăng ký Gym (60$/tháng)!" : "🚪 Đã hủy gói tập Gym.");
+    } else if (type === 'yoga') {
+        gameState.subscriptions.yoga = !gameState.subscriptions.yoga;
+        alert(gameState.subscriptions.yoga ? "🧘 Đã bật đăng ký Yoga (40$/tháng)!" : "🚪 Đã hủy gói tập Yoga.");
     }
-    
+
     if (typeof saveGameState === 'function') saveGameState();
-    renderHealthView();
+    
+    // 🚀 BỔ SUNG DÒNG NÀY
+    if (typeof renderGameState === 'function') renderGameState();
+    
+    renderHealthView(); 
 }
+
+
 
 function handleFitness(type) {
     if (!gameState) return;
     
-    if (type === 'park') {
-        modifyStat('stress', -10);
-        modifyStat('strength', 2);
-        
-        if (typeof addDailyLog === 'function') addDailyLog("Chạy bộ ở công viên (-10 Stress, +2 Sức mạnh).");
-        
-        alert("🏃 Đã chạy bộ công viên (-10 Stress, +2 Sức mạnh)!");
-    } else if (type === 'gym') {
-        if ((gameState.money ?? 0) < 60) return alert("❌ Bạn không đủ 60 $!");
-        modifyStat('money', -60);
-        modifyStat('stress', -30);
-        modifyStat('strength', 5);
-        modifyStat('looks', 5);
-        
-        if (typeof addTransactionHistory === 'function') addTransactionHistory("Giải trí: Đăng ký tập Gym / Yoga", -60);
-        if (typeof addDailyLog === 'function') addDailyLog("Đăng ký tập Gym/Yoga (-30 Stress, +5 Sức mạnh, +5 Ngoại hình).");
-        
-        alert("🏋️ Tập Gym hăng say (-30 Stress, +5 Sức mạnh, +5 Ngoại hình)!");
+    if (type === 'meditation') {
+        modifyStat('stress', -15);
+        modifyStat('happiness', 2);
+        alert("🧘 Thiền định tĩnh lặng (-15 Stress, +2 Hạnh phúc)!");
+        if (typeof addDailyLog === 'function') addDailyLog("Dành thời gian thiền định giải tỏa tâm trí.");
     }
     
     if (typeof saveGameState === 'function') saveGameState();
+    
+    // 🚀 BỔ SUNG DÒNG NÀY
+    if (typeof renderGameState === 'function') renderGameState();
+    
     renderHealthView();
 }
-
 
 /**
  * =================================================================
@@ -736,9 +861,6 @@ function handleFitness(type) {
  * =================================================================
  */
 
-/**
- * Thêm Cột mốc lớn cuộc đời (Sinh nhật, Tốt nghiệp, Xin việc, Mua nhà...)
- */
 function addMilestoneLog(text) {
     if (!gameState) return;
     if (!gameState.milestoneLogs) gameState.milestoneLogs = [];
@@ -749,9 +871,6 @@ function addMilestoneLog(text) {
     });
 }
 
-/**
- * Thêm Nhật ký biến cố & giao tiếp ngày thường
- */
 function addDailyLog(text) {
     if (!gameState) return;
     if (!gameState.dailyLogs) gameState.dailyLogs = [];
@@ -762,9 +881,6 @@ function addDailyLog(text) {
     });
 }
 
-/**
- * Thêm Nhật ký lịch sử chung
- */
 function addHistoryLog(text) {
     if (!gameState) return;
     if (!gameState.historyLog) gameState.historyLog = [];
@@ -775,9 +891,6 @@ function addHistoryLog(text) {
     });
 }
 
-/**
- * Ghi nhận một giao dịch tài chính vào Lịch sử
- */
 function addTransactionHistory(title, amount) {
     if (!gameState) return;
     if (!gameState.transactionHistory) gameState.transactionHistory = [];
@@ -789,16 +902,13 @@ function addTransactionHistory(title, amount) {
     });
 }
 
+
 /**
  * =================================================================
- * GAME OVER & LIFE ENDING SYSTEM (HỆ THỐNG KẾT THÚC VÒNG ĐỜI)
+ * GAME OVER & INTERACTION SYSTEM (TƯƠNG TÁC NPC & GAME OVER)
  * =================================================================
  */
 
-/**
- * Kích hoạt bảng Game Over khi nhân vật kiệt sức hoặc phá sản nặng nề
- * @param {string} reason Lý do kết thúc cuộc đời
- */
 function triggerGameOver(reason) {
     if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
     
@@ -809,7 +919,6 @@ function triggerGameOver(reason) {
         return;
     }
     
-    // Gắn thông tin tổng kết vào Modal
     setElementText('game-over-reason', reason);
     setElementText('go-final-age', `${gameState.age || 16} tuổi`);
     setElementText('go-final-month', `Tháng ${gameState.month || 1}`);
@@ -819,9 +928,6 @@ function triggerGameOver(reason) {
     modal.classList.remove("hidden");
 }
 
-/**
- * Xử lý khi người chơi bấm nút Tái sinh sau khi Game Over
- */
 function handleRestartFromGameOver() {
     const modal = document.getElementById("game-over-modal");
     if (modal) modal.classList.add("hidden");
@@ -831,118 +937,85 @@ function handleRestartFromGameOver() {
     }
 }
 
-/**
- * Hành động: Rủ NPC đi ăn / Cafe
- * Tốn tiền, giảm stress và tăng thiện cảm an toàn
- */
 function handleHangoutWithNPC(npcId) {
     if (!gameState || (gameState.money || 0) < 30) {
         return alert("❌ Bạn không đủ 30$ để rủ rê người khác đi ăn uống!");
     }
-
+    
     const npc = gameState.relationships.find(r => r.id === npcId);
     if (!npc) return;
-
-    // Trừ tiền, giảm stress
+    
     gameState.money -= 30;
     gameState.stress = Math.max(0, (gameState.stress || 0) - 15);
-
-    // Cộng điểm thiện cảm (10 - 20 điểm)
-    const xpGain = Math.floor(Math.random() * 11) + 10; 
+    
+    const xpGain = Math.floor(Math.random() * 11) + 10;
     interactWithNPC(npcId, {}, xpGain);
-
+    
     if (typeof addTransactionHistory === 'function') {
         addTransactionHistory(`☕ Mời ${npc.name} đi ăn uống`, -30);
     }
     if (typeof addDailyLog === 'function') {
         addDailyLog(`Đi ăn cùng ${npc.name} (-30$, giảm stress, tăng tình cảm).`);
     }
-
+    
     alert(`☕ Bạn đã mời ${npc.name} đi ăn uống!\nNhờ bữa ăn vui vẻ, Stress giảm và hai người trở nên thân thiết hơn (+${xpGain} điểm thiện cảm).`);
     
     if (typeof saveGameState === 'function') saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
 
-/**
- * Hành động: Xin tiền Bố / Mẹ / Người thân
- * Tính toán dựa trên độ rộng lượng (generosity) và tiền họ có (wealth)
- */
 function handleAskForMoney(npcId) {
     if (!gameState) return;
     
     const npc = gameState.relationships.find(r => r.id === npcId);
     if (!npc) return;
-
-    // Chỉ cho xin tiền nếu là Bố hoặc Mẹ (tạm thời)
+    
     if (npc.id !== 'father' && npc.id !== 'mother') {
         return alert(`❌ Chà, bạn không thể xin tiền ${npc.name} được đâu. Mất mặt lắm!`);
     }
-
-    // Kiểm tra điểm thiện cảm (XP và Level)
+    
     const currentLevel = npc.level || 0;
     if (currentLevel < 0) {
         return alert(`🤬 ${npc.name} đang giận bạn! Còn khuya mới cho tiền nhé. Hãy làm lành trước đi!`);
     }
-
-    // 🚀 SỬA LỖI: Khởi tạo intrinsic_stats nếu NPC chưa có (dành cho file save cũ)
+    
     if (!npc.intrinsic_stats) {
-        npc.intrinsic_stats = {
-            happiness: 70,
-            wealth: 50,
-            generosity: 50
-        };
+        npc.intrinsic_stats = { happiness: 70, wealth: 50, generosity: 50 };
     }
-
-    // Lấy chỉ số ẩn an toàn
+    
     const wealth = npc.intrinsic_stats.wealth;
     const generosity = npc.intrinsic_stats.generosity;
-
-    // Tỷ lệ cho tiền phụ thuộc vào Generosity (độ rộng lượng)
-    const chance = generosity / 100; 
+    
+    const chance = generosity / 100;
     const isSuccess = Math.random() < chance;
-
+    
     if (isSuccess && wealth > 10) {
-        // Tính số tiền cho (10% đến 40% quỹ wealth của NPC)
         const giveAmount = Math.floor(wealth * (0.1 + Math.random() * 0.3));
         
-        // NPC bị trừ tiền, nhân vật chính được cộng tiền
         npc.intrinsic_stats.wealth -= giveAmount;
         gameState.money = (gameState.money || 0) + giveAmount;
-
-        // Trừ nhẹ điểm thiện cảm vì thói hay xin xỏ (-5 XP)
+        
         if (typeof interactWithNPC === 'function') interactWithNPC(npcId, {}, -5);
-
+        
         if (typeof addTransactionHistory === 'function') {
             addTransactionHistory(`💸 Xin tiền ${npc.name}`, giveAmount);
         }
         
         alert(`🥰 ${npc.name} đã thở dài và cho bạn ${giveAmount}$ tiêu vặt.\n(Lưu ý: Xin tiền nhiều sẽ làm giảm nhẹ điểm thiện cảm nhé!)`);
     } else {
-        // Xin thất bại -> Bị la mắng, trừ điểm thiện cảm nặng hơn
         if (typeof interactWithNPC === 'function') interactWithNPC(npcId, {}, -15);
         alert(`😤 ${npc.name} từ chối thẳng thừng: "Tiêu pha cho lắm vào rồi giờ ngửa tay xin à? Không có đồng nào đâu!"\n(-15 điểm thiện cảm)`);
     }
-
+    
     if (typeof saveGameState === 'function') saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
 
-/**
- * =================================================================
- * TƯƠNG TÁC & CẬP NHẬT ĐIỂM THIỆN CẢM NPC (INTERACT WITH NPC)
- * =================================================================
- * @param {string} npcId - ID của NPC (vd: 'father', 'mother', 'boss'...)
- * @param {object} options - Các tùy chọn bổ sung (nếu có)
- * @param {number} xpChange - Số điểm thiện cảm (XP) cộng hoặc trừ
- */
 function interactWithNPC(npcId, options = {}, xpChange = 0) {
     if (!gameState || !gameState.relationships) return;
-
-    // Tìm NPC trong danh sách mối quan hệ
+    
     let npc = gameState.relationships.find(r => r.id === npcId);
-
-    // Nếu chưa có NPC này trong danh sách, tạo mới ngẫu nhiên
+    
     if (!npc) {
         npc = {
             id: npcId,
@@ -955,17 +1028,14 @@ function interactWithNPC(npcId, options = {}, xpChange = 0) {
         };
         gameState.relationships.push(npc);
     }
-
+    
     if (xpChange === 0) return;
-
-    // Khởi tạo XP & Level nếu chưa có
+    
     if (typeof npc.xp === 'undefined') npc.xp = 0;
     if (typeof npc.level === 'undefined') npc.level = 0;
-
-    // Cập nhật XP
+    
     npc.xp += xpChange;
-
-    // Logic Tăng / Giảm Cấp độ quan hệ (Level) dựa trên XP (Mỗi Level = 100 XP)
+    
     if (npc.xp >= 100) {
         const levelUp = Math.floor(npc.xp / 100);
         npc.level += levelUp;
@@ -975,9 +1045,9 @@ function interactWithNPC(npcId, options = {}, xpChange = 0) {
             showFloatingText('relation', `❤️ Mối quan hệ với ${npc.name} tăng cấp!`, 'pos');
         }
     } else if (npc.xp < 0) {
-        if (npc.level > -3) { // Giới hạn mức thù hằn thấp nhất là -3
+        if (npc.level > -3) {
             npc.level -= 1;
-            npc.xp = 100 + npc.xp; // XP dư chuyển sang level dưới
+            npc.xp = 100 + npc.xp;
             
             if (typeof showFloatingText === 'function') {
                 showFloatingText('relation', `💔 Mối quan hệ với ${npc.name} giảm cấp!`, 'neg');
@@ -986,15 +1056,22 @@ function interactWithNPC(npcId, options = {}, xpChange = 0) {
             npc.xp = 0;
         }
     }
-
-    // Hiển thị thông báo Floating Text ngắn nếu có điểm thay đổi
+    
     if (typeof showFloatingText === 'function') {
         const sign = xpChange > 0 ? '+' : '';
         const type = xpChange > 0 ? 'pos' : 'neg';
         showFloatingText('relation', `${npc.name}: ${sign}${xpChange} XP`, type);
     }
-
-    // Lưu lại trạng thái & Render lại UI nếu cần
+    
     if (typeof saveGameState === 'function') saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
+}
+
+// 🚀 ÉP GÁN HÀM VÀO WINDOW ĐỂ NÚT HTML ONCLICK LÚC NÀO CŨNG BẤM ĐƯỢC
+if (typeof window !== 'undefined') {
+    window.toggleSubscription = toggleSubscription;
+    window.handleEatMeal = handleEatMeal;
+    window.handleFitness = handleFitness;
+    window.handleMedicalCare = handleMedicalCare;
+    window.renderHealthView = renderHealthView;
 }

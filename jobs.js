@@ -111,10 +111,11 @@ function processMonthlyJob() {
     
     const job = gameState.job;
     
-    // 1. Nhận lương & Trừ sức khỏe do áp lực công việc
+    // 1. Nhận lương (Đã bỏ dòng trừ health trực tiếp ở đây để tránh trùng lặp với Health Engine)
     gameState.money = (gameState.money || 0) + (job.salary || 0);
-    showFloatingText('money', `+${job.salary}$`, 'pos');
-    gameState.health = Math.max(0, (gameState.health || 100) - (job.stressCost || 0));
+    if (typeof showFloatingText === 'function') {
+        showFloatingText('money', `+${job.salary}$`, 'pos');
+    }
     
     if (typeof addDailyLog === 'function') {
         addDailyLog(`Đi làm: ${job.title} (+${job.salary}$) - Thâm niên ${job.monthsExperience + 1} tháng.`);
@@ -127,7 +128,27 @@ function processMonthlyJob() {
     job.monthsExperience = (job.monthsExperience || 0) + 1;
     
     console.log(`💼 Đi làm: ${job.title} (+${job.salary}$) - Tích lũy: ${job.monthsExperience} tháng kinh nghiệm.`);
+
+    // 🚀 TÍNH TỶ LỆ KẾT BẠN TỪ CÔNG VIỆC (5% cơ bản + 1%/tháng thâm niên, tối đa +10%)
+    const baseChance = 0.05;
+    const expBonus = Math.min(0.10, (job.monthsExperience || 0) * 0.01);
+    const totalChance = baseChance + expBonus;
+
+    if (Math.random() < totalChance) {
+        // Xác định loại mối quan hệ dựa trên công việc
+        let relationTitle = "Đồng nghiệp";
+        if (job.id.includes("shipper") || job.id.includes("driver")) relationTitle = "Khách quen";
+        else if (job.id.includes("manager") || job.id.includes("lead") || job.id.includes("ceo")) relationTitle = "Đối tác làm ăn";
+
+        if (typeof generateRandomNPC === 'function') {
+            const newColleague = generateRandomNPC(relationTitle, "work");
+            if (typeof addDailyLog === 'function') {
+                addDailyLog(`💼 Đi làm gặp gỡ và quen biết thêm ${newColleague.name} (${relationTitle}).`);
+            }
+        }
+    }
 }
+
 
 /**
  * Xử lý khi người chơi tự xin thôi việc (Nghỉ việc)

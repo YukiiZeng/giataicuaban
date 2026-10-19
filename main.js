@@ -190,35 +190,30 @@ function handleNextMonth() {
  * @param {string} viewName 'main' | 'report' | 'health'
  */
 function switchView(viewName) {
-    console.log("🔄 Đang chuyển sang View:", viewName);
-    
-    const mainView = document.getElementById("main-game-view");
-    const reportView = document.getElementById("overview-report-view");
-    const healthView = document.getElementById("health-care-view");
-    
-    // Ẩn tất cả View
-    if (mainView) mainView.classList.add("hidden");
-    if (reportView) reportView.classList.add("hidden");
-    if (healthView) healthView.classList.add("hidden");
-    
-    if (viewName === 'report') {
-        if (reportView) {
-            reportView.classList.remove("hidden");
-            renderOverviewReport();
-        }
-    } else if (viewName === 'health') {
-        if (healthView) {
-            healthView.classList.remove("hidden");
+    // Hide tất cả các view
+    const mainView = document.getElementById('main-game-view');
+    const reportView = document.getElementById('overview-report-view');
+    const healthView = document.getElementById('health-care-view');
+
+    if (mainView) mainView.classList.add('hidden');
+    if (reportView) reportView.classList.add('hidden');
+    if (healthView) healthView.classList.add('hidden');
+
+    if (viewName === 'main' && mainView) {
+        mainView.classList.remove('hidden');
+    } else if (viewName === 'report' && reportView) {
+        reportView.classList.remove('hidden');
+        if (typeof renderOverviewReport === 'function') renderOverviewReport();
+    } else if (viewName === 'health' && healthView) {
+        healthView.classList.remove('hidden');
+        
+        // 🚀 CỰC KỲ QUAN TRỌNG: Bắt buộc phải gọi hàm này mỗi khi mở Tab Sức Khỏe!
+        if (typeof renderHealthView === 'function') {
             renderHealthView();
-        }
-    } else {
-        if (mainView) {
-            mainView.classList.remove("hidden");
-            renderGameState();
-            // Không cần gọi startMonthCalendarTimer() ở đây nữa vì nó vẫn đang chạy ngầm liên tục rồi!
         }
     }
 }
+
 /**
  * Render Giao diện Báo Cáo Phụ Lục Tổng Quát
  */
@@ -763,20 +758,30 @@ function showHousingModal(show) {
 /**
  * Render Giao diện Chăm sóc sức khỏe & Cập nhật Real-time các thanh chỉ số
  */
+/**
+ * 🚀 ĐẶT HÀM NÀY Ở CUỐI FILE UI.JS ĐỂ KHÔNG BỊ ĐÈ CODE
+ */
 function renderHealthView() {
-    if (!gameState) return;
+    if (typeof gameState === 'undefined' || !gameState) return;
+    if (!gameState.subscriptions) gameState.subscriptions = { gym: false, yoga: false };
+
+    // Khởi tạo cờ mặc định nếu save cũ chưa có
+    if (typeof gameState.hasCheckupThisMonth === 'undefined') gameState.hasCheckupThisMonth = false;
+    if (typeof gameState.hasTreatedThisMonth === 'undefined') gameState.hasTreatedThisMonth = false;
+
+    const moneyEl = document.getElementById('health-view-money');
+    if (moneyEl) moneyEl.innerText = (gameState.money ?? 0).toLocaleString();
     
-    // 1. Cập nhật Ví tiền trong View Sức khỏe
-    setElementText('health-view-money', (gameState.money || 0).toLocaleString());
+    const healthVal = Math.max(0, Math.min(100, gameState.health ?? 100));
+    const hungerVal = Math.max(0, Math.min(100, gameState.hunger ?? 80));
+    const stressVal = Math.max(0, Math.min(100, gameState.stress ?? 0));
     
-    // 2. Cập nhật 3 thanh chỉ số: Sức khỏe, Dinh dưỡng, Stress
-    const healthVal = Math.max(0, Math.min(100, gameState.health || 100));
-    const hungerVal = Math.max(0, Math.min(100, gameState.hunger || 80));
-    const stressVal = Math.max(0, Math.min(100, gameState.stress || 0));
-    
-    setElementText('hv-health', healthVal);
-    setElementText('hv-hunger', hungerVal);
-    setElementText('hv-stress', stressVal);
+    const hvHealth = document.getElementById('hv-health');
+    if (hvHealth) hvHealth.innerText = healthVal;
+    const hvHunger = document.getElementById('hv-hunger');
+    if (hvHunger) hvHunger.innerText = hungerVal;
+    const hvStress = document.getElementById('hv-stress');
+    if (hvStress) hvStress.innerText = stressVal;
     
     const healthBar = document.getElementById('hv-health-bar');
     if (healthBar) healthBar.style.width = `${healthVal}%`;
@@ -787,20 +792,85 @@ function renderHealthView() {
     const stressBar = document.getElementById('hv-stress-bar');
     if (stressBar) stressBar.style.width = `${stressVal}%`;
     
-    // 3. Khung Chẩn Đoán Thông Minh
+    // Cập nhật nút Gym & Yoga
+    const gymBtn = document.getElementById("btn-sub-gym");
+    if (gymBtn) {
+        gymBtn.innerText = gameState.subscriptions.gym ? "Đã Đăng Ký (Hủy)" : "Đăng ký";
+        gymBtn.className = gameState.subscriptions.gym 
+            ? "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm"
+            : "py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm";
+    }
+
+    const yogaBtn = document.getElementById("btn-sub-yoga");
+    if (yogaBtn) {
+        yogaBtn.innerText = gameState.subscriptions.yoga ? "Đã Đăng Ký (Hủy)" : "Đăng ký";
+        yogaBtn.className = gameState.subscriptions.yoga 
+            ? "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm"
+            : "py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm";
+    }
+
+    // 🩺 CẬP NHẬT TRẠNG THÁI NÚT KHÁM BỆNH (Dùng cờ hasCheckupThisMonth)
+    const checkupBtn = document.getElementById("btn-med-checkup");
+    const checkBadge = document.getElementById("health-check-badge");
+    
+    if (gameState.hasCheckupThisMonth) {
+        if (checkupBtn) {
+            checkupBtn.innerText = "Đã khám";
+            checkupBtn.className = "py-1.5 px-3 bg-gray-300 text-gray-600 font-extrabold rounded-xl text-[10px]";
+        }
+        if (checkBadge) {
+            checkBadge.innerText = "Đã khám tháng này";
+            checkBadge.className = "text-[9px] font-bold text-rose-900 bg-rose-200 px-2 py-0.5 rounded-md";
+        }
+    } else {
+        if (checkupBtn) {
+            checkupBtn.innerText = "Chẩn đoán";
+            checkupBtn.className = "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]";
+        }
+        if (checkBadge) {
+            checkBadge.innerText = "Chưa khám";
+            checkBadge.className = "text-[9px] font-bold text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-md";
+        }
+    }
+
+    // 💊 CẬP NHẬT TRẠNG THÁI NÚT ĐIỀU TRỊ (Dùng cờ hasTreatedThisMonth)
+    const pharmacyBtn = document.getElementById("btn-med-pharmacy");
+    const hospitalBtn = document.getElementById("btn-med-hospital");
+    
+    if (gameState.hasTreatedThisMonth) {
+        if (pharmacyBtn) {
+            pharmacyBtn.innerText = "Đã dùng tháng này";
+            pharmacyBtn.className = "py-1.5 px-3 bg-gray-300 text-gray-600 font-extrabold rounded-xl text-[10px]";
+        }
+        if (hospitalBtn) {
+            hospitalBtn.innerText = "Đã dùng tháng này";
+            hospitalBtn.className = "py-1.5 px-3 bg-gray-300 text-gray-600 font-extrabold rounded-xl text-[10px]";
+        }
+    } else {
+        if (pharmacyBtn) {
+            pharmacyBtn.innerText = "Mua thuốc";
+            pharmacyBtn.className = "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]";
+        }
+        if (hospitalBtn) {
+            hospitalBtn.innerText = "Nhập viện";
+            hospitalBtn.className = "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]";
+        }
+    }
+
+    // Khung Chẩn Đoán Thông Minh
     const advisoryEl = document.getElementById("health-advisory-box");
     if (advisoryEl) {
-        let adviceText = "🟢 Thể trạng hoàn hảo. Hãy tiếp tục duy trì lối sống điều độ!";
+        let adviceText = "🟢 Thể trạng bình thường. Hãy duy trì lối sống điều độ!";
         let adviceBg = "bg-emerald-100/80 border-emerald-300 text-emerald-950";
         
         if (hungerVal < 30) {
-            adviceText = "⚠️ Đói khát trầm trọng! Hãy ăn ngay để tránh tụt sức khỏe.";
+            adviceText = "⚠️ Đói khát! Hãy ăn uống ngay để tránh tổn hại sức khỏe khi sang tháng.";
             adviceBg = "bg-rose-100/80 border-rose-300 text-rose-950 animate-pulse";
         } else if (stressVal >= 60) {
-            adviceText = "🧠 Căng thẳng đỉnh điểm! Cần đi chạy bộ hoặc tập gym ngay lập tức.";
+            adviceText = "🧠 Căng thẳng cao! Nên tập Thiền hoặc đăng ký Gym/Yoga để giải tỏa.";
             adviceBg = "bg-amber-100/80 border-amber-300 text-amber-950 animate-pulse";
         } else if (healthVal < 50) {
-            adviceText = "🩺 Sức khỏe báo động! Nên mua thuốc hoặc đến bệnh viện khám tổng quát.";
+            adviceText = "🩺 Sức khỏe báo động! Hãy đi khám hoặc mua thuốc tây điều trị.";
             adviceBg = "bg-rose-100/80 border-rose-300 text-rose-950";
         }
         
@@ -808,7 +878,7 @@ function renderHealthView() {
         advisoryEl.innerHTML = `<span>💡</span><span>${adviceText}</span>`;
     }
     
-    // 4. Trạng thái bệnh tật
+    // Trạng thái bệnh tật
     const ailments = gameState.ailments || [];
     const statusEl = document.getElementById("health-view-status");
     if (statusEl) {
@@ -817,119 +887,7 @@ function renderHealthView() {
             statusEl.innerText = "🟢 Khỏe mạnh";
         } else {
             statusEl.className = "text-[10px] font-black text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-300";
-            statusEl.innerText = `🔴 Đang bị bệnh: ${ailments.join(', ')}`;
+            statusEl.innerText = `🔴 Bệnh mắc phải: ${ailments.length} bệnh`;
         }
     }
-}
-
-function handleEatMeal(type) {
-    if (!gameState) return;
-    
-    if (type === 'fastfood') {
-        if ((gameState.money || 0) < 15) return alert("❌ Bạn không đủ 15 $!");
-        gameState.money -= 15;
-        gameState.hunger = Math.min(100, (gameState.hunger || 0) + 30);
-        
-        // 🚀 ĐẨY VÀO SAO KÊ VÀ NHẬT KÝ
-        if (typeof addTransactionHistory === 'function') {
-            addTransactionHistory("Ăn uống: Cơm bình dân / Đồ ăn nhanh", -15);
-        }
-        if (typeof addDailyLog === 'function') {
-            addDailyLog("Ăn cơm bình dân (+30 Dinh dưỡng).");
-        }
-        
-        alert("🍜 Ăn cơm bình dân (+30 Độ no)!");
-    } else if (type === 'healthy') {
-        if ((gameState.money || 0) < 50) return alert("❌ Bạn không đủ 50 $!");
-        gameState.money -= 50;
-        gameState.hunger = Math.min(100, (gameState.hunger || 0) + 60);
-        gameState.health = Math.min(100, (gameState.health || 0) + 10);
-        
-        // 🚀 ĐẨY VÀO SAO KÊ VÀ NHẬT KÝ
-        if (typeof addTransactionHistory === 'function') {
-            addTransactionHistory("Ăn uống: Bữa ăn dinh dưỡng cao cấp", -50);
-        }
-        if (typeof addDailyLog === 'function') {
-            addDailyLog("Thưởng thức bữa ăn dinh dưỡng cao cấp (+60 Dinh dưỡng, +10 Sức khỏe).");
-        }
-        
-        alert("🥗 Bữa ăn dinh dưỡng (+60 Độ no, +10 Sức khỏe)!");
-    }
-    
-    if (typeof saveGameState === 'function') saveGameState();
-    renderHealthView();
-}
-
-function handleMedicalCare(type) {
-    if (!gameState) return;
-    
-    if (type === 'pharmacy') {
-        if ((gameState.money || 0) < 30) return alert("❌ Bạn không đủ 30 $!");
-        gameState.money -= 30;
-        gameState.health = Math.min(100, (gameState.health || 0) + 15);
-        gameState.ailments = [];
-        
-        // 🚀 ĐẨY VÀO SAO KÊ VÀ NHẬT KÝ
-        if (typeof addTransactionHistory === 'function') {
-            addTransactionHistory("Y tế: Mua thuốc cảm sốt", -30);
-        }
-        if (typeof addDailyLog === 'function') {
-            addDailyLog("Mua thuốc tiệm tây (+15 Sức khỏe, chữa hết bệnh nhẹ).");
-        }
-        
-        alert("💊 Đã uống thuốc. Chữa sạch bệnh vặt (+15 Sức khỏe)!");
-    } else if (type === 'hospital') {
-        if ((gameState.money || 0) < 150) return alert("❌ Bạn không đủ 150 $!");
-        gameState.money -= 150;
-        gameState.health = Math.min(100, (gameState.health || 0) + 40);
-        gameState.stress = Math.max(0, (gameState.stress || 0) - 20);
-        gameState.ailments = [];
-        
-        // 🚀 ĐẨY VÀO SAO KÊ VÀ NHẬT KÝ
-        if (typeof addTransactionHistory === 'function') {
-            addTransactionHistory("Y tế: Khám & Chữa bệnh tổng quát Bệnh viện", -150);
-        }
-        if (typeof addDailyLog === 'function') {
-            addDailyLog("Nhập viện điều trị tổng quát (+40 Sức khỏe, giảm Stress).");
-        }
-        
-        alert("🏥 Đã điều trị tại bệnh viện (+40 Sức khỏe, giảm Stress)!");
-    }
-    
-    if (typeof saveGameState === 'function') saveGameState();
-    renderHealthView();
-}
-
-function handleFitness(type) {
-    if (!gameState) return;
-    
-    if (type === 'park') {
-        gameState.stress = Math.max(0, (gameState.stress || 0) - 10);
-        gameState.strength = Math.min(100, (gameState.strength || 0) + 2);
-        
-        if (typeof addDailyLog === 'function') {
-            addDailyLog("Chạy bộ ở công viên (-10 Stress, +2 Sức mạnh).");
-        }
-        
-        alert("🏃 Đã chạy bộ công viên (-10 Stress, +2 Sức mạnh)!");
-    } else if (type === 'gym') {
-        if ((gameState.money || 0) < 60) return alert("❌ Bạn không đủ 60 $!");
-        gameState.money -= 60;
-        gameState.stress = Math.max(0, (gameState.stress || 0) - 30);
-        gameState.strength = Math.min(100, (gameState.strength || 0) + 5);
-        gameState.looks = Math.min(100, (gameState.looks || 0) + 5);
-        
-        // 🚀 ĐẨY VÀO SAO KÊ VÀ NHẬT KÝ
-        if (typeof addTransactionHistory === 'function') {
-            addTransactionHistory("Giải trí: Đăng ký tập Gym / Yoga", -60);
-        }
-        if (typeof addDailyLog === 'function') {
-            addDailyLog("Đăng ký tập Gym/Yoga (-30 Stress, +5 Sức mạnh, +5 Ngoại hình).");
-        }
-        
-        alert("🏋️ Tập Gym hăng say (-30 Stress, +5 Sức mạnh, +5 Ngoại hình)!");
-    }
-    
-    if (typeof saveGameState === 'function') saveGameState();
-    renderHealthView();
 }

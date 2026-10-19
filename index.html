@@ -462,7 +462,7 @@
     
     
     <!-- ================================================================= -->
-    <!-- ZONE 3: HEALTH CARE VIEW (VIEW CHĂM SÓC SỨC KHỎE) -->
+    <!-- ZONE 3: HEALTH CARE VIEW (VIEW CHĂM SÓC SỨC KHỎE NEW) -->
     <!-- ================================================================= -->
     <div id="health-care-view" class="w-full max-w-md mx-auto flex flex-col gap-3.5 hidden">
         <header class="flex justify-between items-center bg-rose-900/10 px-4 py-2.5 rounded-2xl border border-rose-800/20 backdrop-blur-sm">
@@ -484,18 +484,17 @@
             <span>💡</span><span>Đang tải chẩn đoán y tế...</span>
         </div>
         
-        <!-- 🚀 DASHBOARD CHỈ SỐ SỨC KHỎE, DINH DƯỠNG & TIỀN BẠC ĐẦY ĐỦ -->
+        <!-- DASHBOARD CHỈ SỐ -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-3 border border-rose-300/60 shadow-xl">
             <div class="flex justify-between items-center border-b border-rose-900/10 pb-2">
                 <span class="text-[10px] font-extrabold text-rose-900/80 uppercase tracking-wider">
-                    🩺 Trạng Thái Thể Chất & Tài Chính Y Tế
+                    🩺 Trạng Thái Thể Chất
                 </span>
                 <span class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300" id="health-view-status">
                     🟢 Khỏe mạnh
                 </span>
             </div>
             
-            <!-- Tiền hiện có -->
             <div class="flex justify-between items-center bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-2 rounded-2xl border border-amber-300/80 shadow-sm">
                 <span class="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
                     <span>💰</span><span>Ví Tiền Hiện Có:</span>
@@ -505,7 +504,6 @@
             
             <!-- Grid 3 Thanh chỉ số tiến trình -->
             <div class="grid grid-cols-3 gap-2">
-                <!-- Sức khỏe -->
                 <div class="glass-card-inner-light p-2 rounded-2xl flex flex-col gap-1 border border-rose-300/30">
                     <div class="flex justify-between items-center text-[9px] font-extrabold">
                         <span class="text-rose-600">❤️ Sức khỏe</span>
@@ -516,7 +514,6 @@
                     </div>
                 </div>
                 
-                <!-- Dinh dưỡng -->
                 <div class="glass-card-inner-light p-2 rounded-2xl flex flex-col gap-1 border border-amber-300/30">
                     <div class="flex justify-between items-center text-[9px] font-extrabold">
                         <span class="text-amber-700">🍗 Dinh dưỡng</span>
@@ -527,7 +524,6 @@
                     </div>
                 </div>
                 
-                <!-- Căng thẳng (Stress) -->
                 <div class="glass-card-inner-light p-2 rounded-2xl flex flex-col gap-1 border border-purple-300/30">
                     <div class="flex justify-between items-center text-[9px] font-extrabold">
                         <span class="text-purple-700">🧠 Stress</span>
@@ -540,17 +536,17 @@
             </div>
         </section>
         
-        <!-- Dinh dưỡng & Ăn uống -->
+        <!-- 1. DINH DƯỠNG & ĂN UỐNG -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-amber-300/60 shadow-xl">
             <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider">
-                🍔 Dịch Vụ Ăn Uống & Dinh Dưỡng
+                🍔 Dịch Vụ Ăn Uống (Chỉ tác động Dinh dưỡng)
             </span>
             
             <div class="flex flex-col gap-2">
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
                     <div class="flex flex-col">
-                        <span class="text-xs font-extrabold text-amber-950">🍜 Cơm bình dân / Đồ ăn nhanh</span>
-                        <span class="text-[10px] text-amber-800/80">+30 Dinh dưỡng | Chi phí: 15 $</span>
+                        <span class="text-xs font-extrabold text-amber-950">🥪 Bánh mì / Đồ ăn nhanh</span>
+                        <span class="text-[10px] text-amber-800/80">+20 Dinh dưỡng | Chi phí: 10 $</span>
                     </div>
                     <button onclick="handleEatMeal('fastfood')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Ăn ngay
@@ -559,8 +555,18 @@
                 
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
                     <div class="flex flex-col">
-                        <span class="text-xs font-extrabold text-amber-950">🥗 Bữa ăn dinh dưỡng cao cấp</span>
-                        <span class="text-[10px] text-amber-800/80">+60 Dinh dưỡng, +10 Health | Chi phí: 50 $</span>
+                        <span class="text-xs font-extrabold text-amber-950">🍜 Cơm phần bình dân</span>
+                        <span class="text-[10px] text-amber-800/80">+45 Dinh dưỡng | Chi phí: 25 $</span>
+                    </div>
+                    <button onclick="handleEatMeal('normal')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                        Ăn ngay
+                    </button>
+                </div>
+                
+                <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-extrabold text-amber-950">🥗 Bữa ăn Dinh dưỡng / Eat Clean</span>
+                        <span class="text-[10px] text-amber-800/80">+70 Dinh dưỡng, -5 Stress | Chi phí: 60 $</span>
                     </div>
                     <button onclick="handleEatMeal('healthy')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Thưởng thức
@@ -569,65 +575,93 @@
             </div>
         </section>
         
-        <!-- Y tế & Bệnh viện -->
-        <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-rose-300/60 shadow-xl">
-            <span class="text-[10px] font-extrabold text-rose-900/80 uppercase tracking-wider">
-                💊 Tiệm Thuốc & Bệnh Viện
-            </span>
-            
-            <div class="flex flex-col gap-2">
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-rose-300/40">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-extrabold text-amber-950">💊 Mua thuốc cảm sốt</span>
-                        <span class="text-[10px] text-rose-800/80">Chữa bệnh nhẹ | Chi phí: 30 $</span>
-                    </div>
-                    <button onclick="handleMedicalCare('pharmacy')" class="py-1.5 px-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
-                        Mua thuốc
-                    </button>
-                </div>
-                
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-rose-300/40">
-                    <div class="flex justify-between items-center">
-                        <div class="flex flex-col">
-                            <span class="text-xs font-extrabold text-amber-950">🏥 Khám & Chữa bệnh tổng quát</span>
-                            <span class="text-[10px] text-rose-800/80">Chữa dứt điểm bệnh, hồi 40 Health | Chi phí: 150 $</span>
-                        </div>
-                        <button onclick="handleMedicalCare('hospital')" class="py-1.5 px-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
-                            Nhập viện
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Tập luyện & Thể chất -->
+        <!-- 2. TẬP LƯỆN & MÔN THỂ THAO (MONTHLY SUBSCRIPTIONS) -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-teal-300/60 shadow-xl">
             <span class="text-[10px] font-extrabold text-teal-900/80 uppercase tracking-wider">
-                🏋️ Tập Luyện & Giải Tỏa Stress
+                🧘 Luyện Tập & Gói Đăng Ký Tháng
             </span>
             
             <div class="flex flex-col gap-2">
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-teal-300/40">
                     <div class="flex flex-col">
-                        <span class="text-xs font-extrabold text-amber-950">🏃 Chạy bộ công viên</span>
-                        <span class="text-[10px] text-teal-800/80">-10 Stress, +2 Sức mạnh | Miễn phí</span>
+                        <span class="text-xs font-extrabold text-amber-950">🧘 Thiền Định & Hít Thở</span>
+                        <span class="text-[10px] text-teal-800/80">-15 Stress, +2 Hạnh phúc | Miễn phí</span>
                     </div>
-                    <button onclick="handleFitness('park')" class="py-1.5 px-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
-                        Tập luyện
+                    <button onclick="handleFitness('meditation')" class="py-1.5 px-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                        Tập thiền
                     </button>
                 </div>
                 
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-teal-300/40">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-extrabold text-amber-950">🏋️ Tập Gym / Yoga</span>
-                        <span class="text-[10px] text-teal-800/80">-30 Stress, +5 Sức mạnh, +5 Ngoại hình | Chi phí: 60 $</span>
+                <!-- Thẻ Tập Gym -->
+                <div class="flex items-center justify-between p-3 bg-white/60 rounded-2xl border border-teal-100">
+                    <div>
+                        <div class="font-bold text-xs text-slate-800">🏋️ Thẻ Tập Gym (Đăng ký tháng)</div>
+                        <div class="text-[10px] text-slate-500">-25 Stress, +5 Sức mạnh/tháng | 60 $/tháng</div>
                     </div>
-                    <button onclick="handleFitness('gym')" class="py-1.5 px-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                    <!-- 🚀 SỬA: Thêm id="btn-sub-gym" và đổi onclick thành toggleSubscription('gym') -->
+                    <button id="btn-sub-gym" onclick="toggleSubscription('gym')" class="py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Đăng ký
                     </button>
                 </div>
-            </div>
+                
+                <!-- Lớp Học Yoga -->
+                <div class="flex items-center justify-between p-3 bg-white/60 rounded-2xl border border-teal-100">
+                    <div>
+                        <div class="font-bold text-xs text-slate-800">🧘 Lớp Học Yoga (Đăng ký tháng)</div>
+                        <div class="text-[10px] text-slate-500">-35 Stress, +3 Ngoại hình/tháng | 40 $/tháng</div>
+                    </div>
+                    <!-- 🚀 SỬA: Thêm id="btn-sub-yoga" và đổi onclick thành toggleSubscription('yoga') -->
+                    <button id="btn-sub-yoga" onclick="toggleSubscription('yoga')" class="py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                        Đăng ký
+                    </button>
+                </div>
+                
         </section>
+        
+        <!-- 3. Y TẾ & KHÁM SỨC KHỎE (GIỚI HẠN 1 LẦN / THÁNG) -->
+        <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-rose-300/60 shadow-xl">
+            <div class="flex items-center justify-between mb-2 border-b border-rose-900/10 pb-2">
+                <span class="text-[10px] font-extrabold text-rose-900/80 uppercase tracking-wider">
+                    💊 Dịch Vụ Y Tế & Chẩn Đoán
+                </span>
+                <!-- Chỉ để lại ĐÚNG 1 id này thôi -->
+                <span id="health-check-badge" class="text-[9px] font-bold text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-md">
+                    Chưa sử dụng
+                </span>
+            </div>
+            <!-- Khám Sức Khỏe Định Kỳ -->
+<button onclick="handleMedicalCare('checkup')" class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between">
+    <div>
+        <div class="font-bold text-xs text-slate-800">🔍 Khám Sức Khỏe Định Kỳ</div>
+        <div class="text-[10px] text-slate-500">Phát hiện toàn bộ các bệnh đang mắc | Chi phí: 50 $</div>
+    </div>
+    <!-- THÊM id="btn-med-checkup" -->
+    <span id="btn-med-checkup" class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Chẩn đoán</span>
+</button>
+
+<!-- Mua Thuốc Tây Cảm Sốt -->
+<button onclick="handleMedicalCare('pharmacy')" class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between mt-2">
+    <div>
+        <div class="font-bold text-xs text-slate-800">💊 Mua Thuốc Tây Cảm Sốt</div>
+        <div class="text-[10px] text-slate-500">Chữa bệnh nhẹ, +10 Health | Chi phí: 30 $</div>
+    </div>
+    <!-- THÊM id="btn-med-pharmacy" -->
+    <span id="btn-med-pharmacy" class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Mua thuốc</span>
+</button>
+
+<!-- Nhập Viện Điều Trị -->
+<button onclick="handleMedicalCare('hospital')" class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between mt-2">
+    <div>
+        <div class="font-bold text-xs text-slate-800">🏥 Nhập Viện Điều Trị Chuyên Sâu</div>
+        <div class="text-[10px] text-slate-500">Xóa 1 bệnh nặng, hồi +25 Health | Chi phí: 200 $</div>
+    </div>
+    <!-- THÊM id="btn-med-hospital" -->
+    <span id="btn-med-hospital" class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Nhập viện</span>
+</button>
+
+
+        </section>
+        
     </div>
     
     <!-- ================================================================= -->
@@ -686,7 +720,7 @@
                 <div>
                     <label class="block text-xs font-bold text-amber-900 mb-1">Tên nhân vật:</label>
                     <input type="text" id="input-character-name" placeholder="Nhập tên..." value="" class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
-
+                    
                 </div>
                 
                 <div>
@@ -778,15 +812,29 @@
     
     <!-- 6. MODAL ADMIN PANEL DEBUG -->
     <div id="admin-panel-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-rose-400/50 flex flex-col gap-4">
+        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-rose-400/50 flex flex-col gap-3">
             <div class="text-center">
                 <span class="text-[10px] font-extrabold text-rose-900 bg-rose-200/80 px-2.5 py-0.5 rounded-full uppercase">🛠️ System Debug</span>
                 <h2 class="font-serif font-black text-rose-950 text-xl mt-1">ADMIN PANEL</h2>
             </div>
-            <button onclick="handleAdminResetCharacter()" class="w-full py-3 px-4 bg-gradient-to-r from-rose-500 to-red-600 text-white font-display font-extrabold rounded-2xl text-xs border border-rose-300/40">🔄 RESET NHÂN VẬT</button>
-            <button onclick="showAdminPanel(false)" class="text-xs font-bold text-amber-800/60 text-center">Đóng Panel</button>
+            
+            <!-- Nút Reset nhân vật hiện tại -->
+            <button onclick="handleAdminResetCharacter()" class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-display font-extrabold rounded-2xl text-xs border border-amber-300/40">
+                🔄 RESET NHÂN VẬT HIỆN TẠI (LOCAL)
+            </button>
+            
+            <!-- 🚀 NÚT MỚI: Xóa toàn bộ Collection Players trên Cloud -->
+            <button onclick="handleAdminDeleteAllPlayers()" class="w-full py-3 px-4 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-display font-black rounded-2xl text-xs border border-rose-300/40 shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                <span>🔥</span>
+                <span>XÓA TẤT CẢ PLAYERS (FIRESTORE)</span>
+            </button>
+            
+            <button onclick="showAdminPanel(false)" class="text-xs font-bold text-amber-800/60 text-center mt-1">
+                Đóng Panel
+            </button>
         </div>
     </div>
+    
     
     <!-- 7. MODAL THUÊ NHÀ TRỌ -->
     <div id="housing-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
@@ -970,7 +1018,7 @@
         </div>
     </div>
     
-        <!-- MODAL TƯƠNG TÁC NPC CHI TIẾT -->
+    <!-- MODAL TƯƠNG TÁC NPC CHI TIẾT -->
     <div id="npc-interaction-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[115] flex items-center justify-center p-4 hidden">
         <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
             
@@ -985,15 +1033,15 @@
                 </div>
                 <button onclick="showNPCInteractionModal(null, false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2 py-1 bg-amber-200/50 rounded-lg">✕</button>
             </div>
-
+            
             <!-- Các nút hành động -->
             <div class="flex flex-col gap-2" id="npc-interaction-actions">
                 <!-- Sẽ được Render bằng JavaScript tùy thuộc vào NPC -->
             </div>
-
+            
         </div>
     </div>
-
+    
     
     
     <!-- 14. MODAL KẾT THÚC TRÒ CHƠI / GAME OVER -->
@@ -1019,7 +1067,7 @@
         </div>
     </div>
     
-        <!-- 15. MODAL NHẬP DỮ LIỆU TÙY CHỈNH (CUSTOM PROMPT) -->
+    <!-- 15. MODAL NHẬP DỮ LIỆU TÙY CHỈNH (CUSTOM PROMPT) -->
     <div id="game-prompt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[110] flex items-center justify-center p-4 hidden">
         <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
             <div class="text-center flex flex-col items-center">
@@ -1043,7 +1091,7 @@
             </div>
         </div>
     </div>
-
+    
     
     <!-- ================================================================= -->
     <!-- ZONE 5: THIRD-PARTY LIBRARIES & SCRIPT INJECTION (KẾT NỐI SCRIPTS) -->
@@ -1068,7 +1116,7 @@
     </script>
     
     <!-- App Scripts theo đúng thứ tự khởi chạy -->
-    <script src="npcs.js"></script>  <!-- ĐẶT Ở ĐÂY -->
+    <script src="npcs.js"></script> <!-- ĐẶT Ở ĐÂY -->
     <script src="ui.js"></script>
     <script src="logic.js"></script>
     <script src="main.js"></script>
@@ -1076,9 +1124,6 @@
     <script src="jobs.js"></script>
     <script src="education.js"></script>
     <script src="shop.js"></script>
-</body>
-</html>
-
 </body>
 
 </html>

@@ -20,10 +20,6 @@ function saveGameStateToFirebase(userId) {
         });
 }
 
-/**
- * Tải gameState từ Firebase Firestore về máy
- * @param {string} userId UID của người dùng
- */
 function loadGameStateFromFirebase(userId) {
     if (typeof db === 'undefined') return;
 
@@ -33,15 +29,25 @@ function loadGameStateFromFirebase(userId) {
                 gameState = doc.data();
                 if (typeof saveGameState === 'function') saveGameState();
                 if (typeof renderGameState === 'function') renderGameState();
+                if (typeof startMonthCalendarTimer === 'function') startMonthCalendarTimer();
                 console.log("☁️ Đã tải tiến trình từ Firebase thành công!");
             } else {
-                console.warn("⚠️ Không tìm thấy dữ liệu trên Cloud cho user này!");
+                console.warn("⚠️ Tài khoản mới chưa có dữ liệu Cloud. Đang khởi tạo bộ nhớ trống...");
+                
+                // Xóa dữ liệu cũ còn sót
+                localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+                gameState = null;
+                if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
+
+                // Bật màn hình tạo nhân vật cho tài khoản mới
+                if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
             }
         })
         .catch((error) => {
             console.error("❌ Lỗi nạp dữ liệu từ Firebase:", error);
         });
 }
+
 
 /**
  * Lắng nghe trạng thái đăng nhập & Cập nhật Username lên Header
@@ -55,17 +61,26 @@ if (typeof auth !== 'undefined') {
             const displayUsername = user.email.replace(DOMAIN_SUFFIX, "");
             
             if (cloudUserDisplay) cloudUserDisplay.innerText = displayUsername;
-            if (authBtnText) authBtnText.innerText = "Đổi TK";
+            if (authBtnText) authBtnText.innerText = "Đăng xuất"; // Đổi nhãn thành Đăng xuất cho rõ ràng
             
             checkAdminAccess(displayUsername);
             console.log("👤 Đang đăng nhập với Username:", displayUsername);
+
+            // Tải dữ liệu của tài khoản vừa đăng nhập
+            loadGameStateFromFirebase(user.uid);
         } else {
             if (cloudUserDisplay) cloudUserDisplay.innerText = "Chưa đăng nhập";
             if (authBtnText) authBtnText.innerText = "Đăng nhập";
             checkAdminAccess(null);
+
+            // Xóa sạch bộ nhớ khi không có user
+            localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+            gameState = null;
         }
     });
 }
+
+
 
 
 /**
@@ -80,13 +95,23 @@ const DOMAIN_SUFFIX = "@giataicuaban.com";
 /**
  * Ẩn / Hiện Modal Đăng nhập
  */
+/**
+ * Ẩn / Hiện Modal Đăng nhập (Hoặc hỏi Đăng xuất nếu đã có tài khoản)
+ */
 function showAuthModal(show) {
+    // Nếu người dùng đã đăng nhập và bấm vào nút Auth trên Header -> Bật hỏi Đăng xuất
+    if (show && typeof auth !== 'undefined' && auth.currentUser) {
+        handleLogout();
+        return;
+    }
+
     const modal = document.getElementById("auth-modal");
     if (modal) {
         if (show) modal.classList.remove("hidden");
         else modal.classList.add("hidden");
     }
 }
+
 
 /**
  * Chuyển đổi giữa chế độ Đăng nhập và Đăng ký
@@ -202,6 +227,42 @@ function showAuthError(text) {
     }
 }
 
+/**
+ * Xử lý Đăng xuất tài khoản & Xóa sạch dữ liệu tạm trên giao diện
+ */
+function handleLogout() {
+    showGameConfirm(
+        "Bạn có chắc chắn muốn Đăng xuất tài khoản này? Dữ liệu hiện tại sẽ được giải phóng khỏi giao diện.",
+        function() {
+            if (typeof auth !== 'undefined') {
+                auth.signOut().then(() => {
+                    // 1. Dừng đồng hồ đếm thời gian
+                    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
+
+                    // 2. Xóa sạch LocalStorage & biến gameState trong RAM
+                    localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+                    gameState = null;
+
+                    // 3. Ẩn tất cả Modal đang mở
+                    const openModals = document.querySelectorAll('.fixed:not(.hidden)');
+                    openModals.forEach(m => m.classList.add('hidden'));
+
+                    // 4. Bật Modal Đăng nhập / Đăng ký hoặc Tạo nhân vật mới
+                    if (typeof showAuthModal === 'function') showAuthModal(true);
+                    
+                    alert("🚪 Đã đăng xuất tài khoản thành công!");
+                }).catch((error) => {
+                    console.error("❌ Lỗi khi đăng xuất:", error);
+                });
+            }
+        },
+        "Xác Nhận Đăng Xuất",
+        "🚪",
+        "☁️ Cloud Auth"
+    );
+}
+
+
 
 /**
  * =================================================================
@@ -249,6 +310,56 @@ function checkAdminAccess(username) {
             adminBtn.classList.add("hidden");
         }
     }
+}
+
+/**
+ * Xóa toàn bộ Collection 'players' trên Firebase Firestore (Admin Only)
+ */
+async function handleAdminDeleteAllPlayers() {
+    showGameConfirm(
+        "🚨 CẢNH BÁO CỰC NGHIỆM: Bạn có chắc chắn muốn XÓA SẠCH TOÀN BỘ dữ liệu của TẤT CẢ NGƯỜI CHƠI trên Firebase Cloud? Hành động này không thể hoàn tác!",
+        async function() {
+            if (typeof db === 'undefined') {
+                alert("❌ Lỗi: Chưa kết nối được với Firebase Firestore!");
+                return;
+            }
+
+            try {
+                // 1. Lấy toàn bộ documents trong collection 'players'
+                const snapshot = await db.collection("players").get();
+                if (snapshot.empty) {
+                    alert("ℹ️ Collection 'players' hiện đang trống, không có dữ liệu để xóa.");
+                    return;
+                }
+
+                // 2. Dùng WriteBatch để xóa hàng loạt
+                const batch = db.batch();
+                snapshot.docs.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+
+                await batch.commit();
+
+                // 3. Xóa dữ liệu local hiện tại và reset giao diện
+                localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+                gameState = null;
+                if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
+
+                alert(`💥 Đã xóa thành công toàn bộ ${snapshot.size} hồ sơ người chơi trên Cloud!`);
+
+                // Ẩn Admin Panel và mở Modal tạo nhân vật
+                showAdminPanel(false);
+                if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
+
+            } catch (error) {
+                console.error("❌ Lỗi khi xóa collection players:", error);
+                alert("❌ Không thể xóa collection: " + error.message);
+            }
+        },
+        "XÓA SẠCH FIREBASE CLOUD",
+        "🔥",
+        "🚨 Admin Danger Zone"
+    );
 }
 
 
