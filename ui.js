@@ -276,10 +276,57 @@ function handleLogout() {
 function showAdminPanel(show) {
     const modal = document.getElementById("admin-panel-modal");
     if (modal) {
-        if (show) modal.classList.remove("hidden");
-        else modal.classList.add("hidden");
+        if (show) {
+            updateAdminSkipMidMonthButtonUI(); // Cập nhật trạng thái nút khi mở panel
+            modal.classList.remove("hidden");
+        } else {
+            modal.classList.add("hidden");
+        }
     }
 }
+
+
+/**
+ * Xử lý Bật/Tắt tính năng Bỏ qua sự kiện giữa tháng từ Admin Panel
+ */
+function handleAdminToggleSkipMidMonthEvents() {
+    if (!gameState) {
+        alert("⚠️ Vui lòng tạo hoặc tải nhân vật trước khi bật tính năng debug này!");
+        return;
+    }
+    
+    // Đảo trạng thái cờ debug
+    gameState.debugSkipMidMonthEvents = !gameState.debugSkipMidMonthEvents;
+    
+    // Cập nhật lại giao diện nút bấm ngay lập tức
+    updateAdminSkipMidMonthButtonUI();
+    
+    if (gameState.debugSkipMidMonthEvents) {
+        showToast("Đã BẬT chế độ Skip sự kiện giữa tháng!", "⚡", "Admin Debug");
+    } else {
+        showToast("Đã TẮT chế độ Skip sự kiện giữa tháng!", "⚡", "Admin Debug");
+    }
+    
+    if (typeof saveGameState === 'function') saveGameState();
+}
+
+/**
+ * Hàm phụ trợ cập nhật màu sắc và chữ trên nút Skip Midmonth
+ */
+function updateAdminSkipMidMonthButtonUI() {
+    const btn = document.getElementById("admin-skip-midmonth-btn");
+    if (!btn || !gameState) return;
+    
+    const isSkipping = !!gameState.debugSkipMidMonthEvents;
+    if (isSkipping) {
+        btn.className = "w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-display font-extrabold rounded-2xl text-xs border border-emerald-300/40 shadow-sm transition-all active:scale-95";
+        btn.innerText = "⚡ ĐANG SKIP SỰ KIỆN GIỮA THÁNG (DEBUG: ON)";
+    } else {
+        btn.className = "w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-display font-extrabold rounded-2xl text-xs border border-purple-300/40 shadow-sm transition-all active:scale-95";
+        btn.innerText = "⚡ TẮT SỰ KIỆN GIỮA THÁNG (DEBUG: OFF)";
+    }
+}
+
 
 /**
  * Xử lý Reset Nhân vật từ Admin Panel

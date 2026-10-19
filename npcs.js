@@ -1,21 +1,21 @@
-// BỘ TỪ ĐIỂN CHIÊM TINH HỌC CHO NPC
+// BỘ TỪ ĐIỂN CHIÊM TINH HỌC & TÂM LÝ HỌC CHO NPC
 const ZODIAC_DATA = {
-    aries: { name: "Bạch Dương", element: "fire", nlp_bias: "aggressive", icon: "♈" },
-    taurus: { name: "Kim Ngưu", element: "earth", nlp_bias: "polite", icon: "♉" },
-    gemini: { name: "Song Tử", element: "air", nlp_bias: "smart", icon: "♊" },
-    cancer: { name: "Cự Giải", element: "water", nlp_bias: "polite", icon: "♋" },
-    leo: { name: "Sư Tử", element: "fire", nlp_bias: "aggressive", icon: "♌" },
-    virgo: { name: "Xử Nữ", element: "earth", nlp_bias: "smart", icon: "♍" },
-    libra: { name: "Thiên Bình", element: "air", nlp_bias: "polite", icon: "♎" },
-    scorpio: { name: "Bọ Cạp", element: "water", nlp_bias: "smart", icon: "♏" },
-    sagittarius: { name: "Nhân Mã", element: "fire", nlp_bias: "funny", icon: "♐" },
-    capricorn: { name: "Ma Kết", element: "earth", nlp_bias: "smart", icon: "♑" },
-    aquarius: { name: "Bảo Bình", element: "air", nlp_bias: "funny", icon: "♒" },
-    pisces: { name: "Song Ngư", element: "water", nlp_bias: "polite", icon: "♓" }
+    aries: { name: "Bạch Dương", element: "fire", nlp_bias: "aggressive", icon: "♈", trait: "short_tempered" },
+    taurus: { name: "Kim Ngưu", element: "earth", nlp_bias: "polite", icon: "♉", trait: "stubborn" },
+    gemini: { name: "Song Tử", element: "air", nlp_bias: "smart", icon: "♊", trait: "chatty" },
+    cancer: { name: "Cự Giải", element: "water", nlp_bias: "polite", icon: "♋", trait: "sensitive" },
+    leo: { name: "Sư Tử", element: "fire", nlp_bias: "aggressive", icon: "♌", trait: "proud" },
+    virgo: { name: "Xử Nữ", element: "earth", nlp_bias: "smart", icon: "♍", trait: "perfectionist" },
+    libra: { name: "Thiên Bình", element: "air", nlp_bias: "polite", icon: "♎", trait: "balanced" },
+    scorpio: { name: "Bọ Cạp", element: "water", nlp_bias: "smart", icon: "♏", trait: "suspicious" },
+    sagittarius: { name: "Nhân Mã", element: "fire", nlp_bias: "funny", icon: "♐", trait: "humorous" },
+    capricorn: { name: "Ma Kết", element: "earth", nlp_bias: "smart", icon: "♑", trait: "practical" },
+    aquarius: { name: "Bảo Bình", element: "air", nlp_bias: "funny", icon: "♒", trait: "eccentric" },
+    pisces: { name: "Song Ngư", element: "water", nlp_bias: "polite", icon: "♓", trait: "dreamy" }
 };
 
 /**
- * Sinh một NPC ngẫu nhiên hoàn chỉnh và lưu vào gameState.relationships
+ * Sinh một NPC ngẫu nhiên hoàn chỉnh kèm theo hệ thống tâm lý hành vi & kiên nhẫn
  */
 function generateRandomNPC(relationType = "Người Quen", category = "street") {
     const namesMale = ["Minh", "Hoàng", "Tuấn", "Khang", "Đức", "Huy", "Phong", "Nam", "Bảo", "Sơn"];
@@ -25,9 +25,9 @@ function generateRandomNPC(relationType = "Người Quen", category = "street") 
     const firstName = isMale ? namesMale[Math.floor(Math.random() * namesMale.length)] : namesFemale[Math.floor(Math.random() * namesFemale.length)];
     const icon = isMale ? "👦" : "👧";
 
-    const zodiacKeys = typeof ZODIAC_DATA !== 'undefined' ? Object.keys(ZODIAC_DATA) : ['aries', 'taurus', 'gemini'];
+    const zodiacKeys = Object.keys(ZODIAC_DATA);
     const randomZodiac = zodiacKeys[Math.floor(Math.random() * zodiacKeys.length)];
-    const zodiacInfo = ZODIAC_DATA ? ZODIAC_DATA[randomZodiac] : { nlp_bias: "polite" };
+    const zodiacInfo = ZODIAC_DATA[randomZodiac];
 
     const newNPC = {
         id: "npc_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
@@ -39,6 +39,9 @@ function generateRandomNPC(relationType = "Người Quen", category = "street") 
         xp: 10,
         _zodiac: randomZodiac,
         personality: zodiacInfo.nlp_bias || "polite",
+        trait: zodiacInfo.trait || "normal",
+        patience: 100, // Thanh kiên nhẫn (0 - 100). Về 0 sẽ block tương tác
+        has_offended: false, // Cờ ghi nhớ nếu từng bị người chơi xúc phạm
         intrinsic_stats: {
             happiness: Math.floor(Math.random() * 40) + 50,
             wealth: Math.floor(Math.random() * 200) + 50,

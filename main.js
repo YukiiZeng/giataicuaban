@@ -592,13 +592,91 @@ function showNPCInteractionModal(npcId, show) {
         
         ${askMoneyBtnHTML}
 
-        <button onclick="alert('Tính năng Trò chuyện NLP đang gắn kết...'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-300/40 mt-1">
+        <button onclick="handleNPCChat('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-300/40 mt-1">
             <span>💬</span> Trò Chuyện Tâm Sự
         </button>
     `;
 
     modal.classList.remove("hidden");
 }
+
+/**
+ * 🚀 Kích hoạt khung trò chuyện tâm sự (NLP Dialogue) với NPC được chọn
+ */
+// 🗂️ KHO TẢI CHỦ ĐỀ HỘI THOẠI THEO NGỮ CẢNH (Dễ quản lý & mở rộng)
+const NPC_CHAT_TOPICS = [
+    {
+        id: "work",
+        title: "Công việc & Sự nghiệp",
+        icon: "💼",
+        getPrompt: (npc) => `${npc.name} nhìn bạn nghiêm túc hỏi: "Dạo này công việc bên chỗ cậu thế nào rồi? Có gặp áp lực gì lớn từ cấp trên hay khách hàng không, kể nghe xem nào."`
+    },
+    {
+        id: "money",
+        title: "Tài chính & Đầu tư",
+        icon: "💰",
+        getPrompt: (npc) => `${npc.name} bấm điện thoại rồi ngẩng lên bảo: "Thời buổi kinh tế này kiếm tiền khó khăn thật. Cậu đang có khoản tích lũy nào không, hay có định đầu tư gì mới không đấy?"`
+    },
+    {
+        id: "life",
+        title: "Triết lý & Lối sống",
+        icon: "🌿",
+        getPrompt: (npc) => `${npc.name} thở dài cười nhẹ: "Nhiều lúc nhìn lại thấy thời gian trôi nhanh khủng khiếp. Theo cậu, điều quan trọng nhất ở đời này rốt cuộc là gì?"`
+    },
+    {
+        id: "gossip",
+        title: "Than thở & Xả stress",
+        icon: "☕",
+        getPrompt: (npc) => `${npc.name} chống cằm phàn nàn: "Hôm nay tự nhiên tớ thấy mệt mỏi ngang xương, chán chẳng muốn làm gì cả. Cậu có bí quyết gì xả stress không, chia sẻ xem nào!"`
+    }
+];
+
+/**
+ * 🚀 Mở khung trò chuyện tâm sự với chủ đề ngữ cảnh riêng biệt
+ */
+function handleNPCChat(npcId) {
+    if (!gameState || !gameState.relationships) return;
+    const npc = gameState.relationships.find(r => r.id === npcId);
+    if (!npc) return;
+
+    const modal = document.getElementById("dialogue-event-modal");
+    if (!modal) return;
+
+    // Chọn ngẫu nhiên 1 chủ đề ngữ cảnh trong kho
+    const randomTopic = NPC_CHAT_TOPICS[Math.floor(Math.random() * NPC_CHAT_TOPICS.length)];
+    const contextualPrompt = randomTopic.getPrompt(npc);
+
+    // Gán vào khung dialogue chung
+    currentActiveDialogueEvent = {
+        id: "npc_chat_" + randomTopic.id,
+        tag: `${randomTopic.icon} TÂM SỰ: ${randomTopic.title.toUpperCase()}`,
+        title: `Trò chuyện cùng ${npc.name} (${npc.relation})`,
+        prompt: contextualPrompt,
+        category: "social",
+        targetNpcId: npc.id,
+        topicContext: randomTopic.id // Lưu ngữ cảnh để chấm điểm
+    };
+
+    if (typeof setElementText === 'function') {
+        setElementText('dialogue-tag', currentActiveDialogueEvent.tag);
+        setElementText('dialogue-title', currentActiveDialogueEvent.title);
+        setElementText('dialogue-prompt', currentActiveDialogueEvent.prompt);
+    }
+
+    document.getElementById("dialogue-user-bubble")?.classList.add("hidden");
+    document.getElementById("dialogue-npc-reply-bubble")?.classList.add("hidden");
+    document.getElementById("dialogue-system-badge")?.classList.add("hidden");
+    document.getElementById("dialogue-input-container")?.classList.remove("hidden");
+    document.getElementById("dialogue-close-btn")?.classList.add("hidden");
+
+    const inputEl = document.getElementById("dialogue-user-input");
+    if (inputEl) inputEl.value = "";
+
+    modal.classList.remove("hidden");
+    setTimeout(() => { if (inputEl) inputEl.focus(); }, 150);
+}
+
+
 
 
 /**
@@ -613,6 +691,55 @@ function getSocialLevelTitle(count) {
     if (count <= 40) return "🌟 Hướng Ngoại (20 - 40)";
     if (count <= 60) return "👑 Quan Hệ Rộng (40 - 60)";
     return "🔥 Bậc Thầy Ngoại Giao (> 60)";
+}
+
+/**
+ * Tính toán danh hiệu, icon và tiến độ thanh XP cho mối quan hệ NPC
+ * @param {number} level Cấp độ quan hệ hiện tại
+ * @param {number} xp Điểm kinh nghiệm hiện tại (0 - 99)
+ * @returns {Object} Thông tin hiển thị (icons, label, xpText, progressPercent, barColor)
+ */
+function getRelationshipTier(level, xp) {
+    let label = "Xã giao";
+    let icons = "💬";
+    let barColor = "bg-amber-400";
+
+    if (level <= -2) {
+        label = "Thù địch 😡";
+        icons = "⚡⚡";
+        barColor = "bg-rose-600";
+    } else if (level === -1) {
+        label = "Xa cách / Ghét 😒";
+        icons = "💢";
+        barColor = "bg-rose-400";
+    } else if (level === 0) {
+        label = "Quen biết 👁️";
+        icons = "👁️";
+        barColor = "bg-amber-400";
+    } else if (level === 1) {
+        label = "Bạn bè 😊";
+        icons = "🌟";
+        barColor = "bg-teal-500";
+    } else if (level === 2) {
+        label = "Thân thiết 🥰";
+        icons = "💖";
+        barColor = "bg-emerald-500";
+    } else if (level >= 3) {
+        label = "Tri kỷ / Soulmate 👑";
+        icons = "👑💖";
+        barColor = "bg-purple-600";
+    }
+
+    const progressPercent = Math.max(0, Math.min(100, xp));
+    const xpText = `${xp}/100 XP (Lvl ${level})`;
+
+    return {
+        icons,
+        label,
+        xpText,
+        progressPercent,
+        barColor
+    };
 }
 
 function renderRelationships() {
@@ -633,11 +760,11 @@ function renderRelationships() {
     rels.forEach(rel => {
         const lvl = typeof rel.level === 'number' ? rel.level : 0;
         const xp = typeof rel.xp === 'number' ? rel.xp : 0;
-        const tier = typeof getRelationshipTier === 'function' ? getRelationshipTier(lvl, xp) : { icons: "👁️", label: "Quen biết", xpText: "0/100", progressPercent: 0, barColor: "bg-gray-400" };
+        const tier = getRelationshipTier(lvl, xp);
         
         const item = document.createElement("div");
         item.className = "glass-card-inner-light p-3 rounded-2xl flex items-center justify-between border border-amber-300/40 shrink-0 gap-2";
-                item.innerHTML = `
+        item.innerHTML = `
             <div class="flex flex-col w-full gap-2">
                 <!-- Thông tin & Nút Tương tác -->
                 <div class="flex items-center justify-between">
@@ -668,6 +795,7 @@ function renderRelationships() {
         modalList.appendChild(item);
     });
 }
+
 
 function showRelationshipModal(show) {
     const modal = document.getElementById("relationship-modal");

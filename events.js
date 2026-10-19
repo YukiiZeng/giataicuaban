@@ -315,7 +315,10 @@ function processNextMonthlyEvent() {
  */
 function checkDynamicMidMonthEvents() {
     if (!gameState || gameState.currentDay >= 30) return;
-    
+    // 🚀 BỔ SUNG: NẾU ĐANG BẬT CỜ SKIP TRONG DEBUG -> BỎ QUA LUÔN
+    if (gameState.debugSkipMidMonthEvents) {
+        return;
+    }
     // Tỷ lệ 8% xuất hiện sự kiện giữa tháng
     if (Math.random() > 0.08) return;
     
@@ -430,8 +433,13 @@ function checkDynamicMidMonthEvents() {
 /**
  * Xử lý khi người chơi bấm nút "Gửi Lời Đáp"
  */
+/**
+ * HỆ THỐNG ĐÁNH GIÁ HỘI THOẠI NÂNG CAO (CÓ BỘ LỌC NGỮ CẢNH "MÀY - TAO" & 12 CUNG HOÀNG ĐẠO)
+ */
+/**
+ * 🚀 HỆ THỐNG CHẤM ĐIỂM HỘI THOẠI THEO CHỦ ĐỀ NGỮ CẢNH & TÂM LÝ NPC
+ */
 function submitDialogueResponse() {
-    // 1. Khai báo biến (Chỉ khai báo 1 lần duy nhất)
     const inputEl = document.getElementById("dialogue-user-input");
     if (!inputEl) return;
     
@@ -447,121 +455,159 @@ function submitDialogueResponse() {
     
     const text = rawText.toLowerCase();
     const eventData = currentActiveDialogueEvent || { title: "Tương tác", category: "street" };
+    const topic = eventData.topicContext || "life"; // Lấy ngữ cảnh hiện tại
     
-    // 🚀 2. XỬ LÝ RIÊNG CHO SỰ KIỆN "BÌNH YÊN"
-    if (eventData.id === "fallback_peace") {
-        gameState.happiness = Math.min(100, (gameState.happiness || 70) + 1);
-        if (typeof addDailyLog === 'function') addDailyLog("Tận hưởng một ngày tĩnh lặng.");
-        
+    // 1. Lấy thông tin NPC mục tiêu
+    let targetNPC = null;
+    if (eventData.targetNpcId && gameState.relationships) {
+        targetNPC = gameState.relationships.find(r => r.id === eventData.targetNpcId);
+    }
+
+    // Nếu NPC đã cạn kiệt kiên nhẫn (patience <= 0)
+    if (targetNPC && targetNPC.patience <= 0) {
         setTimeout(() => {
             const npcBubble = document.getElementById("dialogue-npc-reply-bubble");
             const npcTextEl = document.getElementById("dialogue-npc-reply-text");
-            const npcIconEl = npcBubble ? npcBubble.querySelector("span") : null;
-            
-            if (npcIconEl) npcIconEl.innerText = "🌿";
-            if (npcTextEl) npcTextEl.innerText = "Bạn hít một hơi thật sâu, cảm thấy tâm hồn thư thái hơn đôi chút.";
+            if (npcTextEl) npcTextEl.innerText = `${targetNPC.name} quay mặt đi, khoanh tay lạnh lùng: "Tôi không có gì để nói chuyện với cậu nữa cả. Tránh ra!"`;
             if (npcBubble) npcBubble.classList.remove("hidden");
-            
-            const badgeEl = document.getElementById("dialogue-system-badge");
-            const fbTextEl = document.getElementById("dialogue-feedback-text");
-            if (fbTextEl) fbTextEl.innerText = "✨ Tận hưởng sự tĩnh lặng (+1 Hạnh phúc)";
-            if (badgeEl) badgeEl.classList.remove("hidden");
-            
             document.getElementById("dialogue-close-btn")?.classList.remove("hidden");
         }, 400);
-        
+        return;
+    }
+
+    if (eventData.id === "fallback_peace") {
+        gameState.happiness = Math.min(100, (gameState.happiness || 70) + 1);
+        setTimeout(() => {
+            const npcBubble = document.getElementById("dialogue-npc-reply-bubble");
+            const npcTextEl = document.getElementById("dialogue-npc-reply-text");
+            if (npcTextEl) npcTextEl.innerText = "Bạn hít một hơi thật sâu, cảm thấy tâm hồn thư thái hơn đôi chút.";
+            if (npcBubble) npcBubble.classList.remove("hidden");
+            document.getElementById("dialogue-close-btn")?.classList.remove("hidden");
+        }, 400);
         if (typeof saveGameState === 'function') saveGameState();
         if (typeof renderGameState === 'function') renderGameState();
-        return; // Dừng tại đây, không chạy bộ đếm NLP bên dưới nữa
+        return;
     }
     
-    // 3. BỘ ĐẾM NLP CHO CÁC SỰ KIỆN GIAO TIẾP THÔNG THƯỜNG
+    // 2. PHÂN TÍCH HÌNH THỨC CÂU
     const words = rawText.split(/\s+/).filter(Boolean);
     const wordCount = words.length;
-    
-    const politeDict = ["xin lỗi", "cảm ơn", "bình tĩnh", "thành thật", "thông cảm", "dạ", "ạ", "giúp", "nhẹ nhàng", "đồng ý", "vâng"];
-    const smartDict = ["doanh thu", "lý do", "kế hoạch", "thực tế", "phân tích", "giải pháp", "chứng minh", "xem lại", "số liệu", "chí hướng", "đầu tư"];
-    const aggressiveDict = ["mày", "tao", "im đi", "cút", "liên quan", "kệ", "chửi", "ngu", "mất dạy", "đéo", "đập", "biến"];
-    const funnyDict = ["hihi", "haha", "kaka", "vui", "đùa", "dạ không có á", "ủa alo", "ngơ", "gì vậy"];
-    
-    let scorePolite = politeDict.filter(w => text.includes(w)).length;
-    let scoreSmart = smartDict.filter(w => text.includes(w)).length;
-    let scoreAggressive = aggressiveDict.filter(w => text.includes(w)).length;
-    let scoreFunny = funnyDict.filter(w => text.includes(w)).length;
-    
-    const isShortFunny = wordCount <= 5 && (text.includes("dạ") || text.includes("ơi") || text.includes("ủa") || text.includes("hihi")) && scoreSmart === 0 && scoreAggressive === 0;
-    
+    const isAllUpperCase = rawText === rawText.toUpperCase() && rawText.length > 3;
+    const hasSarcasmMarks = text.includes("...") && (text.includes("ghê") || text.includes("lắm") || text.includes("nhỉ"));
+
+    // 3. TỪ ĐIỂN ĐA TRỤC & NGỮ CẢNH "MÀY - TAO"
+    const politeWords = ["xin lỗi", "cảm ơn", "bình tĩnh", "thành thật", "thông cảm", "dạ", "ạ", "giúp", "nhẹ nhàng", "vâng", "thưa"];
+    const smartWords = ["doanh thu", "lý do", "kế hoạch", "thực tế", "phân tích", "giải pháp", "chứng minh", "số liệu", "chiến lược", "đầu tư", "cố gắng"];
+    const toxicWords = ["cút", "liên quan", "kệ", "chửi", "ngu", "mất dạy", "đéo", "đập", "biến", "điên", "xéo"];
+    const funnyWords = ["hihi", "haha", "kaka", "vui", "đùa", "ủa alo", "ngơ", "gì vậy"];
+
+    let scorePolite = politeWords.filter(w => text.includes(w)).length * 2;
+    let scoreSmart = smartWords.filter(w => text.includes(w)).length * 3;
+    let scoreFunny = funnyWords.filter(w => text.includes(w)).length * 2;
+    let scoreAggressive = toxicWords.filter(w => text.includes(w)).length * 4;
+
+    // Bộ lọc xưng hô "mày - tao" thông minh theo quan hệ
+    const usesMayTao = text.includes("mày") || text.includes("tao");
+    let isCloseRelation = false;
+    if (targetNPC) {
+        const relLower = (targetNPC.relation || "").toLowerCase();
+        if (relLower.includes("bạn") || relLower.includes("chiến hữu") || relLower.includes("đồng nghiệp") || relLower.includes("em")) {
+            isCloseRelation = true;
+        }
+    }
+
+    if (usesMayTao) {
+        if (!isCloseRelation) scoreAggressive += 4; // Người lạ/sếp nghe thấy -> Phạt nặng
+        else scoreFunny += 1; // Bạn thân nghe thấy -> Thoải mái, gần gũi
+    }
+
+    if (isAllUpperCase) scoreAggressive += 5;
+    if (hasSarcasmMarks) { scoreSmart -= 2; scoreAggressive += 3; }
+
+    // 4. CHẤM ĐIỂM THEO CHỦ ĐỀ NGỮ CẢNH (TOPIC CONTEXT EVALUATION)
+    let topicBonusText = "";
+    if (topic === "work" && (scoreSmart > 0 || text.includes("làm") || text.includes("việc"))) {
+        scoreSmart += 2;
+        topicBonusText = " [Đúng chủ đề công việc]";
+    } else if (topic === "money" && (scoreSmart > 0 || text.includes("tiền") || text.includes("đầu tư") || text.includes("kiếm"))) {
+        scoreSmart += 2;
+        topicBonusText = " [Tư duy tài chính tốt]";
+    } else if (topic === "gossip" && (scoreFunny > 0 || scorePolite > 0 || text.includes("buồn") || text.includes("vui"))) {
+        scoreFunny += 2;
+        topicBonusText = " [Đồng cảm, xả stress tốt]";
+    } else if (topic === "life" && (wordCount >= 6 || scorePolite > 0)) {
+        scorePolite += 2;
+        topicBonusText = " [Triết lý sâu sắc]";
+    }
+
     let feedback = "";
     let logSummary = "";
     let npcReply = "";
     let npcIcon = "💬";
     let relXpChange = 0;
-    
-    if (wordCount < 3 && scorePolite === 0 && scoreSmart === 0 && scoreAggressive === 0 && !isShortFunny) {
-        npcIcon = "😐";
-        gameState.charm = Math.max(0, (gameState.charm || 45) - 2);
-        relXpChange = -5;
-        feedback = "😐 Lời đáp cụt ngủn, thiếu đầu tư (-2 Ăn nói, -5 Mối quan hệ)";
-        logSummary = `${eventData.title}: Trả lời hời hợt`;
-        npcReply = "NPC nhếch mép gắt gỏng: 'Nói năng cụt ngủn thế? Không có tý lịch sự nào!'";
-    }
-    else if (isShortFunny || scoreFunny > 0) {
-        npcIcon = "🤣";
-        gameState.charm = Math.min(100, (gameState.charm || 45) + 3);
-        gameState.happiness = Math.min(100, (gameState.happiness || 70) + 4);
-        gameState.stress = Math.max(0, (gameState.stress || 0) - 5);
-        relXpChange = 10;
-        feedback = "🤪 Lời đáp tấu hài ngơ ngác! (+3 Ăn nói, +4 Hạnh phúc, +10 Mối quan hệ)";
-        logSummary = `${eventData.title}: Tấu hài ngơ ngác hóa giải xung đột`;
-        npcReply = "NPC cạn lời ngơ ngác: 'Ủa? Trả lời cái câu huề vốn vậy mà cũng nghĩ ra được hả?!'";
-    }
-    else if (scoreAggressive > 0) {
+    let patienceChange = 0;
+
+  // 5. KẾT QUẢ ĐÁNH GIÁ CUỐI CÙNG
+    if (scoreAggressive > scorePolite && scoreAggressive > scoreSmart && scoreAggressive > scoreFunny) {
         npcIcon = "🤬";
         gameState.ego = Math.min(100, (gameState.ego || 30) + 5);
         gameState.stress = Math.min(100, (gameState.stress || 0) + 10);
-        gameState.charm = Math.max(0, (gameState.charm || 45) - 3);
-        relXpChange = -20;
-        feedback = "🔥 Phản ứng bốc đồng, gay gắt! (+5 Cái tôi, +10 Stress, -20 Mối quan hệ)";
-        logSummary = `${eventData.title}: Xô xát lời nói, thái độ ngông nghênh`;
-        npcReply = "NPC đập bàn giận dữ: 'Mày thái độ gì đấy?! Ra đây nói chuyện!'";
+        relXpChange = -30;
+        patienceChange = -35;
+        if (targetNPC) targetNPC.has_offended = true;
+
+        feedback = `🔥 Thái độ hằn học, kém lịch sự! (-30 Mối quan hệ)`;
+        logSummary = `${eventData.title}: Tranh cãi căng thẳng`;
+        npcReply = `${targetNPC ? targetNPC.name : 'NPC'} hầm hầm lườm bạn: "Cậu bị làm sao thế hả, tự dưng nổi đóa lên à!"`;
     }
-    else if (scoreSmart > 0 || wordCount >= 7) {
+    else if (hasSarcasmMarks || (wordCount < 3 && scorePolite === 0 && scoreSmart === 0 && !usesMayTao)) {
+        npcIcon = "😒";
+        relXpChange = -10;
+        patienceChange = -15;
+
+        feedback = `😒 Trả lời hời hợt, nhạt nhẽo (-10 Mối quan hệ)`;
+        logSummary = `${eventData.title}: Trò chuyện hời hợt`;
+        npcReply = `${targetNPC ? targetNPC.name : 'NPC'} thở dài: "Hỏi thế mà cũng trả lời được, đúng làó chán."`;
+    }
+    else if (scoreFunny > 0 || (wordCount <= 5 && scoreSmart === 0)) {
+        npcIcon = "🤣";
+        gameState.happiness = Math.min(100, (gameState.happiness || 70) + 4);
+        relXpChange = 15;
+        patienceChange = 10;
+
+        feedback = `🤪 Trò chuyện vui vẻ, thoải mái! (+15 Mối quan hệ)${topicBonusText}`;
+        logSummary = `${eventData.title}: Tâm sự vui vẻ`;
+        npcReply = `${targetNPC ? targetNPC.name : 'NPC'} cười phá lên: "Cậu hài hước thật đấy, nghe xong thấy nhẹ cả người!"`;
+    }
+    else if (scoreSmart >= scorePolite && scoreSmart > 0) {
         npcIcon = "🧠";
         gameState.smarts = Math.min(100, (gameState.smarts || 50) + 4);
-        gameState.charm = Math.min(100, (gameState.charm || 45) + 2);
-        relXpChange = 15;
-        feedback = "🧠 Lập luận sắc bén, logic! (+4 Trí tuệ, +2 Ăn nói, +15 Mối quan hệ)";
-        logSummary = `${eventData.title}: Dùng lý lẽ sắc bén làm chủ cuộc đối thoại`;
-        npcReply = "NPC khựng lại gật gù: 'Ừm... nghe cũng có lý. Tạm thời ghi nhận.'";
-    }
-    else if (scorePolite > 0) {
-        npcIcon = "🥰";
-        gameState.charm = Math.min(100, (gameState.charm || 45) + 4);
-        gameState.happiness = Math.min(100, (gameState.happiness || 70) + 3);
-        gameState.stress = Math.max(0, (gameState.stress || 0) - 6);
         relXpChange = 20;
-        feedback = "🕊️ Xử sự đắc nhân tâm, nhã nhặn! (+4 Ăn nói, +3 Hạnh phúc, +20 Mối quan hệ)";
-        logSummary = `${eventData.title}: Ứng xử đắc nhân tâm, nhã nhặn`;
-        npcReply = "NPC mỉm cười dịu giọng: 'Bạn đã nói thế thì tôi không chấp nhặt nữa. Cảm ơn nhé!'";
+        patienceChange = 15;
+
+        feedback = `🧠 Phân tích sắc sảo, tư duy tốt! (+4 Trí tuệ, +20 Mối quan hệ)${topicBonusText}`;
+        logSummary = `${eventData.title}: Trao đổi góc nhìn sâu sắc`;
+        npcReply = `${targetNPC ? targetNPC.name : 'NPC'} gật gù tâm đắc: "Góc nhìn của cậu rất đáng suy ngẫm đấy."`;
     }
     else {
-        npcIcon = "💬";
-        gameState.charm = Math.min(100, (gameState.charm || 45) + 1);
-        relXpChange = 5;
-        feedback = "💬 Phản hồi chừng mực, trung lập (+1 Ăn nói)";
-        logSummary = `${eventData.title}: Trả lời trung lập`;
-        npcReply = "NPC gật đầu nhẹ rồi quay đi.";
+        npcIcon = "🥰";
+        gameState.charm = Math.min(100, (gameState.charm || 45) + 3);
+        relXpChange = 20;
+        patienceChange = 20;
+
+        feedback = `🕊️ Lời đáp nhã nhặn, chân thành! (+20 Mối quan hệ)${topicBonusText}`;
+        logSummary = `${eventData.title}: Tâm sự chân thành`;
+        npcReply = `${targetNPC ? targetNPC.name : 'NPC'} mỉm cười ấm áp: "Cảm ơn vì đã lắng nghe và chia sẻ chân thành với tôi nhé."`;
     }
     
-    // 🚀 CHỈ TÁC ĐỘNG KHI CÓ ĐÍNH KÈM ĐỐI TƯỢNG NPC CỤ THỂ
-    if (eventData.targetNpcId && eventData.targetNpcId !== "none" && typeof interactWithNPC === 'function') {
-        interactWithNPC(eventData.targetNpcId, {}, relXpChange);
-    }
-    
-    if (eventData.set_flag && (scorePolite > 0 || scoreSmart > 0)) {
-        if (!gameState.storyFlags) gameState.storyFlags = {};
-        gameState.storyFlags[eventData.set_flag] = true;
-        console.log(`🚩 Bật Cờ Cốt Truyện: ${eventData.set_flag}`);
+    // 6. CẬP NHẬT TRẠNG THÁI VÀO NPC[span_1](start_span)[span_1](end_span)
+    if (targetNPC) {
+        if (typeof targetNPC.patience === 'undefined') targetNPC.patience = 100;
+        targetNPC.patience = Math.max(0, Math.min(100, targetNPC.patience + patienceChange));
+
+        if (typeof interactWithNPC === 'function') {
+            interactWithNPC(targetNPC.id, {}, relXpChange);
+        }
     }
     
     if (typeof addDailyLog === 'function') addDailyLog(logSummary);
@@ -587,6 +633,7 @@ function submitDialogueResponse() {
     if (typeof saveGameState === 'function') saveGameState();
     if (typeof renderGameState === 'function') renderGameState();
 }
+
 
 /**
  * Đóng Modal Dialogue và tiếp tục vòng lặp thời gian 30 ngày
