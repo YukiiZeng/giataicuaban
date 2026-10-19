@@ -46,12 +46,13 @@ function enrollProgram(programId) {
         return;
     }
     
-    // Thêm vào dưới đoạn check tuổi:
-    if (gameState.job && gameState.job.type === 'fulltime') {
-        // Lưu ý: Đảm bảo biến "type" khớp với cách anh lưu dữ liệu loại công việc trong file jobs.js
-        alert("⚠️ Bạn đang làm công việc Toàn thời gian (Full-time)! Hãy nộp đơn xin nghỉ việc trước khi nhập học để đảm bảo thời gian.");
+    // Thêm vào dưới đoạn check tuổi trong hàm enrollProgram:
+    // Đã sửa lại logic check đúng biến isPartTime để chặn học chính quy khi đang làm Full-time
+    if (gameState.job && !gameState.job.isPartTime && program.category === 'formal') {
+        alert("⚠️ Bạn đang làm công việc Toàn thời gian (Full-time)! Hãy nộp đơn xin nghỉ việc trước khi nhập học hệ Chính Quy để đảm bảo thời gian.");
         return;
     }
+
     
     
     if (program.prerequisites && program.prerequisites.length > 0) {

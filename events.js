@@ -49,24 +49,145 @@ function checkMonthlyEvents() {
     monthlyEventQueue = [];
     const monthlyData = gameEventsData.monthly_events || [];
 
-    // 1. Quét & Lọc Sự Kiện
+    // 1. Quét & Lọc Sự Kiện Tĩnh (từ file JSON)
     monthlyData.forEach(ev => {
         if (ev.min_age !== undefined && gameState.age < ev.min_age) return;
         if (ev.max_age !== undefined && gameState.age > ev.max_age) return;
         if (ev.requires_housing && gameState.currentHome?.type !== ev.requires_housing) return;
         if (ev.trigger_chance !== undefined && Math.random() > ev.trigger_chance) return;
 
-        // Nếu thỏa mãn mọi điều kiện, đẩy vào hàng đợi
         monthlyEventQueue.push(ev);
     });
 
-    // 2. Kích hoạt xử lý hàng đợi
+    // 2. 🚀 CẬP NHẬT ĐỜI SỐNG NGẦM & SINH SỰ KIỆN NPC ĐỘNG
+    generateDynamicNPCEvents();
+
+    // 3. Kích hoạt xử lý hàng đợi
     processNextMonthlyEvent();
 }
 
 /**
+ * Giả lập cuộc sống của NPC: Tự động dao động tâm trạng, tài chính
+ * và kích hoạt các sự kiện ngẫu nhiên dựa trên chỉ số ẩn.
+ */
+function generateDynamicNPCEvents() {
+    if (!gameState.relationships) return;
+    const pName = gameState.name || "bạn"; // Bắt tên nhân vật
+
+    gameState.relationships.forEach(npc => {
+        if (!npc.intrinsic_stats) return;
+
+        // A. Cập nhật sinh hoạt ngầm
+        npc.intrinsic_stats.wealth += Math.floor(Math.random() * 30);
+        const moodSwing = Math.floor(Math.random() * 15) - 7;
+        npc.intrinsic_stats.happiness = Math.max(0, Math.min(100, npc.intrinsic_stats.happiness + moodSwing));
+
+        // B. Kích hoạt sự kiện
+        if (Math.random() < 0.05) {
+            let eventObj = null;
+
+            if (npc.id === 'mother') {
+                if (npc.intrinsic_stats.happiness >= 60) {
+                    eventObj = {
+                        id: "npc_mother_care",
+                        tag: "👩 Gia Đình",
+                        icon: "🍲",
+                        title: "Mẹ Gửi Quà Tẩm Bổ",
+                        description: `Dạo này Mẹ đang rất vui. Mẹ gửi lên cho ${pName} một thùng đồ ăn ngon tẩm bổ: "Nhớ ăn uống đầy đủ nhé con!"`,
+                        choices: [
+                            {
+                                text: "Gọi điện cảm ơn Mẹ rối rít",
+                                reward_happiness: 10,
+                                npc_targets: ["mother"],
+                                npc_change: 10,
+                                success_msg: `${pName} no bụng và cảm thấy vô cùng ấm áp (+10 Hạnh phúc, +10 Thiện cảm Mẹ).`
+                            }
+                        ]
+                    };
+                } else {
+                    eventObj = {
+                        id: "npc_mother_sick",
+                        tag: "👩 Gia Đình",
+                        icon: "🤒",
+                        title: "Mẹ Bị Ốm",
+                        description: `Hôm nay gọi điện thấy giọng Mẹ hơi mệt. Mẹ bảo bị cảm xoàng, không sao đâu, nhưng ${pName} nghe tiếng ho lụ khụ rất xót xa.`,
+                        choices: [
+                            {
+                                text: "Gửi 50$ về biếu Mẹ mua thuốc",
+                                req_money: 50,
+                                cost_money: 50,
+                                npc_targets: ["mother"],
+                                npc_change: 20,
+                                success_msg: `Mẹ rất cảm động vì sự hiếu thảo và trưởng thành của ${pName} (+20 Thiện cảm Mẹ).`,
+                                fail_msg: `${pName} mở ví ra và thở dài... Không đủ 50$ để gửi cho Mẹ.`
+                            },
+                            {
+                                text: "Chỉ dặn dò Mẹ nghỉ ngơi suông",
+                                npc_targets: ["mother"],
+                                npc_change: -5,
+                                success_msg: `${pName} dặn Mẹ giữ sức khỏe rồi cúp máy. Cảm giác trong lòng hơi áy náy (-5 Thiện cảm Mẹ).`
+                            }
+                        ]
+                    };
+                }
+            } else if (npc.id === 'father') {
+                if (npc.intrinsic_stats.wealth > 150) {
+                    eventObj = {
+                        id: "npc_father_bonus",
+                        tag: "👨 Gia Đình",
+                        icon: "💵",
+                        title: "Bố Cho Tiền Tiêu Vặt",
+                        description: `Bố dạo này làm ăn trúng mánh hoặc vừa được thưởng. Bố lén chuyển cho ${pName} 100$: "Tiêu gì thì tiêu, đừng cho Mẹ biết nhé!"`,
+                        choices: [
+                            {
+                                text: "Nhận tiền và giữ bí mật",
+                                reward_money: 100,
+                                npc_targets: ["father"],
+                                npc_change: 5,
+                                success_msg: `Tài khoản ting ting, tình cảm cha con khăng khít hơn! (+100$, +5 Thiện cảm Bố).`
+                            }
+                        ]
+                    };
+                    npc.intrinsic_stats.wealth -= 100;
+                } else {
+                    eventObj = {
+                        id: "npc_father_need_money",
+                        tag: "👨 Gia Đình",
+                        icon: "📉",
+                        title: "Bố Kẹt Tiền",
+                        description: `Bố gọi điện giọng ngập ngừng: "Con có dư đồng nào không, Bố đang kẹt chút việc cần 100$, tháng sau Bố trả..."`,
+                        choices: [
+                            {
+                                text: "Chuyển luôn 100$ cho Bố",
+                                req_money: 100,
+                                cost_money: 100,
+                                reward_ego: 5,
+                                npc_targets: ["father"],
+                                npc_change: 25,
+                                success_msg: `Bố thở phào nhẹ nhõm và vô cùng tự hào về ${pName}. (+25 Thiện cảm Bố, +5 Cái tôi).`,
+                                fail_msg: `${pName} không có đủ 100$ để giúp Bố...`
+                            },
+                            {
+                                text: "Than nghèo kể khổ để từ chối",
+                                npc_targets: ["father"],
+                                npc_change: -10,
+                                success_msg: `Bố cúp máy cái rụp. ${pName} biết Bố buồn và có chút thất vọng (-10 Thiện cảm Bố).`
+                            }
+                        ]
+                    };
+                }
+            }
+
+            if (eventObj) monthlyEventQueue.push(eventObj);
+        }
+    });
+}
+
+
+/**
  * Xử lý tuần tự từng sự kiện trong Hàng đợi
  */
+/**
 /**
  * Xử lý tuần tự từng sự kiện trong Hàng đợi sự kiện đầu tháng
  */
@@ -74,14 +195,14 @@ function processNextMonthlyEvent() {
     if (monthlyEventQueue.length === 0) return;
 
     const ev = monthlyEventQueue.shift();
+    const pName = gameState.name || "bạn"; // Biến bắt tên
 
-    // Đánh dấu sự kiện unique đã xuất hiện
     if (ev.is_unique && !gameState.completedEvents.includes(ev.id)) {
         gameState.completedEvents.push(ev.id);
     }
 
-    // 🚀 1. TÍNH TOÁN SỐ TIỀN CHU CẤP ĐỘNG ĐỂ HIỂN THỊ RA MODAL
-    let finalDescription = ev.description;
+    // Tự động dịch mã {NAME} trong file JSON thành Tên nhân vật
+    let finalDescription = ev.description.replace(/{NAME}/g, pName);
     let calculatedAllowance = 0;
 
     const hasAllowanceChoice = ev.choices && ev.choices.some(c => c.is_allowance_calc);
@@ -90,28 +211,23 @@ function processNextMonthlyEvent() {
         const father = (gameState.relationships || []).find(r => r.id === "father");
         calculatedAllowance = (father && father.level < 0) ? Math.floor(bg.allowance * 0.3) : bg.allowance;
 
-        // Gắn thẳng số tiền thực nhận vào đoạn mô tả để người chơi đọc được trước khi bấm
-        finalDescription = `${ev.description}\n\n💵 Tiền chu cấp thực nhận tháng này: +${calculatedAllowance}$`;
+        finalDescription = `${finalDescription}\n\n💵 Tiền chu cấp thực nhận tháng này: +${calculatedAllowance}$`;
     }
 
     const parsedChoices = ev.choices.map(choiceJSON => {
         return {
-            text: choiceJSON.text,
+            text: choiceJSON.text.replace(/{NAME}/g, pName), // Dịch {NAME} ở nút bấm
             action: function () {
                 let actualRewardMoney = choiceJSON.reward_money || 0;
-                if (choiceJSON.is_allowance_calc) {
-                    actualRewardMoney = calculatedAllowance;
-                }
+                if (choiceJSON.is_allowance_calc) actualRewardMoney = calculatedAllowance;
 
-                // Kiểm tra điều kiện tài chính (req_money)
                 if (choiceJSON.req_money && (gameState.money || 0) < choiceJSON.req_money) {
                     if (typeof triggerScreenShake === 'function') triggerScreenShake();
-                    if (choiceJSON.fail_msg) alert(choiceJSON.fail_msg);
+                    if (choiceJSON.fail_msg) alert(choiceJSON.fail_msg.replace(/{NAME}/g, pName));
                     if (choiceJSON.fail_npc_change && choiceJSON.npc_targets && typeof interactWithNPC === 'function') {
                         choiceJSON.npc_targets.forEach(npcId => interactWithNPC(npcId, {}, choiceJSON.fail_npc_change));
                     }
                 } else {
-                    // Thành công: Trừ chi phí & Cộng phần thưởng
                     if (choiceJSON.cost_money) {
                         gameState.money -= choiceJSON.cost_money;
                         if (typeof showFloatingText === 'function') showFloatingText('money', `-${choiceJSON.cost_money}$`, 'neg');
@@ -120,44 +236,38 @@ function processNextMonthlyEvent() {
 
                     if (actualRewardMoney) {
                         gameState.money = (gameState.money || 0) + actualRewardMoney;
-
-                        // 🚀 2. KÍCH HOẠT HIỆU ỨNG SỐ TIỀN BAY LÊN (FLOATING TEXT) KHI NHẬN TIỀN
-                        if (typeof showFloatingText === 'function') {
-                            showFloatingText('money', `+${actualRewardMoney}$`, 'pos');
-                        }
+                        if (typeof showFloatingText === 'function') showFloatingText('money', `+${actualRewardMoney}$`, 'pos');
                     }
 
                     if (choiceJSON.reward_happiness) gameState.happiness = Math.min(100, (gameState.happiness || 70) + choiceJSON.reward_happiness);
                     if (choiceJSON.reward_ego) gameState.ego = Math.min(100, (gameState.ego || 30) + choiceJSON.reward_ego);
 
-                    // Tác động NPC
                     if (choiceJSON.npc_change && choiceJSON.npc_targets && typeof interactWithNPC === 'function') {
                         choiceJSON.npc_targets.forEach(npcId => interactWithNPC(npcId, {}, choiceJSON.npc_change));
                     }
 
-                    if (choiceJSON.success_msg) alert(choiceJSON.success_msg);
+                    if (choiceJSON.success_msg) alert(choiceJSON.success_msg.replace(/{NAME}/g, pName));
                 }
 
-                // Lưu & Cập nhật UI
                 if (typeof saveGameState === 'function') saveGameState();
                 if (typeof renderGameState === 'function') renderGameState();
 
-                // Đóng Modal hiện tại và gọi Đệ quy quét sự kiện tiếp theo
                 document.getElementById("event-modal").classList.add("hidden");
                 setTimeout(processNextMonthlyEvent, 300);
             }
         };
     });
 
-    // Gọi Engine UI hiển thị Modal với mô tả động đã có số tiền
     showEventModal({
         tag: ev.tag,
         icon: ev.icon,
-        title: ev.title,
+        title: ev.title.replace(/{NAME}/g, pName),
         description: finalDescription,
         choices: parsedChoices
     });
 }
+
+
 /**
  * =================================================================
  * ZONE 3: DYNAMIC MID-MONTH EVENT SPAWNER (SINH SỰ KIỆN GIỮA THÁNG)
@@ -232,12 +342,18 @@ function checkDynamicMidMonthEvents() {
         targetNPC = gameState.relationships[Math.floor(Math.random() * gameState.relationships.length)];
     }
 
+        const pName = gameState.name || "bạn";
     let dynamicPrompt = ev.prompt || ev.description || "Có chuyện gì đó vừa xảy ra...";
+    
+    // Tự động dịch mã {NAME} và {NPC_NAME}
+    dynamicPrompt = dynamicPrompt.replace(/{NAME}/g, pName);
+    
     if (targetNPC) {
-        dynamicPrompt = dynamicPrompt.replace("{NPC_NAME}", `${targetNPC.name} (${targetNPC.relation})`);
+        dynamicPrompt = dynamicPrompt.replace(/{NPC_NAME}/g, `${targetNPC.name} (${targetNPC.relation})`);
     } else {
-        dynamicPrompt = dynamicPrompt.replace("{NPC_NAME}", "Người quen");
+        dynamicPrompt = dynamicPrompt.replace(/{NPC_NAME}/g, "Người quen");
     }
+
 
     currentActiveDialogueEvent = {
         id: ev.id,

@@ -224,12 +224,17 @@ function showAdminPanel(show) {
  * Xử lý Reset Nhân vật từ Admin Panel
  */
 function handleAdminResetCharacter() {
-    const confirmReset = confirm("⚠️ CẢNH BÁO: Bạn có chắc chắn muốn RESET toàn bộ nhân vật và tiến trình chơi về lại từ đầu?");
-    if (confirmReset) {
-        if (typeof resetCharacter === 'function') {
-            resetCharacter();
-        }
-    }
+    showGameConfirm(
+        "CẢNH BÁO: Bạn có chắc chắn muốn RESET toàn bộ nhân vật và tiến trình chơi về lại từ đầu? Mọi dữ liệu sẽ bị xóa sạch!",
+        function() {
+            if (typeof resetCharacter === 'function') {
+                resetCharacter();
+            }
+        },
+        "Xác Nhận Tái Sinh",
+        "🔄",
+        "🛠️ System Debug"
+    );
 }
 
 /**
@@ -408,4 +413,47 @@ function showGameConfirm(message, onConfirm, title = "Xác Nhận Hành Động"
 
     // Hiển thị modal
     modal.classList.remove("hidden");
+}
+
+/**
+ * Hiển thị bảng nhập liệu mang phong cách game thay thế cho prompt() mặc định
+ */
+function showGamePrompt(message, defaultValue, onConfirm, title = "Nhập Dữ Liệu", icon = "✏️", tag = "⚠️ Yêu Cầu") {
+    const modal = document.getElementById("game-prompt-modal");
+    if (!modal) {
+        // Fallback an toàn nếu chưa nhúng HTML
+        const val = prompt(message, defaultValue);
+        if (val !== null && typeof onConfirm === 'function') onConfirm(val);
+        return;
+    }
+
+    document.getElementById("prompt-modal-title").innerText = title;
+    document.getElementById("prompt-modal-description").innerText = message;
+    document.getElementById("prompt-modal-icon").innerText = icon;
+    document.getElementById("prompt-modal-tag").innerText = tag;
+    
+    const inputEl = document.getElementById("prompt-modal-input");
+    inputEl.value = defaultValue || "";
+
+    const okBtn = document.getElementById("prompt-modal-ok-btn");
+    const cancelBtn = document.getElementById("prompt-modal-cancel-btn");
+
+    // Clone node để dọn dẹp các sự kiện click rác của lần mở trước
+    const newOkBtn = okBtn.cloneNode(true);
+    const newCancelBtn = cancelBtn.cloneNode(true);
+    okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+    cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+    newOkBtn.onclick = function() {
+        modal.classList.add("hidden");
+        if (typeof onConfirm === 'function') onConfirm(inputEl.value);
+    };
+
+    newCancelBtn.onclick = function() {
+        modal.classList.add("hidden");
+    };
+
+    modal.classList.remove("hidden");
+    // Tự động focus vào ô nhập số sau khi modal bật lên
+    setTimeout(() => inputEl.focus(), 100);
 }

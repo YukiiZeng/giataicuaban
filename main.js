@@ -515,50 +515,95 @@ function handlePayDebt() {
     if (!gameState || !gameState.debt || gameState.debt <= 0) return;
     
     const currentDebt = gameState.debt;
-    const currentMoney = gameState.money || 0;
+    const currentMoney = gameState.money ?? 0;
     
     if (currentMoney <= 0) {
         return alert("❌ Cảnh sát trưởng: Bạn không có đồng nào trong túi để trả nợ!");
     }
     
-    // Gợi ý số tiền trả mặc định là trả hết (nếu đủ tiền) hoặc trả tối đa số tiền đang có
     const maxPayable = Math.min(currentDebt, currentMoney);
     
-    const amountStr = prompt(`📉 TÌNH TRẠNG CÔNG NỢ:\n- Bạn đang nợ: ${currentDebt.toLocaleString()} $\n- Tiền trong ví: ${currentMoney.toLocaleString()} $\n\nNhập số tiền bạn muốn thanh toán:`, maxPayable);
-    
-    if (amountStr === null || amountStr.trim() === "") return; // Người chơi bấm Hủy
-    
-    // Lọc bỏ các ký tự không phải số
-    const amount = parseInt(amountStr.replace(/[^0-9]/g, ''));
-    
-    if (isNaN(amount) || amount <= 0) {
-        return alert("❌ Số tiền nhập không hợp lệ!");
-    }
-    
-    if (amount > currentMoney) {
-        return alert("❌ Bạn không đủ tiền mặt để trả mức này!");
-    }
-    
-    if (amount > currentDebt) {
-        return alert("❌ Chà, bạn không cần phải trả dư số tiền đang nợ đâu!");
-    }
-    
-    // Trừ tiền, trừ nợ
-    gameState.money -= amount;
-    gameState.debt -= amount;
-    
-    // Ghi sổ sao kê & Nhật ký
-    if (typeof addTransactionHistory === 'function') addTransactionHistory("💳 Thanh toán công nợ", -amount);
-    if (typeof addDailyLog === 'function') addDailyLog(`Đã trả nợ ${amount.toLocaleString()} $. Nợ còn lại: ${gameState.debt.toLocaleString()} $.`);
-    
-    alert(`✅ Bạn đã thanh toán ${amount.toLocaleString()} $ tiền nợ!\nNợ còn lại: ${gameState.debt.toLocaleString()} $`);
-    
-    // Lưu và Load lại UI
-    saveGameState();
-    renderGameState();
-    renderOverviewReport();
+    // Sử dụng Custom Prompt thay thế cho prompt() xấu xí
+    showGamePrompt(
+        `📉 TÌNH TRẠNG CÔNG NỢ:\n- Bạn đang nợ: ${currentDebt.toLocaleString()} $\n- Tiền trong ví: ${currentMoney.toLocaleString()} $\n\nNhập số tiền bạn muốn thanh toán:`,
+        maxPayable,
+        function(amountStr) {
+            const amount = parseInt(amountStr.replace(/[^0-9]/g, ''));
+            
+            if (isNaN(amount) || amount <= 0) {
+                return alert("❌ Số tiền nhập không hợp lệ!");
+            }
+            if (amount > currentMoney) {
+                return alert("❌ Bạn không đủ tiền mặt để trả mức này!");
+            }
+            if (amount > currentDebt) {
+                return alert("❌ Chà, bạn không cần phải trả dư số tiền đang nợ đâu!");
+            }
+            
+            // Dùng hàm modifyStat (đã tạo ở bước tối ưu trước) để tính toán an toàn
+            modifyStat('money', -amount);
+            modifyStat('debt', -amount);
+            
+            if (typeof addTransactionHistory === 'function') addTransactionHistory("💳 Thanh toán công nợ", -amount);
+            if (typeof addDailyLog === 'function') addDailyLog(`Đã trả nợ ${amount.toLocaleString()} $. Nợ còn lại: ${(gameState.debt ?? 0).toLocaleString()} $.`);
+            
+            alert(`✅ Bạn đã thanh toán ${amount.toLocaleString()} $ tiền nợ!\nNợ còn lại: ${(gameState.debt ?? 0).toLocaleString()} $`);
+            
+            saveGameState();
+            renderGameState();
+            if (typeof renderOverviewReport === 'function') renderOverviewReport();
+        },
+        "Thanh Toán Nợ",
+        "💳",
+        "📉 CÔNG NỢ"
+    );
 }
 
+
+/**
+ * Hiển thị bảng Tương tác chi tiết với một NPC cụ thể
+ */
+function showNPCInteractionModal(npcId, show) {
+    const modal = document.getElementById("npc-interaction-modal");
+    if (!modal) return;
+
+    if (!show || !npcId) {
+        modal.classList.add("hidden");
+        return;
+    }
+
+    const npc = gameState.relationships.find(r => r.id === npcId);
+    if (!npc) return;
+
+    // Cập nhật thông tin lên UI
+    setElementText("npc-modal-name", npc.name);
+    setElementText("npc-modal-relation", npc.relation);
+    document.getElementById("npc-modal-icon").innerText = npc.icon || "👤";
+
+    // Khởi tạo các nút tương tác
+    const actionsContainer = document.getElementById("npc-interaction-actions");
+    
+    // Nút Xin Tiền (Chỉ hiện nếu là Bố/Mẹ)
+    const askMoneyBtnHTML = (npc.id === 'father' || npc.id === 'mother') ? `
+        <button onclick="handleAskForMoney('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-amber-300/40">
+            <span>💸</span> Xin Hỗ Trợ Tài Chính
+        </button>
+    ` : '';
+
+    actionsContainer.innerHTML = `
+        <button onclick="handleHangoutWithNPC('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-teal-300/40">
+            <span>☕</span> Rủ Đi Ăn / Cafe (-30$)
+        </button>
+        
+        ${askMoneyBtnHTML}
+
+        <button onclick="alert('Tính năng Trò chuyện NLP đang gắn kết...'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-300/40 mt-1">
+            <span>💬</span> Trò Chuyện Tâm Sự
+        </button>
+    `;
+
+    modal.classList.remove("hidden");
+}
 
 
 /**
@@ -597,21 +642,31 @@ function renderRelationships() {
         
         const item = document.createElement("div");
         item.className = "glass-card-inner-light p-3 rounded-2xl flex items-center justify-between border border-amber-300/40 shrink-0 gap-2";
-        item.innerHTML = `
-            <div class="flex items-center gap-2.5">
-                <span class="text-2xl">${rel.icon || '👤'}</span>
-                <div class="flex flex-col">
-                    <span class="text-xs font-extrabold text-amber-950">${rel.name} (${rel.relation})</span>
-                    <span class="text-xs tracking-widest mt-0.5">${tier.icons}</span>
+                item.innerHTML = `
+            <div class="flex flex-col w-full gap-2">
+                <!-- Thông tin & Nút Tương tác -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-3xl drop-shadow-sm">${rel.icon || '👤'}</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-extrabold text-amber-950">${rel.name} <span class="text-[9px] text-amber-800/80">(${rel.relation})</span></span>
+                            <span class="text-[10px] tracking-widest mt-0.5">${tier.icons}</span>
+                        </div>
+                    </div>
+                    <button onclick="showNPCInteractionModal('${rel.id}', true)" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] shadow-sm active:scale-95 border border-amber-300/40">
+                        Tương Tác
+                    </button>
                 </div>
-            </div>
-            <div class="flex flex-col items-end gap-1 w-28">
-                <div class="flex justify-between w-full text-[9px] font-extrabold text-amber-900">
-                    <span class="truncate">${tier.label}</span>
-                    <span class="font-mono">${tier.xpText}</span>
-                </div>
-                <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/50">
-                    <div class="${tier.barColor} h-full rounded-full transition-all duration-300 shadow-sm" style="width: ${tier.progressPercent}%"></div>
+
+                <!-- Thanh Level Tình Cảm -->
+                <div class="flex flex-col items-end gap-1 w-full mt-1">
+                    <div class="flex justify-between w-full text-[9px] font-extrabold text-amber-900">
+                        <span class="truncate">${tier.label}</span>
+                        <span class="font-mono">${tier.xpText}</span>
+                    </div>
+                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/50">
+                        <div class="${tier.barColor} h-full rounded-full transition-all duration-300 shadow-sm" style="width: ${tier.progressPercent}%"></div>
+                    </div>
                 </div>
             </div>
         `;

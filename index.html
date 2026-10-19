@@ -685,7 +685,8 @@
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="block text-xs font-bold text-amber-900 mb-1">Tên nhân vật:</label>
-                    <input type="text" id="input-character-name" placeholder="Nhập tên..." value="Charlie" class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
+                    <input type="text" id="input-character-name" placeholder="Nhập tên..." value="" class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
+
                 </div>
                 
                 <div>
@@ -969,6 +970,31 @@
         </div>
     </div>
     
+        <!-- MODAL TƯƠNG TÁC NPC CHI TIẾT -->
+    <div id="npc-interaction-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[115] flex items-center justify-center p-4 hidden">
+        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
+            
+            <!-- Header Thông tin NPC -->
+            <div class="flex justify-between items-start border-b border-amber-900/10 pb-3">
+                <div class="flex items-center gap-3">
+                    <span id="npc-modal-icon" class="text-4xl drop-shadow-md">👤</span>
+                    <div class="flex flex-col">
+                        <span id="npc-modal-name" class="font-serif font-black text-amber-950 text-lg">Tên NPC</span>
+                        <span id="npc-modal-relation" class="text-xs font-bold text-amber-800/80 uppercase">Quan hệ</span>
+                    </div>
+                </div>
+                <button onclick="showNPCInteractionModal(null, false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2 py-1 bg-amber-200/50 rounded-lg">✕</button>
+            </div>
+
+            <!-- Các nút hành động -->
+            <div class="flex flex-col gap-2" id="npc-interaction-actions">
+                <!-- Sẽ được Render bằng JavaScript tùy thuộc vào NPC -->
+            </div>
+
+        </div>
+    </div>
+
+    
     
     <!-- 14. MODAL KẾT THÚC TRÒ CHƠI / GAME OVER -->
     <div id="game-over-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4 hidden">
@@ -993,7 +1019,31 @@
         </div>
     </div>
     
-    
+        <!-- 15. MODAL NHẬP DỮ LIỆU TÙY CHỈNH (CUSTOM PROMPT) -->
+    <div id="game-prompt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[110] flex items-center justify-center p-4 hidden">
+        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
+            <div class="text-center flex flex-col items-center">
+                <span id="prompt-modal-tag" class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-2">✏️ Nhập Liệu</span>
+                <div class="text-3xl mb-1" id="prompt-modal-icon">💳</div>
+                <h2 id="prompt-modal-title" class="font-serif font-black text-amber-950 text-lg">Thanh Toán</h2>
+            </div>
+            
+            <div class="glass-card-inner-light p-3.5 rounded-2xl border border-amber-300/40">
+                <p id="prompt-modal-description" class="text-xs font-bold text-amber-950 leading-relaxed text-center mb-3">Nội dung...</p>
+                <input type="number" id="prompt-modal-input" class="w-full bg-white/90 border border-amber-300 rounded-xl px-3 py-2.5 text-sm font-black text-amber-950 focus:outline-none focus:border-amber-500 shadow-inner text-center" placeholder="Nhập số...">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 mt-1">
+                <button id="prompt-modal-cancel-btn" class="py-3 px-4 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-display font-extrabold rounded-2xl text-xs shadow-sm transition-all active:scale-95 border border-amber-300 text-center">
+                    Hủy Bỏ
+                </button>
+                <button id="prompt-modal-ok-btn" class="py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-amber-300/40 text-center">
+                    Xác Nhận
+                </button>
+            </div>
+        </div>
+    </div>
+
     
     <!-- ================================================================= -->
     <!-- ZONE 5: THIRD-PARTY LIBRARIES & SCRIPT INJECTION (KẾT NỐI SCRIPTS) -->
@@ -1018,6 +1068,7 @@
     </script>
     
     <!-- App Scripts theo đúng thứ tự khởi chạy -->
+    <script src="npcs.js"></script>  <!-- ĐẶT Ở ĐÂY -->
     <script src="ui.js"></script>
     <script src="logic.js"></script>
     <script src="main.js"></script>
@@ -1025,6 +1076,9 @@
     <script src="jobs.js"></script>
     <script src="education.js"></script>
     <script src="shop.js"></script>
+</body>
+</html>
+
 </body>
 
 </html>
