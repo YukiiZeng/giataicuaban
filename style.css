@@ -263,7 +263,6 @@ body[data-city="phon_hoa"] #bottom-nav-menu span {
 }
 
 /* =================================================================
-<<<<<<< HEAD
    ZONE 8: ARC RADIAL MENU (MENU VÒNG CUNG HIGHCAPACITY / 3D GLOSS)
    ================================================================= */
 #arc-radial-menu {
@@ -280,21 +279,11 @@ body[data-city="phon_hoa"] #bottom-nav-menu span {
 .arc-item {
     position: absolute;
     bottom: 10px;
-=======
-   ARC RADIAL MENU & SIDEBAR ANIMATIONS
-   ================================================================= */
-
-/* Vị trí xuất phát của các nút vòng cung (Gọn sau nút chính) */
-.arc-item {
-    position: absolute;
-    bottom: 20px;
->>>>>>> dd63ffbddca0c84c2107b727ddeee84f4a934fcd
     left: 50%;
     transform: translate(-50%, 0) scale(0);
     opacity: 0;
     pointer-events: none;
     transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-<<<<<<< HEAD
     border: 2px solid rgba(255, 255, 255, 0.85) !important;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -383,28 +372,3 @@ body[data-city="phon_hoa"] #bottom-nav-menu span {
     border-radius: 1.25rem !important;
 }
 
-=======
-}
-
-/* Xòe ra các vị trí hình vòng cung trên nút chính */
-#arc-radial-menu.active .arc-item:nth-child(1) {
-    transform: translate(calc(-50% - 95px), -45px) scale(1);
-    opacity: 1;
-    pointer-events: auto;
-}
-#arc-radial-menu.active .arc-item:nth-child(2) {
-    transform: translate(calc(-50% - 40px), -105px) scale(1);
-    opacity: 1;
-    pointer-events: auto;
-}
-#arc-radial-menu.active .arc-item:nth-child(3) {
-    transform: translate(calc(-50% + 40px), -105px) scale(1);
-    opacity: 1;
-    pointer-events: auto;
-}
-#arc-radial-menu.active .arc-item:nth-child(4) {
-    transform: translate(calc(-50% + 95px), -45px) scale(1);
-    opacity: 1;
-    pointer-events: auto;
-}
->>>>>>> dd63ffbddca0c84c2107b727ddeee84f4a934fcd
