@@ -233,7 +233,7 @@ function renderInventoryModalList() {
         card.innerHTML = `
             <div class="flex items-center gap-2.5">
                 <span class="text-2xl">${item.icon || '📦'}</span>
-                <div class="flex flex-col">
+                <div class="flex flex -col">
                     <span class="text-xs font-extrabold text-amber-950">${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ''}</span>
                     <span class="text-[10px] text-amber-800/80">${item.description}</span>
                 </div>
@@ -247,6 +247,7 @@ function renderInventoryModalList() {
 }
 
 function showShopModal(show) {
+    closeAllModals(); // Đóng tất cả modal khác trước
     const modal = document.getElementById("shop-modal");
     if (modal) {
         if (show) { renderShopModalList(); modal.classList.remove("hidden"); }

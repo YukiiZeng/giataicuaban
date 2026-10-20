@@ -456,6 +456,7 @@ function renderEducationModalList() {
 }
 
 function showEducationModal(show) {
+    closeAllModals(); // Đóng tất cả modal khác trước
     const modal = document.getElementById("education-modal");
     if (modal) {
         if (show) {

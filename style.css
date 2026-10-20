@@ -1,27 +1,55 @@
 /* =================================================================
-   ZONE 1: BASE STYLES & OVERRIDES (ĐỊNH DẠNG CƠ BẢN)
+   ZONE 1: BASE STYLES & PHONE WRAPPER (CƠ BẢN & KHUNG ĐIỆN THOẠI)
    ================================================================= */
+html,
+body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+}
+
 body {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    background: linear-gradient(135deg, #fdfbf7 0%, #fceddd 50%, #f7e8d8 100%);
-    background-attachment: fixed;
-    color: #2d2420;
+    /* Dùng biến --bg-main để thay đổi màu nền linh hoạt theo thành phố */
+    background: var(--bg-main, #fceddd) !important; 
+    color: var(--text-main, #2d2420);
+    display: flex;
+    flex-direction: column; /* Đổi thành column để các thành phần xếp dọc chuẩn giao diện mobile */
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 16px 0;
+    transition: background 0.5s ease; /* Thêm hiệu ứng chuyển màu mượt mà khi đổi thành phố */
+}
+
+/* Đảm bảo khung game luôn căn giữa màn hình di động */
+#main-game-view,
+#overview-report-view,
+#health-care-view {
+    width: 100%;
+    max-width: 28rem; /* Tương đương max-w-md (448px) */
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 6rem !important; /* Tránh bị thanh menu dưới che khuất nội dung */
 }
 
 /* =================================================================
    ZONE 2: UI COMPONENTS (HIỆU ỨNG KÍNH & BẢNG GỖ)
    ================================================================= */
 .glass-card-light {
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--card-bg, rgba(255, 255, 255, 0.85)) !important;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(251, 191, 36, 0.25);
-    box-shadow: 0 10px 30px -5px rgba(180, 83, 9, 0.08);
+    border: 1px solid var(--border-color, rgba(251, 191, 36, 0.25)) !important;
+    color: var(--text-main, #2d2420) !important;
+    box-shadow: var(--glow-shadow, 0 10px 30px -5px rgba(180, 83, 9, 0.08)) !important;
+    transition: all 0.4s ease;
 }
 
 .glass-card-inner-light {
-    background: rgba(254, 243, 199, 0.35);
-    border: 1px solid rgba(245, 158, 11, 0.15);
+    background: var(--card-inner, rgba(254, 243, 199, 0.35)) !important;
+    border: 1px solid var(--border-color, rgba(245, 158, 11, 0.15)) !important;
+    color: var(--text-main, #2d2420) !important;
+    transition: all 0.4s ease;
 }
 
 .wooden-sign {
@@ -35,7 +63,7 @@ body {
     position: relative;
 }
 
-.wooden-sign::before, 
+.wooden-sign::before,
 .wooden-sign::after {
     content: '';
     position: absolute;
@@ -43,9 +71,10 @@ body {
     height: 7px;
     background: radial-gradient(circle, #fef3c7 20%, #78350f 80%);
     border-radius: 50%;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.6);
     top: 6px;
 }
+
 .wooden-sign::before { left: 8px; }
 .wooden-sign::after { right: 8px; }
 
@@ -67,51 +96,40 @@ body {
 /* =================================================================
    ZONE 4: ANIMATIONS & KEYFRAMES (HIỆU ỨNG CHUYỂN ĐỘNG)
    ================================================================= */
-
-/* 1. Bảng tin chạy chữ (Marquee) */
 @keyframes marquee {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
 }
+
 .animate-marquee {
     display: inline-block;
     animation: marquee 48s linear infinite;
 }
-.animate-marquee:hover {
-    animation-play-state: paused;
-}
+.animate-marquee:hover { animation-play-state: paused; }
 
-/* 2. Số bay lên (Floating Text) khi nhận lương / trừ tiền */
 @keyframes floatUpFade {
     0% { opacity: 1; transform: translateY(0) scale(1); }
     100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
 }
+
 .animate-float-up {
     animation: floatUpFade 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     pointer-events: none;
     z-index: 50;
 }
 
-/* 3. Rung màn hình khi nhấn lỗi hoặc sự kiện trừ điểm */
 @keyframes shakeUI {
     0%, 100% { transform: translateX(0); }
     20%, 60% { transform: translateX(-5px); }
     40%, 80% { transform: translateX(5px); }
 }
-.animate-shake {
-    animation: shakeUI 0.3s ease-in-out;
-}
 
-/* 4. Modal bật/tắt mượt mà */
-.modal-transition {
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-}
+.animate-shake { animation: shakeUI 0.3s ease-in-out; }
+.modal-transition { transition: opacity 0.2s ease-out, transform 0.2s ease-out; }
 
 /* =================================================================
    ZONE 5: DYNAMIC CITY CSS VARIABLES & THEMES (GIAO DIỆN ĐỘNG)
    ================================================================= */
-
-/* Định nghĩa màu sắc mặc định (Thành phố Ung Dung - Ấm áp, Mộc mạc) */
 body {
     --bg-main: linear-gradient(135deg, #fdfbf7 0%, #fceddd 50%, #f7e8d8 100%);
     --text-main: #2d2420;
@@ -119,63 +137,51 @@ body {
     --card-inner: rgba(254, 243, 199, 0.35);
     --border-color: rgba(251, 191, 36, 0.3);
     --glow-shadow: 0 10px 30px -5px rgba(180, 83, 9, 0.08);
-
-    background: var(--bg-main);
-    color: var(--text-main);
-    background-attachment: fixed;
-    transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* 1. Thành phố Vội Vàng (Sleek Cyber / Ánh Sáng Xanh Công Nghệ) */
+/* 1. Thành phố Vội Vàng (Phong cách Mint Pastel sang trọng & tươi mát) */
 body[data-city="voi_vang"] {
-    --bg-main: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
-    --text-main: #f8fafc;
-    /* Giảm opacity xuống 0.55 để lộ hiệu ứng kính mờ thực sự */
-    --card-bg: rgba(15, 23, 42, 0.55);
-    --card-inner: rgba(30, 41, 59, 0.5);
-    --border-color: rgba(56, 189, 248, 0.4); /* Viền Xanh Cyan */
-    --glow-shadow: 0 8px 32px 0 rgba(56, 189, 248, 0.2);
+    --bg-main: linear-gradient(135deg, #6fdfc1 0%, #1f7c66 50%, #125f5e 100%);
+    --text-main: #f0fdf4;
+    --card-bg: rgba(67, 121, 103, 0.65);
+    --card-inner: rgba(11, 255, 227, 0.15);
+    --border-color: rgba(3, 29, 25, 0.4);
+    --glow-shadow: 0 8px 32px 0 rgba(20, 184, 166, 0.25);
 }
 
-/* 2. Thành phố Phồn Hoa (Luxury Neon / Tím Hồng Quyến Rũ) */
+/* Tùy chỉnh riêng viền và hiệu ứng cho Thành phố Vội Vàng */
+body[data-city="voi_vang"] [class*="border-amber-3"] { 
+    border-color: rgba(94, 234, 212, 0.35) !important; 
+}
+
+/* Biển tên khi ở Thành phố Vội Vàng sẽ mang sắc xanh bạc hà ánh kim cực kỳ hợp tông */
+body[data-city="voi_vang"] .wooden-sign h1 {
+    background: linear-gradient(to bottom, #99f6e4, #5eead4, #2dd4bf) !important;
+    background-clip: text !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+}
+
+/* 2. Thành phố Phồn Hoa */
 body[data-city="phon_hoa"] {
     --bg-main: linear-gradient(135deg, #2e1065 0%, #701a75 50%, #171717 100%);
     --text-main: #fdf2f8;
     --card-bg: rgba(46, 16, 101, 0.55);
     --card-inner: rgba(74, 4, 78, 0.5);
-    --border-color: rgba(236, 72, 153, 0.4); /* Viền Hồng Neon */
+    --border-color: rgba(236, 72, 153, 0.4);
     --glow-shadow: 0 8px 32px 0 rgba(236, 72, 153, 0.25);
 }
 
-/* Tự động áp dụng biến màu vào các thẻ kính (glass-card) */
-.glass-card-light {
-    background: var(--card-bg) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-main) !important;
-    box-shadow: var(--glow-shadow) !important;
-    transition: all 0.4s ease;
-}
-
-.glass-card-inner-light {
-    background: var(--card-inner) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-main) !important;
-    transition: all 0.4s ease;
-}
-
 /* =================================================================
-   🔥 MAGIC FIX: ÉP TỰ ĐỘNG ĐẢO MÀU TAILWIND ĐỂ KHỚP VỚI THEME TỐI
+   🔥 ĐẢO MÀU & TÙY CHỈNH THEO THEME TỐI
    ================================================================= */
-
-/* 1. Đảo màu chữ đen/nâu (amber-950, amber-900, amber-700) sang Trắng Sáng */
 body[data-city="voi_vang"] [class*="text-amber-9"],
 body[data-city="phon_hoa"] [class*="text-amber-9"],
 body[data-city="voi_vang"] [class*="text-amber-7"],
 body[data-city="phon_hoa"] [class*="text-amber-7"] {
     color: #ffffff !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 body[data-city="voi_vang"] [class*="text-amber-8"],
@@ -183,23 +189,20 @@ body[data-city="phon_hoa"] [class*="text-amber-8"] {
     color: #e2e8f0 !important;
 }
 
-/* 🛡️ Bảo vệ chữ trong các Nút (Button) không bị biến thành màu trắng (Giữ nguyên độ nổi) */
 body[data-city="voi_vang"] button [class*="text-amber-"],
 body[data-city="phon_hoa"] button [class*="text-amber-"],
 body[data-city="voi_vang"] button[class*="text-amber-"],
 body[data-city="phon_hoa"] button[class*="text-amber-"] {
-    color: #451a03 !important; 
+    color: #451a03 !important;
     text-shadow: none !important;
 }
 
-/* 2. Đổi các mảng nền tối mù (bg-amber-900/10) thành Kính trắng đục (Frosted Glass) sang trọng */
 body[data-city="voi_vang"] [class*="bg-amber-900"],
 body[data-city="phon_hoa"] [class*="bg-amber-900"] {
     background-color: rgba(255, 255, 255, 0.1) !important;
     border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-/* 3. Làm dịu Khung "Tài Sản" và các Badge vàng rực để không bị chói trên nền tối */
 body[data-city="voi_vang"] [class*="from-amber-100"],
 body[data-city="phon_hoa"] [class*="from-amber-100"],
 body[data-city="voi_vang"] [class*="bg-amber-200"],
@@ -209,65 +212,163 @@ body[data-city="phon_hoa"] [class*="bg-amber-200"] {
     border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-/* 4. Đổi viền cam nhạt thành viền Neon theo tone của từng thành phố */
-body[data-city="voi_vang"] [class*="border-amber-3"] {
-    border-color: rgba(56, 189, 248, 0.3) !important;
-}
-body[data-city="phon_hoa"] [class*="border-amber-3"] {
-    border-color: rgba(236, 72, 153, 0.3) !important;
-}
-/* 🛡️ Bảo vệ hiệu ứng chữ Gradient trên Bảng Gỗ không bị tàng hình */
+body[data-city="voi_vang"] [class*="border-amber-3"] { border-color: rgba(56, 189, 248, 0.3) !important; }
+body[data-city="phon_hoa"] [class*="border-amber-3"] { border-color: rgba(236, 72, 153, 0.3) !important; }
+
 body[data-city="voi_vang"] .wooden-sign h1,
 body[data-city="phon_hoa"] .wooden-sign h1 {
     background: linear-gradient(to bottom, #fef3c7, #fde68a, #fcd34d) !important;
+    background-clip: text !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     color: transparent !important;
 }
+
 /* =================================================================
-   ZONE 6: BOTTOM NAV BAR STYLES 
+   ZONE 6: BOTTOM NAV BAR & FIXED POSITIONING
    ================================================================= */
 #bottom-nav-menu {
-    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.15) !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 100% !important;
+    max-width: 28rem !important;
+    z-index: 9999 !important;
+    box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.15) !important;
     border-top: 1px solid var(--border-color) !important;
 }
 
-/* Đổi bóng tối hơn khi ở theme Vội Vàng / Phồn Hoa */
 body[data-city="voi_vang"] #bottom-nav-menu,
 body[data-city="phon_hoa"] #bottom-nav-menu {
     box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Tự động đổi màu chữ Nav Menu thành Trắng khi sang Theme Tối */
 body[data-city="voi_vang"] #bottom-nav-menu span,
 body[data-city="phon_hoa"] #bottom-nav-menu span {
     color: #e2e8f0 !important;
 }
 
-/* Hiệu ứng nền khung Icon sáng lên ở Theme Tối */
-body[data-city="voi_vang"] #bottom-nav-menu .nav-icon-bg,
-body[data-city="phon_hoa"] #bottom-nav-menu .nav-icon-bg {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
 /* =================================================================
-   ZONE 7: TV SCREEN & LED EFFECTS (HIỆU ỨNG TIVI)
+   ZONE 7: TV SCREEN & ARC RADIAL MENU
    ================================================================= */
-
-/* 1. Sọc nhiễu màn hình CRT */
 .tv-scanlines {
-    background: linear-gradient(
-        to bottom,
-        rgba(255,255,255,0),
-        rgba(255,255,255,0) 50%,
-        rgba(0,0,0,0.3) 50%,
-        rgba(0,0,0,0.3)
-    );
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.3));
     background-size: 100% 4px;
 }
 
-/* 2. Làm mờ 2 bên viền màn hình để chữ trượt vào/ra tự nhiên */
 .mask-edges {
     -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
     mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
 }
+
+/* =================================================================
+   ZONE 8: ARC RADIAL MENU (MENU VÒNG CUNG HIGHCAPACITY / 3D GLOSS)
+   ================================================================= */
+#arc-radial-menu {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 45;
+}
+
+.arc-item {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translate(-50%, 0) scale(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Hiệu ứng rê chuột vào từng nút */
+.arc-item:hover {
+    transform: scale(1.15) !important;
+}
+
+/* --- TÙY CHỈNH MÀU GRADIENT & BÓNG PHÁT SÁNG CHO TỪNG NÚT --- */
+
+/* 1. Nút Báo cáo (Vàng Amber Hoàng Gia) */
+.arc-btn-report {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%) !important;
+    box-shadow: 0 8px 20px -2px rgba(217, 119, 6, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 2. Nút Luyện tập (Xanh Ngọc Emerald Mới) */
+.arc-btn-workout {
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%) !important;
+    box-shadow: 0 8px 20px -2px rgba(5, 150, 105, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 3. Nút Sức khỏe (Đỏ Hồng Rose Sang Trọng) */
+.arc-btn-health {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%) !important;
+    box-shadow: 0 8px 20px -2px rgba(225, 29, 72, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 🌟 CĂN VỊ TRÍ XÒE CÂN ĐỐI 3 NÚT NHƯ CŨ 🌟 */
+#arc-radial-menu.active .arc-item:nth-child(1) { 
+    transform: translate(calc(-50% - 75px), -55px) scale(1) !important; 
+    opacity: 1; 
+    pointer-events: auto; 
+}
+
+#arc-radial-menu.active .arc-item:nth-child(2) { 
+    transform: translate(-50%, -100px) scale(1) !important; 
+    opacity: 1; 
+    pointer-events: auto; 
+}
+
+#arc-radial-menu.active .arc-item:nth-child(3) { 
+    transform: translate(calc(-50% + 75px), -55px) scale(1) !important; 
+    opacity: 1; 
+    pointer-events: auto; 
+}
+/* =================================================================
+   ZONE 9: PHONG CÁCH BIỂN TÊN TÙY CHỌN
+   ================================================================= */
+
+
+/* Kiểu 1: Mạ Vàng Hoàng Gia (Gold Luxury) */
+.wooden-sign.style-gold {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 50%, #b45309 100%) !important;
+    border: 2px solid #fef3c7 !important;
+    box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 4px rgba(146, 64, 14, 0.8) !important;
+    border-radius: 9999px !important;
+}
+
+/* Kiểu 2: Kính Mờ Hiện Đại (Glassmorphism) - Đã tinh chỉnh */
+.wooden-sign.style-glass {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(254, 243, 199, 0.5) 100%) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(251, 191, 36, 0.8) !important;
+    box-shadow: 
+        0 8px 32px 0 rgba(180, 83, 9, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+    border-radius: 9999px !important;
+}
+
+/* Đảm bảo chữ bên trong style-glass luôn hiển thị sắc nét */
+.wooden-sign.style-glass h1 {
+    color: #78350f !important;
+    -webkit-text-fill-color: #78350f !important;
+    text-shadow: none !important;
+}
+
+/* Kiểu 3: Gỗ Mộc Tinh Tế (Clean Modern Wood) */
+.wooden-sign.style-wood {
+    background: linear-gradient(180deg, #92400e 0%, #78350f 100%) !important;
+    border: 2px solid #fcd34d !important;
+    box-shadow: 0 6px 15px -3px rgba(120, 53, 15, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+    border-radius: 1.25rem !important;
+}
+

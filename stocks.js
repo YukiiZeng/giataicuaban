@@ -392,6 +392,7 @@ function renderPortfolioTab(container) {
 }
 
 function showStockModal(show) {
+    closeAllModals(); // Đóng tất cả modal khác trước
     const modal = document.getElementById("stock-market-modal");
     if (modal) {
         if (show) {
