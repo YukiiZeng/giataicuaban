@@ -220,6 +220,7 @@ body[data-city="phon_hoa"] [class*="border-amber-3"] {
 body[data-city="voi_vang"] .wooden-sign h1,
 body[data-city="phon_hoa"] .wooden-sign h1 {
     background: linear-gradient(to bottom, #fef3c7, #fde68a, #fcd34d) !important;
+    background-clip: text !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
     color: transparent !important;
@@ -270,4 +271,41 @@ body[data-city="phon_hoa"] #bottom-nav-menu .nav-icon-bg {
 .mask-edges {
     -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
     mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+}
+
+/* =================================================================
+   ARC RADIAL MENU & SIDEBAR ANIMATIONS
+   ================================================================= */
+
+/* Vị trí xuất phát của các nút vòng cung (Gọn sau nút chính) */
+.arc-item {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 0) scale(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Xòe ra các vị trí hình vòng cung trên nút chính */
+#arc-radial-menu.active .arc-item:nth-child(1) {
+    transform: translate(calc(-50% - 95px), -45px) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+#arc-radial-menu.active .arc-item:nth-child(2) {
+    transform: translate(calc(-50% - 40px), -105px) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+#arc-radial-menu.active .arc-item:nth-child(3) {
+    transform: translate(calc(-50% + 40px), -105px) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+#arc-radial-menu.active .arc-item:nth-child(4) {
+    transform: translate(calc(-50% + 95px), -45px) scale(1);
+    opacity: 1;
+    pointer-events: auto;
 }

@@ -284,19 +284,23 @@ function renderJobsModalList() {
     });
 }
 
-/**
- * Ẩn / Hiện Modal Tìm Việc Làm
- * @param {boolean} show 
- */
-function showJobsModal(show) {
-    const modal = document.getElementById("jobs-modal");
-    if (modal) {
-        if (show) {
-            renderJobsModalList();
-            modal.classList.remove("hidden");
-        } else {
-            modal.classList.add("hidden");
+// =================================================================
+// CẬP NHẬT HÀM MỞ MODAL VIỆC LÀM & TỰ ĐỘNG VẼ DỮ LIỆU
+// =================================================================
+function showJobsModal(show = true) {
+    const modal = document.getElementById('jobs-modal');
+    if (!modal) return;
+
+    if (show) {
+        modal.classList.remove('hidden');
+        // Kích hoạt vẽ dữ liệu công việc vào khung
+        if (typeof renderJobList === 'function') {
+            renderJobList();
+        } else if (typeof renderJobs === 'function') {
+            renderJobs();
         }
+    } else {
+        modal.classList.add('hidden');
     }
 }
 // BẢNG QUY ĐỔI BẰNG CẤP BẬC CAO
@@ -526,4 +530,73 @@ function showJobDetailModal(jobId, show) {
     }
 
     modal.classList.remove("hidden");
+}
+
+// =================================================================
+// HÀM RENDER VIỆC LÀM - AN TOÀN TỰ ĐỘNG BẮT MỌI CẤU TRÚC JSON
+// =================================================================
+async function renderJobList() {
+    const container = document.getElementById('jobs-modal-list') || document.getElementById('jobs-list');
+    if (!container) return;
+
+    let jobData = [];
+
+    // 1. Kiểm tra nếu đã có sẵn trong biến toàn cục
+    if (typeof JOBS_DATA !== 'undefined' && Array.isArray(JOBS_DATA) && JOBS_DATA.length > 0) {
+        jobData = JOBS_DATA;
+    } else {
+        try {
+            const response = await fetch('jobs.json');
+            const jsonRes = await response.json();
+            
+            // Xử lý nếu file jobs.json là Object chứa mảng bên trong
+            if (Array.isArray(jsonRes)) {
+                jobData = jsonRes;
+            } else if (jsonRes && Array.isArray(jsonRes.jobs)) {
+                jobData = jsonRes.jobs;
+            } else if (jsonRes && Array.isArray(jsonRes.data)) {
+                jobData = jsonRes.data;
+            } else if (jsonRes && typeof jsonRes === 'object') {
+                jobData = Object.values(jsonRes); // Ép từ Object thành Array
+            }
+            
+            window.JOBS_DATA = jobData; // Lưu đệm vào window
+        } catch (err) {
+            console.error("⚠️ Lỗi đọc hoặc ép kiểu file jobs.json:", err);
+        }
+    }
+
+    // 2. Kiểm tra lại nếu vẫn không phải mảng hoặc mảng rỗng
+    if (!Array.isArray(jobData) || jobData.length === 0) {
+        container.innerHTML = `<div class="text-center text-xs font-bold text-amber-900/60 py-6">⚠️ Chưa tải được danh sách việc làm từ jobs.json</div>`;
+        return;
+    }
+
+    // 3. Render danh sách ra HTML
+    container.innerHTML = jobData.map(job => {
+        if (!job || typeof job !== 'object') return '';
+
+        const id = job.id || job.jobId || 'job_default';
+        const title = job.title || job.name || job.jobName || job.tenCongViec || 'Công việc';
+        const icon = job.icon || job.emoji || '💼';
+        
+        const rawSalary = job.salary || job.baseSalary || job.income || job.luong || 0;
+        const salaryText = rawSalary ? `${Number(rawSalary).toLocaleString()} $/tháng` : 'Thỏa thuận';
+        
+        const req = job.reqText || job.description || job.req || job.requirements || job.moTa || 'Yêu cầu phù hợp';
+
+        return `
+            <div class="glass-card-inner-light p-3 rounded-2xl border border-amber-300/40 flex items-center justify-between gap-2 shadow-sm">
+                <div class="flex flex-col gap-0.5 max-w-[65%]">
+                    <span class="text-xs font-black text-amber-950 truncate">${icon} ${title}</span>
+                    <span class="text-[11px] font-black text-emerald-700 font-mono">${salaryText}</span>
+                    <span class="text-[9px] font-bold text-amber-800/80 truncate">${req}</span>
+                </div>
+                <button onclick="if(typeof applyJob==='function'){ applyJob('${id}'); } else if(typeof handleApplyJob==='function'){ handleApplyJob('${id}'); }" 
+                        class="py-1.5 px-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black rounded-xl text-[10px] shadow-md active:scale-95 transition flex-shrink-0">
+                    Ứng tuyển
+                </button>
+            </div>
+        `;
+    }).join('');
 }

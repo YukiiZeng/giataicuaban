@@ -3,15 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gia Tài Của Bạn - Life Simulator</title>
-    
+
     <!-- 1. STYLESHEETS & FONTS (TAILWIND & FONTS) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@800;900&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@800;900&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <!-- 2. TAILWIND CONFIG & CUSTOM STYLES -->
     <script>
         tailwind.config = {
@@ -26,97 +29,230 @@
             }
         }
     </script>
-    
+
     <!-- 3. LIÊN KẾT FILE CSS CHÍNH CỦA GAME -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="min-h-screen flex flex-col items-center py-6 px-3 selection:bg-amber-300 selection:text-amber-950">
-    
+
     <!-- ================================================================= -->
     <!-- ZONE 1: MAIN GAME VIEW (MÀN HÌNH CHÍNH GAME) -->
     <!-- ================================================================= -->
     <div id="main-game-view" class="w-full max-w-md mx-auto flex flex-col gap-3.5 pb-24">
-        
+
         <!-- HEADER: TIÊU ĐỀ, TÀI KHOẢN & ĐIỀU HƯỚNG VIEW -->
         <header class="text-center py-1 flex flex-col items-center gap-1.5 w-full">
-            <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full border border-amber-300/80 tracking-wider uppercase shadow-sm">
-                💸 Life Simulator
+            <span
+                class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full border border-amber-300/80 tracking-wider uppercase shadow-sm">
+                💸 Gia Tài Của Bạn
             </span>
-            
-            <div class="wooden-sign px-6 py-2.5 rounded-2xl max-w-[280px] w-full flex flex-col items-center justify-center">
-                <h1 class="font-serif font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-amber-200 to-amber-300 text-xl tracking-wide drop-shadow-[0_2px_3px_rgba(0,0,0,0.8)] uppercase">
-                    Gia Tài Của Bạn
-                </h1>
+
+            <!-- TOP BAR: MENU 3 GẠCH & LOGO -->
+<div class="w-full flex items-center justify-between px-4 py-2 relative z-30">
+    <!-- Nút Menu 3 gạch Gemini style -->
+    <button onclick="toggleSidebarMenu()" class="w-10 h-10 rounded-2xl glass-card-light flex items-center justify-center text-amber-950 font-bold text-xl hover:bg-amber-200/80 active:scale-95 transition shadow-sm">
+        ☰
+    </button>
+    
+    <!-- Title Game -->
+    <div class="wooden-sign px-4 py-1 rounded-2xl">
+        <h1 class="text-sm font-extrabold text-amber-100 uppercase tracking-widest">Gia Tài Của Bạn</h1>
+    </div>
+
+    <div class="w-10"></div> <!-- Placeholder cân bằng layout -->
+</div>
+
+<!-- SIDEBAR DRAWER (Trượt ra từ cánh trái) -->
+<div id="sidebar-drawer" class="fixed inset-0 z-50 pointer-events-none transition-all duration-300">
+    <!-- Backdrop mờ -->
+    <div id="sidebar-backdrop" onclick="toggleSidebarMenu()" class="absolute inset-0 bg-black/50 opacity-0 transition-opacity duration-300"></div>
+    
+    <!-- Menu Panel -->
+    <div id="sidebar-content" class="absolute top-0 left-0 bottom-0 w-72 glass-card-light p-5 -translate-x-full transition-transform duration-300 pointer-events-auto flex flex-col justify-between border-r border-amber-300/40 shadow-2xl">
+        <div>
+            <!-- Header Sidebar -->
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-amber-200/40">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🏛️</span>
+                    <div>
+                        <div class="text-xs font-black text-amber-950 uppercase">Menu Hệ Thống</div>
+                        <div class="text-[10px] text-amber-800/80">Gia Tài Của Bạn v2.0</div>
+                    </div>
+                </div>
+                <button onclick="toggleSidebarMenu()" class="w-7 h-7 rounded-full bg-amber-100 text-amber-950 font-bold flex items-center justify-center">✕</button>
             </div>
-            
-            <!-- Tài khoản Cloud -->
-            <div id="cloud-account-row" class="flex items-center justify-center gap-2 bg-amber-900/10 px-3.5 py-1 rounded-2xl border border-amber-800/20 backdrop-blur-sm mt-0.5 max-w-[300px] w-full">
-                <span class="text-xs">☁️</span>
-                <span class="text-[10px] font-bold text-amber-900/80">Tài khoản Cloud:</span>
-                <span id="cloud-username-display" class="text-xs font-black text-amber-950 truncate max-w-[140px]">Chưa đăng nhập</span>
-                
-                <button onclick="showAuthModal(true)" class="text-[9px] font-extrabold text-amber-900 bg-amber-200 hover:bg-amber-300 px-2 py-0.5 rounded-lg border border-amber-300/80 shadow-sm ml-auto active:scale-95 transition-all">
-                    <span id="auth-status-btn-text">Đăng nhập</span>
+
+            <!-- Các Nút Chức Năng Sidebar -->
+            <div class="flex flex-col gap-2">
+                <!-- NÚT ADMIN PANEL (Chỉ hiển thị nếu là Admin) -->
+                <button id="sidebar-admin-btn" onclick="openAdminModal(); toggleSidebarMenu();" class="w-full p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-900 font-bold rounded-2xl text-xs flex items-center gap-2 transition text-left hidden">
+                    <span>👑</span> Bảng Điều Khiển Admin (Debug)
+                </button>
+
+                <button onclick="saveGameToCloud(); toggleSidebarMenu();" class="w-full p-3 bg-amber-100/60 hover:bg-amber-200/80 border border-amber-300/40 text-amber-950 font-bold rounded-2xl text-xs flex items-center gap-2 transition text-left">
+                    <span>☁️</span> Lưu Game Lên Cloud
+                </button>
+
+                <button onclick="openSettingsModal(); toggleSidebarMenu();" class="w-full p-3 bg-amber-100/60 hover:bg-amber-200/80 border border-amber-300/40 text-amber-950 font-bold rounded-2xl text-xs flex items-center gap-2 transition text-left">
+                    <span>⚙️</span> Cài Đặt & Âm Thanh
+                </button>
+
+                <button onclick="resetGamePrompt(); toggleSidebarMenu();" class="w-full p-3 bg-amber-100/60 hover:bg-amber-200/80 border border-amber-300/40 text-amber-950 font-bold rounded-2xl text-xs flex items-center gap-2 transition text-left">
+                    <span>🔄</span> Chơi Lai Từ Đầu
                 </button>
             </div>
-            
-            <!-- Thông tin nhân vật -->
-            <div class="flex items-center justify-center gap-2 bg-amber-900/10 px-4 py-1.5 rounded-2xl border border-amber-800/20 backdrop-blur-sm max-w-[300px] w-full">
-                <span class="text-sm">👤</span>
-                <span id="player-name" class="font-display font-extrabold text-amber-950 text-sm truncate max-w-[100px]">Charlie</span>
-                <span id="player-gender" class="text-xs font-bold text-amber-800/80">(Nam)</span>
-                <span class="text-amber-800/40">•</span>
-                <span class="text-xs font-bold text-amber-900"><span id="player-age">16</span> tuổi</span>
+        </div>
+
+        <!-- Footer Sidebar -->
+        <div class="pt-4 border-t border-amber-200/40 text-center">
+            <span class="text-[10px] text-amber-800/60 font-semibold">Gia Tài Của Bạn © 2026</span>
+        </div>
+    </div>
+</div>
+
+            <!-- KHUNG NHÂN VẬT CÁ NHÂN HOÁ (CARD PROFILE 2.0) -->
+            <div id="character-profile-card"
+                class="relative overflow-hidden glass-card-light rounded-3xl p-4 border border-amber-300/40 shadow-xl flex items-center gap-4 transition-all duration-300">
+
+                <!-- Cụm Avatar 3D (Bên trái) -->
+                <div class="relative flex-shrink-0">
+                    <!-- Thêm onclick & cursor-pointer & hiệu ứng hover group -->
+                    <div onclick="openAvatarModal()" title="Bấm để đổi Avatar"
+                        class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#b45309] bg-gradient-to-tr from-[#78350f] to-[#fcd34d] p-0.5 shadow-lg relative overflow-hidden flex items-center justify-center cursor-pointer group">
+
+                        <img id="char-avatar" src="assets/avatars/boy-1.png" alt="Avatar"
+                            class="w-full h-full object-cover rounded-full transform group-hover:scale-105 transition duration-300"
+                            onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=Souli&backgroundColor=fceddd'" />
+
+                        <!-- Overlay Nút Đổi Ảnh nổi lên khi rê chuột vào -->
+                        <div
+                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white text-[10px] font-bold gap-0.5 rounded-full">
+                            <span class="text-sm">📷</span>
+                            <span>Đổi ảnh</span>
+                        </div>
+                    </div>
+
+                    <!-- Giới tính Badge nhỏ ở góc dưới -->
+                    <span id="char-gender-badge"
+                        class="absolute -bottom-1 -right-1 px-1.5 py-0.5 bg-amber-500 border border-amber-950/40 text-white text-[10px] font-extrabold rounded-full shadow-md flex items-center gap-0.5 pointer-events-none">
+                        <span id="gender-symbol">♂️</span> <span id="gender-text">NAM</span>
+                    </span>
+                </div>
+
+                <!-- 2. Cụm Thông tin chi tiết (Bên phải) -->
+                <div class="flex-grow flex flex-col gap-1.5">
+
+                    <!-- Hàng 1: Tên & Badge Tuổi -->
+                    <div class="flex items-center justify-between">
+                        <h2 id="char-name"
+                            class="text-xl font-extrabold text-amber-950 tracking-wide uppercase drop-shadow-sm flex items-center gap-1.5">
+                            SOULI
+                        </h2>
+                        <div
+                            class="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-600 border border-amber-700/30 text-amber-50 font-black text-xs uppercase tracking-wider rounded-xl shadow-sm animate-pulse-slow">
+                            <span id="char-age">16</span> Tuổi
+                        </div>
+                    </div>
+
+                    <!-- Hàng 2: Badge Danh hiệu / Học vấn & Cung hoàng đạo -->
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span id="char-title"
+                            class="px-2 py-0.5 bg-amber-100/80 border border-amber-200/50 text-amber-900 font-semibold text-[10.5px] rounded-lg">
+                            🎓 Học sinh THPT
+                        </span>
+                        <span id="char-zodiac" onclick="openZodiacModal()" title="Bấm để đổi Cung hoàng đạo"
+                            class="px-2 py-0.5 bg-amber-100/80 hover:bg-amber-200 border border-amber-200/50 text-amber-900 font-semibold text-[10.5px] rounded-lg flex items-center gap-1 cursor-pointer transition transform hover:scale-105 active:scale-95">
+                            ♊ Song Tử
+                        </span>
+                    </div>
+
+                    <!-- Hàng 3: Khung 4 chỉ số phụ thu gọn -->
+                    <div class="grid grid-cols-4 gap-1 mt-1 border-t border-amber-200/20 pt-1.5">
+                        <div class="text-center">
+                            <div class="text-[9px] font-semibold text-amber-800/80 uppercase">Sức mạnh</div>
+                            <div class="text-xs font-bold text-amber-950 flex items-center justify-center gap-0.5">
+                                💪 <span id="char-strength">65</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] font-semibold text-amber-800/80 uppercase">Ngoại hình</div>
+                            <div class="text-xs font-bold text-amber-950 flex items-center justify-center gap-0.5">
+                                ✨ <span id="char-looks">60</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] font-semibold text-amber-800/80 uppercase">Ăn nói</div>
+                            <div class="text-xs font-bold text-amber-950 flex items-center justify-center gap-0.5">
+                                🗣️ <span id="char-charm">58</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] font-semibold text-amber-800/80 uppercase">Cái tôi</div>
+                            <div class="text-xs font-bold text-amber-950 flex items-center justify-center gap-0.5">
+                                👑 <span id="char-ego">45</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-            
+
             <!-- Nút điều hướng View -->
             <div class="flex items-center justify-center gap-2 w-full max-w-[300px]">
-                <button onclick="switchView('report')" class="flex-1 py-1.5 px-2 bg-amber-300 hover:bg-amber-400 text-amber-950 font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-amber-400 flex items-center justify-center gap-1">
+                <button onclick="switchView('report')"
+                    class="flex-1 py-1.5 px-2 bg-amber-300 hover:bg-amber-400 text-amber-950 font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-amber-400 flex items-center justify-center gap-1">
                     <span>📊</span>
                     <span>Báo Cáo</span>
                 </button>
-                
-                <button onclick="switchView('health')" class="flex-1 py-1.5 px-2 bg-rose-200 hover:bg-rose-300 text-rose-950 font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-rose-300 flex items-center justify-center gap-1">
+
+                <button onclick="switchView('health')"
+                    class="flex-1 py-1.5 px-2 bg-rose-200 hover:bg-rose-300 text-rose-950 font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-rose-300 flex items-center justify-center gap-1">
                     <span>🏥</span>
                     <span>Sức Khỏe</span>
                 </button>
-                
-                <button id="admin-panel-btn" onclick="showAdminPanel(true)" class="hidden py-1.5 px-2.5 bg-gradient-to-r from-rose-500 to-red-600 text-white font-extrabold rounded-xl text-[10px] shadow-sm active:scale-95 border border-rose-300">
+
+                <button id="admin-panel-btn" onclick="showAdminPanel(true)"
+                    class="hidden py-1.5 px-2.5 bg-gradient-to-r from-rose-500 to-red-600 text-white font-extrabold rounded-xl text-[10px] shadow-sm active:scale-95 border border-rose-300">
                     🛠️
                 </button>
             </div>
         </header>
-        
+
         <!-- DASHBOARD CHỈ SỐ SINH TỒN & NĂNG LỰC -->
-        <section class="w-full glass-card-light rounded-3xl p-4 shadow-xl flex flex-col gap-3 border border-amber-300/60">
+        <section
+            class="w-full glass-card-light rounded-3xl p-4 shadow-xl flex flex-col gap-3 border border-amber-300/60">
             <!-- Thời gian & Tiền -->
             <div class="grid grid-cols-2 gap-2 pb-2.5 border-b border-amber-900/10">
                 <div class="flex items-center gap-2 bg-amber-900/5 px-3 py-2 rounded-2xl border border-amber-900/10">
                     <span class="text-xl">📅</span>
                     <div>
                         <span class="text-[9px] text-amber-800/80 block font-bold">THỜI GIAN</span>
-                        <span class="text-xs font-extrabold text-amber-900 font-mono">Tháng <span id="month">1</span></span>
+                        <span class="text-xs font-extrabold text-amber-900 font-mono">Tháng <span
+                                id="month">1</span></span>
                     </div>
                 </div>
-                <div class="flex flex-col gap-1.5 bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-2 rounded-2xl border border-amber-300/80 shadow-sm">
+                <div
+                    class="flex flex-col gap-1.5 bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-2 rounded-2xl border border-amber-300/80 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="text-base">💰</span>
                             <div>
                                 <span class="text-[9px] text-amber-800 block font-extrabold">TIỀN MẶT</span>
-                                <span class="text-xs font-extrabold text-amber-900 font-mono"><span id="money">0</span> $</span>
+                                <span class="text-xs font-extrabold text-amber-900 font-mono"><span id="money">0</span>
+                                    $</span>
                             </div>
                         </div>
                     </div>
-                    <button onclick="showStockModal(true)" class="w-full py-1 bg-white/60 hover:bg-white text-amber-950 font-extrabold rounded-lg text-[9px] shadow-sm transition-all border border-amber-400/50 flex items-center justify-center gap-1">
+                    <button onclick="showStockModal(true)"
+                        class="w-full py-1 bg-white/60 hover:bg-white text-amber-950 font-extrabold rounded-lg text-[9px] shadow-sm transition-all border border-amber-400/50 flex items-center justify-center gap-1">
                         <span>📈</span> Sàn Chứng Khoán
                     </button>
                 </div>
-                
-                
+
+
             </div>
-            
+
             <!-- Thanh trạng thái (Health, Hunger, Happiness, Smarts) -->
             <div class="grid grid-cols-2 gap-2.5">
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-amber-300/30">
@@ -124,138 +260,145 @@
                         <span class="text-rose-600 flex items-center gap-1">❤️ Sức khỏe</span>
                         <span class="text-amber-950 font-mono"><span id="health">100</span>/100</span>
                     </div>
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-rose-300/40">
-                        <div id="health-bar" class="bg-gradient-to-r from-rose-400 to-pink-400 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 100%"></div>
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-rose-300/40">
+                        <div id="health-bar"
+                            class="bg-gradient-to-r from-rose-400 to-pink-400 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 100%"></div>
                     </div>
                 </div>
-                
+
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-amber-300/30">
                     <div class="flex justify-between items-center text-[10px] font-extrabold">
                         <span class="text-amber-700 flex items-center gap-1">🍗 Dinh dưỡng</span>
                         <span class="text-amber-950 font-mono"><span id="hunger">80</span>/100</span>
                     </div>
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/60">
-                        <div id="hunger-bar" class="bg-gradient-to-r from-amber-400 to-orange-400 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 80%"></div>
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/60">
+                        <div id="hunger-bar"
+                            class="bg-gradient-to-r from-amber-400 to-orange-400 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 80%"></div>
                     </div>
                 </div>
-                
+
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-amber-300/30">
                     <div class="flex justify-between items-center text-[10px] font-extrabold">
                         <span class="text-amber-600 flex items-center gap-1">😊 Hạnh phúc</span>
                         <span class="text-amber-950 font-mono"><span id="happiness">70</span>/100</span>
                     </div>
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-yellow-300/60">
-                        <div id="happiness-bar" class="bg-gradient-to-r from-yellow-400 to-amber-400 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 70%"></div>
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-yellow-300/60">
+                        <div id="happiness-bar"
+                            class="bg-gradient-to-r from-yellow-400 to-amber-400 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 70%"></div>
                     </div>
                 </div>
-                
+
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-amber-300/30">
                     <div class="flex justify-between items-center text-[10px] font-extrabold">
                         <span class="text-teal-700 flex items-center gap-1">🧠 Trí tuệ</span>
                         <span class="text-amber-950 font-mono"><span id="smarts">50</span>/100</span>
                     </div>
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-teal-300/60">
-                        <div id="smarts-bar" class="bg-gradient-to-r from-teal-400 to-emerald-400 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 50%"></div>
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-teal-300/60">
+                        <div id="smarts-bar"
+                            class="bg-gradient-to-r from-teal-400 to-emerald-400 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 50%"></div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Bảng Tin & 4 Thuộc tính năng lực -->
-            <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-2 border border-amber-300/40 overflow-hidden">
-               <!-- KHUNG MÀN HÌNH TIVI / LED TICKER -->
-<div class="relative bg-slate-900 rounded-xl p-1.5 border-2 border-slate-700 shadow-[inset_0_2px_10px_rgba(0,0,0,0.9)] overflow-hidden flex items-center gap-2 mb-2">
-    <!-- Hiệu ứng Sọc màn hình CRT -->
-    <div class="tv-scanlines absolute inset-0 pointer-events-none opacity-30 z-20"></div>
-    
-    <!-- Đèn báo LIVE nhấp nháy -->
-    <div class="flex items-center gap-1 shrink-0 bg-rose-900/40 px-1.5 py-0.5 rounded border border-rose-500/50 z-10">
-        <div class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_6px_#f43f5e]"></div>
-        <span class="text-[8px] font-black text-rose-400 uppercase tracking-widest drop-shadow-md">LIVE</span>
-    </div>
-    
-    <!-- Chữ LED chạy -->
-    <div class="flex-1 overflow-hidden relative h-5 flex items-center z-10 mask-edges">
-        <div id="game-news-ticker" class="whitespace-nowrap animate-marquee text-[11px] font-mono font-bold text-amber-400 inline-block drop-shadow-[0_0_3px_rgba(251,191,36,0.8)] tracking-wide">
-            💡 Đang tải bản tin...
-        </div>
-    </div>
-</div>
 
-                
-                <div class="grid grid-cols-4 gap-1 text-center pt-0.5">
-                    <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-amber-800/70 font-bold">💪 Sức mạnh</span>
-                        <span id="strength" class="text-xs font-extrabold text-amber-950 font-mono">50</span>
+            <!-- Bảng Tin & 4 Thuộc tính năng lực -->
+            <div
+                class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-2 border border-amber-300/40 overflow-hidden">
+                <!-- KHUNG MÀN HÌNH TIVI / LED TICKER -->
+                <div
+                    class="relative bg-slate-900 rounded-xl p-1.5 border-2 border-slate-700 shadow-[inset_0_2px_10px_rgba(0,0,0,0.9)] overflow-hidden flex items-center gap-2 mb-2">
+                    <!-- Hiệu ứng Sọc màn hình CRT -->
+                    <div class="tv-scanlines absolute inset-0 pointer-events-none opacity-30 z-20"></div>
+
+                    <!-- Đèn báo LIVE nhấp nháy -->
+                    <div
+                        class="flex items-center gap-1 shrink-0 bg-rose-900/40 px-1.5 py-0.5 rounded border border-rose-500/50 z-10">
+                        <div class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_6px_#f43f5e]"></div>
+                        <span
+                            class="text-[8px] font-black text-rose-400 uppercase tracking-widest drop-shadow-md">LIVE</span>
                     </div>
-                    <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-amber-800/70 font-bold">✨ Ngoại hình</span>
-                        <span id="looks" class="text-xs font-extrabold text-amber-950 font-mono">60</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-amber-800/70 font-bold">🗣️ Ăn nói</span>
-                        <span id="charm" class="text-xs font-extrabold text-amber-950 font-mono">45</span>
-                    </div>
-                    <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-amber-800/70 font-bold">👑 Cái tôi</span>
-                        <span id="ego" class="text-xs font-extrabold text-amber-950 font-mono">30</span>
+
+                    <!-- Chữ LED chạy -->
+                    <div class="flex-1 overflow-hidden relative h-5 flex items-center z-10 mask-edges">
+                        <div id="game-news-ticker"
+                            class="whitespace-nowrap animate-marquee text-[11px] font-mono font-bold text-amber-400 inline-block drop-shadow-[0_0_3px_rgba(251,191,36,0.8)] tracking-wide">
+                            💡 Đang tải bản tin...
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-        
+
         <!-- LỊCH 30 NGÀY TỰ ĐỘNG & NÚT SANG THÁNG -->
-        <section class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2.5 border border-amber-300/60">
+        <section
+            class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2.5 border border-amber-300/60">
             <div class="flex justify-between items-center text-xs font-bold px-1">
                 <span class="text-amber-900 flex items-center gap-1">
                     <span>🗓️ Tiến trình tháng:</span>
                     <span id="calendar-day-text" class="font-mono font-extrabold text-orange-700">Ngày 1 / 30</span>
                 </span>
-                
+
                 <!-- 🚀 BỔ SUNG: Khung chứa Badge trạng thái và Nút Tăng Tốc độ ngày -->
                 <div class="flex items-center gap-1.5">
-                    <span id="calendar-status-badge" class="text-[9px] font-extrabold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full animate-pulse">
+                    <span id="calendar-status-badge"
+                        class="text-[9px] font-extrabold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full animate-pulse">
                         ⏳ Đang trôi thời gian...
                     </span>
-                    <button id="calendar-speed-btn" onclick="toggleCalendarSpeed()" class="text-[9px] font-black text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-2.5 py-0.5 rounded-full shadow-sm transition-all active:scale-95 border border-amber-400/50 flex items-center gap-0.5">
+                    <button id="calendar-speed-btn" onclick="toggleCalendarSpeed()"
+                        class="text-[9px] font-black text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 px-2.5 py-0.5 rounded-full shadow-sm transition-all active:scale-95 border border-amber-400/50 flex items-center gap-0.5">
                         ⚡ x1
                     </button>
                 </div>
             </div>
-            
+
             <div class="w-full bg-amber-950/10 h-2.5 rounded-full overflow-hidden p-0.5 border border-amber-300/60">
-                <div id="calendar-progress-bar" class="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 3.3%"></div>
+                <div id="calendar-progress-bar"
+                    class="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 h-full rounded-full transition-all duration-300 shadow-sm"
+                    style="width: 3.3%"></div>
             </div>
-            
-            <button id="next-month-btn" onclick="handleNextMonth()" disabled class="w-full py-3.5 px-4 bg-gradient-to-r from-gray-400 to-gray-500 text-white font-display font-black rounded-2xl text-sm shadow-md transition-all flex items-center justify-center gap-2 border border-gray-300/40 cursor-not-allowed opacity-75">
+
+            <button id="next-month-btn" onclick="handleNextMonth()" disabled
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-gray-400 to-gray-500 text-white font-display font-black rounded-2xl text-sm shadow-md transition-all flex items-center justify-center gap-2 border border-gray-300/40 cursor-not-allowed opacity-75">
                 <span>🗓️</span>
                 <span id="next-month-btn-text">ĐANG TRÔI THỜI GIAN (60s)...</span>
                 <span>⏳</span>
             </button>
         </section>
         <!-- TRẠNG THÁI HỌC TẬP & NGHỀ NGHIỆP HỊỆN TẠI -->
-        <section class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2.5 border border-amber-300/60">
+        <section
+            class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2.5 border border-amber-300/60">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-1.5">
                 <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider">
                     📊 Trạng Thái Học Tập & Sự Nghiệp
                 </span>
-                <span id="edu-job-summary-badge" class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
+                <span id="edu-job-summary-badge"
+                    class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full">
                     Đang phát triển
                 </span>
             </div>
-            
+
             <div class="grid grid-cols-1 gap-2">
                 <!-- Học vấn -->
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-amber-300/40 relative overflow-hidden">
+                <div
+                    class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-amber-300/40 relative overflow-hidden">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-1.5">
                             <span class="text-base">🎓</span>
                             <span class="text-[10px] text-amber-800/80 font-extrabold uppercase">Học vấn hiện tại</span>
                         </div>
-                        <span id="edu-type-badge" class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md hidden">
+                        <span id="edu-type-badge"
+                            class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md hidden">
                             Chính Quy
                         </span>
                     </div>
-                    
+
                     <div class="flex justify-between items-baseline mt-0.5">
                         <span id="edu-status-title" class="text-xs font-black text-amber-950 truncate max-w-[200px]">
                             Chưa đăng ký học
@@ -264,24 +407,29 @@
                             --/-- tháng
                         </span>
                     </div>
-                    
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/50">
-                        <div id="edu-progress-bar" class="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 0%"></div>
+
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/50">
+                        <div id="edu-progress-bar"
+                            class="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 0%"></div>
                     </div>
                 </div>
-                
+
                 <!-- Nghề nghiệp -->
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col gap-1.5 border border-amber-300/40">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center gap-1.5">
                             <span class="text-base">💼</span>
-                            <span class="text-[10px] text-amber-800/80 font-extrabold uppercase">Nghề nghiệp hiện tại</span>
+                            <span class="text-[10px] text-amber-800/80 font-extrabold uppercase">Nghề nghiệp hiện
+                                tại</span>
                         </div>
-                        <span id="job-level-badge" class="text-[9px] font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600 px-2 py-0.5 rounded-md">
+                        <span id="job-level-badge"
+                            class="text-[9px] font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600 px-2 py-0.5 rounded-md">
                             Thất nghiệp
                         </span>
                     </div>
-                    
+
                     <div class="flex justify-between items-baseline mt-0.5">
                         <span id="job-status-title" class="text-xs font-black text-amber-950 truncate max-w-[190px]">
                             Chưa có việc làm
@@ -290,53 +438,104 @@
                             0 $/tháng
                         </span>
                     </div>
-                    
-                    <div class="flex justify-between items-center text-[9px] font-bold text-amber-800/70 border-t border-amber-900/10 pt-1">
+
+                    <div
+                        class="flex justify-between items-center text-[9px] font-bold text-amber-800/70 border-t border-amber-900/10 pt-1">
                         <span>Thâm niên làm việc:</span>
-                        <span id="job-status-exp" class="font-mono font-extrabold text-amber-900">0 tháng kinh nghiệm</span>
+                        <span id="job-status-exp" class="font-mono font-extrabold text-amber-900">0 tháng kinh
+                            nghiệm</span>
                     </div>
                 </div>
             </div>
         </section>
-        
+        <!-- KHUNG RÈN LUYỆN BẢN THÂN -->
+        <div class="glass-card-light rounded-2xl p-4 mt-4">
+            <h3 class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <span>🏋️</span> Rèn Luyện & Chăm Sóc Bản Thân
+            </h3>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="doSelfImprovementAction('gym')"
+                    class="p-2.5 bg-amber-100/60 hover:bg-amber-200/80 rounded-xl border border-amber-300/40 text-left transition flex items-center gap-2">
+                    <span class="text-xl">💪</span>
+                    <div>
+                        <div class="text-xs font-bold text-amber-950">Tập Gym ($20)</div>
+                        <div class="text-[10px] text-amber-800/80">+2 Sức mạnh, -5% SK</div>
+                    </div>
+                </button>
+
+                <button onclick="doSelfImprovementAction('spa')"
+                    class="p-2.5 bg-amber-100/60 hover:bg-amber-200/80 rounded-xl border border-amber-300/40 text-left transition flex items-center gap-2">
+                    <span class="text-xl">✨</span>
+                    <div>
+                        <div class="text-xs font-bold text-amber-950">Đi Spa ($50)</div>
+                        <div class="text-[10px] text-amber-800/80">+3 Ngoại hình, -15 Stress</div>
+                    </div>
+                </button>
+
+                <button onclick="doSelfImprovementAction('reading')"
+                    class="p-2.5 bg-amber-100/60 hover:bg-amber-200/80 rounded-xl border border-amber-300/40 text-left transition flex items-center gap-2">
+                    <span class="text-xl">📚</span>
+                    <div>
+                        <div class="text-xs font-bold text-amber-950">Đọc Sách ($15)</div>
+                        <div class="text-[10px] text-amber-800/80">+1.5 Ăn nói, +1 Trí tuệ</div>
+                    </div>
+                </button>
+
+                <button onclick="doSelfImprovementAction('party')"
+                    class="p-2.5 bg-amber-100/60 hover:bg-amber-200/80 rounded-xl border border-amber-300/40 text-left transition flex items-center gap-2">
+                    <span class="text-xl">🎉</span>
+                    <div>
+                        <div class="text-xs font-bold text-amber-950">Tiệc Tùng ($100)</div>
+                        <div class="text-[10px] text-amber-800/80">+4 Cái tôi, -8% SK</div>
+                    </div>
+                </button>
+            </div>
+        </div>
         <!-- TRẠNG THÁI QUAN HỆ -->
-        <section class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2 border border-amber-300/60">
+        <section
+            class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2 border border-amber-300/60">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-1.5">
                 <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider">
                     👨‍👩‍👧 Mạng Lưới Quan Hệ
                 </span>
-                <span class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full" id="rel-count-badge">
+                <span class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full"
+                    id="rel-count-badge">
                     2 Mối quan hệ
                 </span>
             </div>
-            
-            <div class="flex items-center justify-between glass-card-inner-light p-2.5 rounded-2xl border border-amber-300/40">
+
+            <div
+                class="flex items-center justify-between glass-card-inner-light p-2.5 rounded-2xl border border-amber-300/40">
                 <div class="flex flex-col gap-0.5">
                     <span class="text-[9px] font-bold text-amber-800/70 uppercase">Cấp độ xã hội</span>
                     <span id="rel-level-title" class="text-xs font-black text-orange-700 font-display">
                         🌱 Hướng Nội (&lt; 10)
                     </span>
                 </div>
-                
-                <button onclick="showRelationshipModal(true)" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-amber-300/40 flex items-center gap-1">
+
+                <button onclick="showRelationshipModal(true)"
+                    class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-amber-300/40 flex items-center gap-1">
                     <span>📖</span>
                     <span>Xem Chi Tiết</span>
                 </button>
             </div>
         </section>
-        
+
         <!-- TRẠNG THÁI NƠI Ở -->
-        <section class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2 border border-amber-300/60">
+        <section
+            class="w-full glass-card-light rounded-3xl p-3.5 shadow-xl flex flex-col gap-2 border border-amber-300/60">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-1.5">
                 <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider">
                     🏠 Nơi Ở Hiện Tại
                 </span>
-                <span class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full" id="home-type-badge">
+                <span class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full"
+                    id="home-type-badge">
                     Ở nhờ
                 </span>
             </div>
-            
-            <div class="flex items-center justify-between glass-card-inner-light p-2.5 rounded-2xl border border-amber-300/40">
+
+            <div
+                class="flex items-center justify-between glass-card-inner-light p-2.5 rounded-2xl border border-amber-300/40">
                 <div class="flex flex-col gap-0.5 max-w-[190px]">
                     <span id="home-name" class="text-xs font-black text-amber-950 truncate">
                         Nhà Bố Mẹ
@@ -345,22 +544,24 @@
                         Chi phí: 0 $/tháng
                     </span>
                 </div>
-                
-                <button onclick="showHousingModal(true)" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-amber-300/40 flex items-center gap-1">
+
+                <button onclick="showHousingModal(true)"
+                    class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 border border-amber-300/40 flex items-center gap-1">
                     <span>🔍</span>
                     <span>Tìm Nhà Trọ</span>
                 </button>
             </div>
         </section>
     </div>
-    
-    
+
+
     <!-- ================================================================= -->
     <!-- ZONE 2: OVERVIEW REPORT VIEW (VIEW BÁO CÁO PHỤ LỤC TỔNG QUÁT) -->
     <!-- ================================================================= -->
-   <div id="overview-report-view" class="w-full max-w-md mx-auto flex flex-col gap-3.5 pb-24 hidden">
+    <div id="overview-report-view" class="w-full max-w-md mx-auto flex flex-col gap-3.5 pb-24 hidden">
 
-        <header class="flex justify-between items-center bg-amber-900/10 px-4 py-2.5 rounded-2xl border border-amber-800/20 backdrop-blur-sm">
+        <header
+            class="flex justify-between items-center bg-amber-900/10 px-4 py-2.5 rounded-2xl border border-amber-800/20 backdrop-blur-sm">
             <div class="flex items-center gap-2">
                 <span class="text-xl">📊</span>
                 <div>
@@ -368,110 +569,126 @@
                     <p class="text-[9px] font-bold text-amber-800/80">Hồ sơ phát triển & Sao kê tài chính trọn đời</p>
                 </div>
             </div>
-            
-            <button onclick="switchView('main')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-display font-extrabold rounded-xl text-xs shadow-md transition-all active:scale-95">
+
+            <button onclick="switchView('main')"
+                class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-display font-extrabold rounded-xl text-xs shadow-md transition-all active:scale-95">
                 ⬅️ Quay Lại
             </button>
         </header>
-        
+
         <!-- 1. TÀI CHÍNH TỔNG QUÁT & LỊCH SỬ GIAO DỊCH -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-3 border border-amber-300/60 shadow-xl">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-2">
-                <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider flex items-center gap-1">
+                <span
+                    class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider flex items-center gap-1">
                     <span>💳 Sổ Kế Toán & Lịch Sử Giao Dịch</span>
                 </span>
             </div>
-            
+
             <!-- Thống kê tổng quan -->
             <div class="grid grid-cols-2 gap-2">
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col">
                     <span class="text-[9px] font-bold text-emerald-800">TỔNG THU NHẬP TÍCH LŨY</span>
-                    <span id="report-total-income" class="text-sm font-black text-emerald-700 font-mono mt-0.5">+0 $</span>
+                    <span id="report-total-income" class="text-sm font-black text-emerald-700 font-mono mt-0.5">+0
+                        $</span>
                 </div>
                 <div class="glass-card-inner-light p-2.5 rounded-2xl flex flex-col">
                     <span class="text-[9px] font-bold text-rose-800">TỔNG CHI TIÊU TÍCH LŨY</span>
-                    <span id="report-total-expense" class="text-sm font-black text-rose-700 font-mono mt-0.5">-0 $</span>
+                    <span id="report-total-expense" class="text-sm font-black text-rose-700 font-mono mt-0.5">-0
+                        $</span>
                 </div>
             </div>
-            
+
             <!-- Tab Bộ Lọc Lịch Sử Giao Dịch -->
             <div class="flex bg-amber-900/10 p-1 rounded-xl gap-1 mt-1">
-                <button onclick="setTransactionFilter('last_month')" id="tx-filter-last_month" class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm">
+                <button onclick="setTransactionFilter('last_month')" id="tx-filter-last_month"
+                    class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm">
                     Tháng Trước
                 </button>
-                <button onclick="setTransactionFilter('this_month')" id="tx-filter-this_month" class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900">
+                <button onclick="setTransactionFilter('this_month')" id="tx-filter-this_month"
+                    class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900">
                     Tháng Này
                 </button>
-                <button onclick="setTransactionFilter('all')" id="tx-filter-all" class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900">
+                <button onclick="setTransactionFilter('all')" id="tx-filter-all"
+                    class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900">
                     All-Time
                 </button>
             </div>
-            
+
             <!-- Danh sách giao dịch -->
-            <div id="report-transactions-list" class="flex flex-col gap-1.5 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+            <div id="report-transactions-list"
+                class="flex flex-col gap-1.5 max-h-40 overflow-y-auto custom-scrollbar pr-1">
                 <!-- Data render động -->
             </div>
         </section>
-        
+
         <!-- TÌNH TRẠNG CÔNG NỢ -->
-        <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-rose-300/60 shadow-xl mt-1">
+        <section
+            class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-rose-300/60 shadow-xl mt-1">
             <div class="flex justify-between items-center border-b border-rose-900/10 pb-2">
-                <span class="text-[10px] font-extrabold text-rose-900/80 uppercase tracking-wider flex items-center gap-1">
+                <span
+                    class="text-[10px] font-extrabold text-rose-900/80 uppercase tracking-wider flex items-center gap-1">
                     <span>📉 Tình Trạng Công Nợ</span>
                 </span>
-                <span id="report-debt-status" class="text-[9px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                <span id="report-debt-status"
+                    class="text-[9px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
                     Không có nợ
                 </span>
             </div>
-            
+
             <div class="flex justify-between items-center bg-rose-900/5 p-2.5 rounded-xl border border-rose-900/10">
                 <span class="text-xs font-bold text-rose-900">Tổng nợ hiện tại:</span>
                 <span id="report-total-debt" class="font-mono font-black text-rose-700">0 $</span>
             </div>
-            
-            <button id="btn-pay-debt" onclick="handlePayDebt()" class="w-full py-2.5 mt-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 hidden">
+
+            <button id="btn-pay-debt" onclick="handlePayDebt()"
+                class="w-full py-2.5 mt-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-xl text-[10px] shadow-sm transition-all active:scale-95 hidden">
                 💳 THANH TOÁN NỢ
             </button>
         </section>
-        
-        
+
+
         <!-- 2. BẰNG CẤP & GIA CẢNH -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-amber-300/60 shadow-xl">
             <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider">
                 📜 Danh Sách Bằng Cấp & Chứng Chỉ
             </span>
             <div id="report-degrees-list" class="flex flex-wrap gap-1.5"></div>
-            
-            <div class="flex justify-between items-center text-xs font-bold bg-amber-900/5 p-2 rounded-xl border border-amber-900/10 mt-1">
+
+            <div
+                class="flex justify-between items-center text-xs font-bold bg-amber-900/5 p-2 rounded-xl border border-amber-900/10 mt-1">
                 <span class="text-amber-900">Gia cảnh xuất thân:</span>
                 <span id="report-family-bg" class="font-extrabold text-amber-950">🏠 Gia đình bình thường</span>
             </div>
         </section>
-        
+
         <!-- 3. CỘT MỐC LỚN ĐỜI NGƯỜI -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-amber-300/60 shadow-xl">
             <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider flex items-center gap-1">
                 <span>👑 Cột Mốc Quan Trọng Đời Người</span>
             </span>
-            <div id="report-milestones-logs" class="flex flex-col gap-2 max-h-44 overflow-y-auto custom-scrollbar pr-1"></div>
+            <div id="report-milestones-logs" class="flex flex-col gap-2 max-h-44 overflow-y-auto custom-scrollbar pr-1">
+            </div>
         </section>
-        
+
         <!-- 4. NHẬT KÝ DIỄN BIẾN & GIAO TIẾP HÀNG THÁNG -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-amber-300/60 shadow-xl">
             <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider flex items-center gap-1">
                 <span>📖 Nhật Ký Diễn Biến Cuộc Sống & Sự Nghiệp</span>
             </span>
-            <div id="report-daily-logs" class="flex flex-col gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1"></div>
+            <div id="report-daily-logs" class="flex flex-col gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+            </div>
         </section>
     </div>
-    
-    
+
+
     <!-- ================================================================= -->
     <!-- ZONE 3: HEALTH CARE VIEW (VIEW CHĂM SÓC SỨC KHỎE NEW) -->
     <!-- ================================================================= -->
     <div id="health-care-view" class="w-full max-w-md mx-auto flex flex-col gap-3.5 pb-24 hidden">
 
-        <header class="flex justify-between items-center bg-rose-900/10 px-4 py-2.5 rounded-2xl border border-rose-800/20 backdrop-blur-sm">
+        <header
+            class="flex justify-between items-center bg-rose-900/10 px-4 py-2.5 rounded-2xl border border-rose-800/20 backdrop-blur-sm">
             <div class="flex items-center gap-2">
                 <span class="text-xl">🏥</span>
                 <div>
@@ -479,35 +696,40 @@
                     <p class="text-[9px] font-bold text-rose-800/80">Dinh dưỡng, Y tế & Luyện tập thể chất</p>
                 </div>
             </div>
-            
-            <button onclick="switchView('main')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-display font-extrabold rounded-xl text-xs shadow-md transition-all active:scale-95">
+
+            <button onclick="switchView('main')"
+                class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-display font-extrabold rounded-xl text-xs shadow-md transition-all active:scale-95">
                 ⬅️ Quay Lại
             </button>
         </header>
-        
+
         <!-- KHUNG CHẨN ĐOÁN THÔNG MINH -->
-        <div id="health-advisory-box" class="glass-card-inner-light p-3 rounded-2xl border border-amber-300 text-xs font-bold flex items-center gap-2">
+        <div id="health-advisory-box"
+            class="glass-card-inner-light p-3 rounded-2xl border border-amber-300 text-xs font-bold flex items-center gap-2">
             <span>💡</span><span>Đang tải chẩn đoán y tế...</span>
         </div>
-        
+
         <!-- DASHBOARD CHỈ SỐ -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-3 border border-rose-300/60 shadow-xl">
             <div class="flex justify-between items-center border-b border-rose-900/10 pb-2">
                 <span class="text-[10px] font-extrabold text-rose-900/80 uppercase tracking-wider">
                     🩺 Trạng Thái Thể Chất
                 </span>
-                <span class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300" id="health-view-status">
+                <span
+                    class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300"
+                    id="health-view-status">
                     🟢 Khỏe mạnh
                 </span>
             </div>
-            
-            <div class="flex justify-between items-center bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-2 rounded-2xl border border-amber-300/80 shadow-sm">
+
+            <div
+                class="flex justify-between items-center bg-gradient-to-r from-amber-100 to-orange-100 px-3 py-2 rounded-2xl border border-amber-300/80 shadow-sm">
                 <span class="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
                     <span>💰</span><span>Ví Tiền Hiện Có:</span>
                 </span>
                 <span class="text-sm font-mono font-black text-amber-950"><span id="health-view-money">0</span> $</span>
             </div>
-            
+
             <!-- Grid 3 Thanh chỉ số tiến trình -->
             <div class="grid grid-cols-3 gap-2">
                 <div class="glass-card-inner-light p-2 rounded-2xl flex flex-col gap-1 border border-rose-300/30">
@@ -515,89 +737,106 @@
                         <span class="text-rose-600">❤️ Sức khỏe</span>
                         <span class="text-amber-950 font-mono"><span id="hv-health">100</span>/100</span>
                     </div>
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-rose-300/40">
-                        <div id="hv-health-bar" class="bg-gradient-to-r from-rose-400 to-pink-400 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 100%"></div>
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-rose-300/40">
+                        <div id="hv-health-bar"
+                            class="bg-gradient-to-r from-rose-400 to-pink-400 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 100%"></div>
                     </div>
                 </div>
-                
+
                 <div class="glass-card-inner-light p-2 rounded-2xl flex flex-col gap-1 border border-amber-300/30">
                     <div class="flex justify-between items-center text-[9px] font-extrabold">
                         <span class="text-amber-700">🍗 Dinh dưỡng</span>
                         <span class="text-amber-950 font-mono"><span id="hv-hunger">80</span>/100</span>
                     </div>
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/60">
-                        <div id="hv-hunger-bar" class="bg-gradient-to-r from-amber-400 to-orange-400 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 80%"></div>
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-amber-300/60">
+                        <div id="hv-hunger-bar"
+                            class="bg-gradient-to-r from-amber-400 to-orange-400 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 80%"></div>
                     </div>
                 </div>
-                
+
                 <div class="glass-card-inner-light p-2 rounded-2xl flex flex-col gap-1 border border-purple-300/30">
                     <div class="flex justify-between items-center text-[9px] font-extrabold">
                         <span class="text-purple-700">🧠 Stress</span>
                         <span class="text-amber-950 font-mono"><span id="hv-stress">0</span>/100</span>
                     </div>
-                    <div class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-purple-300/40">
-                        <div id="hv-stress-bar" class="bg-gradient-to-r from-purple-400 to-indigo-500 h-full rounded-full transition-all duration-300 shadow-sm" style="width: 0%"></div>
+                    <div
+                        class="w-full bg-amber-950/10 h-2 rounded-full overflow-hidden p-0.5 border border-purple-300/40">
+                        <div id="hv-stress-bar"
+                            class="bg-gradient-to-r from-purple-400 to-indigo-500 h-full rounded-full transition-all duration-300 shadow-sm"
+                            style="width: 0%"></div>
                     </div>
                 </div>
             </div>
         </section>
-        
+
         <!-- 1. DINH DƯỠNG & ĂN UỐNG -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-amber-300/60 shadow-xl">
             <span class="text-[10px] font-extrabold text-amber-900/80 uppercase tracking-wider">
                 🍔 Dịch Vụ Ăn Uống (Chỉ tác động Dinh dưỡng)
             </span>
-            
+
             <div class="flex flex-col gap-2">
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
+                <div
+                    class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
                     <div class="flex flex-col">
                         <span class="text-xs font-extrabold text-amber-950">🥪 Bánh mì / Đồ ăn nhanh</span>
                         <span class="text-[10px] text-amber-800/80">+20 Dinh dưỡng | Chi phí: 10 $</span>
                     </div>
-                    <button onclick="handleEatMeal('fastfood')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                    <button onclick="handleEatMeal('fastfood')"
+                        class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Ăn ngay
                     </button>
                 </div>
-                
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
+
+                <div
+                    class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
                     <div class="flex flex-col">
                         <span class="text-xs font-extrabold text-amber-950">🍜 Cơm phần bình dân</span>
                         <span class="text-[10px] text-amber-800/80">+45 Dinh dưỡng | Chi phí: 25 $</span>
                     </div>
-                    <button onclick="handleEatMeal('normal')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                    <button onclick="handleEatMeal('normal')"
+                        class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Ăn ngay
                     </button>
                 </div>
-                
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
+
+                <div
+                    class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40">
                     <div class="flex flex-col">
                         <span class="text-xs font-extrabold text-amber-950">🥗 Bữa ăn Dinh dưỡng / Eat Clean</span>
                         <span class="text-[10px] text-amber-800/80">+70 Dinh dưỡng, -5 Stress | Chi phí: 60 $</span>
                     </div>
-                    <button onclick="handleEatMeal('healthy')" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                    <button onclick="handleEatMeal('healthy')"
+                        class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Thưởng thức
                     </button>
                 </div>
             </div>
         </section>
-        
+
         <!-- 2. TẬP LƯỆN & MÔN THỂ THAO (MONTHLY SUBSCRIPTIONS) -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-teal-300/60 shadow-xl">
             <span class="text-[10px] font-extrabold text-teal-900/80 uppercase tracking-wider">
                 🧘 Luyện Tập & Gói Đăng Ký Tháng
             </span>
-            
+
             <div class="flex flex-col gap-2">
-                <div class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-teal-300/40">
+                <div
+                    class="glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-teal-300/40">
                     <div class="flex flex-col">
                         <span class="text-xs font-extrabold text-amber-950">🧘 Thiền Định & Hít Thở</span>
                         <span class="text-[10px] text-teal-800/80">-15 Stress, +2 Hạnh phúc | Miễn phí</span>
                     </div>
-                    <button onclick="handleFitness('meditation')" class="py-1.5 px-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                    <button onclick="handleFitness('meditation')"
+                        class="py-1.5 px-3 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Tập thiền
                     </button>
                 </div>
-                
+
                 <!-- Thẻ Tập Gym -->
                 <div class="flex items-center justify-between p-3 bg-white/60 rounded-2xl border border-teal-100">
                     <div>
@@ -605,11 +844,12 @@
                         <div class="text-[10px] text-slate-500">-25 Stress, +5 Sức mạnh/tháng | 60 $/tháng</div>
                     </div>
                     <!-- 🚀 SỬA: Thêm id="btn-sub-gym" và đổi onclick thành toggleSubscription('gym') -->
-                    <button id="btn-sub-gym" onclick="toggleSubscription('gym')" class="py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                    <button id="btn-sub-gym" onclick="toggleSubscription('gym')"
+                        class="py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Đăng ký
                     </button>
                 </div>
-                
+
                 <!-- Lớp Học Yoga -->
                 <div class="flex items-center justify-between p-3 bg-white/60 rounded-2xl border border-teal-100">
                     <div>
@@ -617,13 +857,14 @@
                         <div class="text-[10px] text-slate-500">-35 Stress, +3 Ngoại hình/tháng | 40 $/tháng</div>
                     </div>
                     <!-- 🚀 SỬA: Thêm id="btn-sub-yoga" và đổi onclick thành toggleSubscription('yoga') -->
-                    <button id="btn-sub-yoga" onclick="toggleSubscription('yoga')" class="py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
+                    <button id="btn-sub-yoga" onclick="toggleSubscription('yoga')"
+                        class="py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm">
                         Đăng ký
                     </button>
                 </div>
-                
+
         </section>
-        
+
         <!-- 3. Y TẾ & KHÁM SỨC KHỎE (GIỚI HẠN 1 LẦN / THÁNG) -->
         <section class="glass-card-light rounded-3xl p-4 flex flex-col gap-2.5 border border-rose-300/60 shadow-xl">
             <div class="flex items-center justify-between mb-2 border-b border-rose-900/10 pb-2">
@@ -631,61 +872,71 @@
                     💊 Dịch Vụ Y Tế & Chẩn Đoán
                 </span>
                 <!-- Chỉ để lại ĐÚNG 1 id này thôi -->
-                <span id="health-check-badge" class="text-[9px] font-bold text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-md">
+                <span id="health-check-badge"
+                    class="text-[9px] font-bold text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-md">
                     Chưa sử dụng
                 </span>
             </div>
             <!-- Khám Sức Khỏe Định Kỳ -->
-            <button onclick="handleMedicalCare('checkup')" class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between">
+            <button onclick="handleMedicalCare('checkup')"
+                class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-xs text-slate-800">🔍 Khám Sức Khỏe Định Kỳ</div>
                     <div class="text-[10px] text-slate-500">Phát hiện toàn bộ các bệnh đang mắc | Chi phí: 50 $</div>
                 </div>
                 <!-- THÊM id="btn-med-checkup" -->
-                <span id="btn-med-checkup" class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Chẩn đoán</span>
+                <span id="btn-med-checkup"
+                    class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Chẩn đoán</span>
             </button>
-            
+
             <!-- Mua Thuốc Tây Cảm Sốt -->
-            <button onclick="handleMedicalCare('pharmacy')" class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between mt-2">
+            <button onclick="handleMedicalCare('pharmacy')"
+                class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between mt-2">
                 <div>
                     <div class="font-bold text-xs text-slate-800">💊 Mua Thuốc Tây Cảm Sốt</div>
                     <div class="text-[10px] text-slate-500">Chữa bệnh nhẹ, +10 Health | Chi phí: 30 $</div>
                 </div>
                 <!-- THÊM id="btn-med-pharmacy" -->
-                <span id="btn-med-pharmacy" class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Mua thuốc</span>
+                <span id="btn-med-pharmacy"
+                    class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Mua thuốc</span>
             </button>
-            
+
             <!-- Nhập Viện Điều Trị -->
-            <button onclick="handleMedicalCare('hospital')" class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between mt-2">
+            <button onclick="handleMedicalCare('hospital')"
+                class="w-full text-left p-3 bg-white/60 rounded-2xl border border-rose-100 flex items-center justify-between mt-2">
                 <div>
                     <div class="font-bold text-xs text-slate-800">🏥 Nhập Viện Điều Trị Chuyên Sâu</div>
                     <div class="text-[10px] text-slate-500">Xóa 1 bệnh nặng, hồi +25 Health | Chi phí: 200 $</div>
                 </div>
                 <!-- THÊM id="btn-med-hospital" -->
-                <span id="btn-med-hospital" class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Nhập viện</span>
+                <span id="btn-med-hospital"
+                    class="py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]">Nhập viện</span>
             </button>
-            
-            
+
+
         </section>
-        
+
     </div>
-    
+
     <!-- ================================================================= -->
     <!-- ZONE 4: MODALS & POPUPS SYSTEM (TẤT CẢ CỬA SỔ MODAL NỔI) -->
     <!-- ================================================================= -->
-    
+
     <!-- 1. MODAL BÁO CÁO THÁNG MỚI -->
-    <div id="monthly-summary-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3.5">
+    <div id="monthly-summary-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3.5">
             <div class="text-center flex flex-col items-center">
-                <span class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-1">
+                <span
+                    class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-1">
                     📊 Tổng Kết Tháng
                 </span>
                 <h2 id="summary-month-title" class="font-serif font-black text-amber-950 text-lg">
                     BÁO CÁO THÁNG 1
                 </h2>
             </div>
-            
+
             <div class="glass-card-inner-light p-3 rounded-2xl flex flex-col gap-2 border border-amber-300/40">
                 <div class="flex justify-between items-center text-xs font-bold border-b border-amber-900/10 pb-1.5">
                     <span class="text-emerald-700">🟢 Thu nhập trong tháng:</span>
@@ -700,233 +951,289 @@
                     <span id="summary-net-text" class="font-mono text-amber-950">+0 $</span>
                 </div>
             </div>
-            
+
             <div class="glass-card-inner-light p-3 rounded-2xl flex flex-col gap-1.5 border border-amber-300/40">
                 <span class="text-[10px] font-extrabold text-amber-900/80 uppercase">📈 Biến động chỉ số:</span>
                 <div id="summary-stats-changes" class="grid grid-cols-2 gap-1 text-[11px] font-bold"></div>
             </div>
-            
-            <button id="summary-continue-btn" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
+
+            <button id="summary-continue-btn"
+                class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
                 ✨ TIẾP TỤC ĐẦU THÁNG
             </button>
         </div>
     </div>
-    
+
     <!-- 2. MODAL TẠO NHÂN VẬT -->
-    <div id="create-character-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4">
+    <div id="create-character-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4">
             <div class="text-center">
-                <span class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full uppercase">
+                <span
+                    class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full uppercase">
                     Khởi đầu mới
                 </span>
                 <h2 class="font-serif font-black text-amber-950 text-xl mt-1">TẠO NHÂN VẬT</h2>
             </div>
-            
+
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="block text-xs font-bold text-amber-900 mb-1">Tên nhân vật:</label>
-                    <input type="text" id="input-character-name" placeholder="Nhập tên..." value="" class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
-                    
+                    <input type="text" id="input-character-name" placeholder="Nhập tên..." value=""
+                        class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
+
                 </div>
-                
+
                 <div>
                     <label class="block text-xs font-bold text-amber-900 mb-1">Giới tính:</label>
-                    <select id="select-character-gender" class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
+                    <select id="select-character-gender"
+                        class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
                         <option value="Nam">Nam</option>
                         <option value="Nữ">Nữ</option>
                         <option value="Khác">Khác</option>
                     </select>
                 </div>
             </div>
-            
-            <button onclick="handleCreateCharacterSubmit()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
+
+            <button onclick="handleCreateCharacterSubmit()"
+                class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
                 ✨ BẮT ĐẦU CUỘC ĐỜI MỚI
             </button>
         </div>
     </div>
-    
+
     <!-- 3. MODAL ĐĂNG NHẬP / ĐĂNG KÝ -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4">
+    <div id="auth-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4">
             <div class="text-center">
-                <span class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full uppercase" id="auth-modal-subtitle">
+                <span
+                    class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full uppercase"
+                    id="auth-modal-subtitle">
                     Đồng Bộ Dữ Liệu
                 </span>
                 <h2 id="auth-modal-title" class="font-serif font-black text-amber-950 text-xl mt-1">ĐĂNG NHẬP</h2>
             </div>
-            
+
             <div class="flex flex-col gap-3">
                 <div>
                     <label class="block text-xs font-bold text-amber-900 mb-1">Tên đăng nhập:</label>
-                    <input type="text" id="auth-username" placeholder="Nhập tên đăng nhập..." class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
+                    <input type="text" id="auth-username" placeholder="Nhập tên đăng nhập..."
+                        class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
                 </div>
-                
+
                 <div>
                     <label class="block text-xs font-bold text-amber-900 mb-1">Mật khẩu:</label>
-                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
+                    <input type="password" id="auth-password" placeholder="••••••••"
+                        class="w-full bg-white/80 border border-amber-300 rounded-xl px-3 py-2 text-sm font-bold text-amber-950 focus:outline-none focus:border-amber-500">
                 </div>
-                
+
                 <p id="auth-error-msg" class="text-[11px] font-bold text-rose-600 hidden text-center"></p>
             </div>
-            
-            <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
+
+            <button id="auth-submit-btn" onclick="handleAuthSubmit()"
+                class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
                 🔑 ĐĂNG NHẬP
             </button>
-            
+
             <div class="text-center text-xs font-bold text-amber-900">
                 <span id="auth-switch-text">Chưa có tài khoản?</span>
-                <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-orange-600 underline font-extrabold ml-1">
+                <button onclick="toggleAuthMode()" id="auth-switch-btn"
+                    class="text-orange-600 underline font-extrabold ml-1">
                     Đăng ký ngay
                 </button>
             </div>
-            
-            <button onclick="showAuthModal(false)" class="text-xs font-bold text-amber-800/60 hover:text-amber-900 text-center">
+
+            <button onclick="showAuthModal(false)"
+                class="text-xs font-bold text-amber-800/60 hover:text-amber-900 text-center">
                 Đóng / Chơi offline
             </button>
         </div>
     </div>
-    
+
     <!-- 4. MODAL MẠNG LƯỚI QUAN HỆ -->
-    <div id="relationship-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
+    <div id="relationship-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">👥</span>
                     <h2 class="font-serif font-black text-amber-950 text-base">MẠNG LƯỚI QUAN HỆ</h2>
                 </div>
-                <button onclick="showRelationshipModal(false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2">✕</button>
+                <button onclick="showRelationshipModal(false)"
+                    class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2">✕</button>
             </div>
-            
+
             <!-- 🚀 1. TAB CHUYỂN ĐỔI (DANH SÁCH / LỊCH SỬ) -->
             <div class="flex bg-amber-900/10 p-1 rounded-xl gap-1">
-                <button onclick="setRelationshipTab('list')" id="rel-tab-list" class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm">
+                <button onclick="setRelationshipTab('list')" id="rel-tab-list"
+                    class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm">
                     Danh Sách
                 </button>
-                <button onclick="setRelationshipTab('history')" id="rel-tab-history" class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900">
+                <button onclick="setRelationshipTab('history')" id="rel-tab-history"
+                    class="flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900">
                     Lịch Sử (Log)
                 </button>
             </div>
-            
+
             <!-- 🚀 2. BỘ LỌC SẮP XẾP (Chỉ hiện ở Tab Danh Sách) -->
-            <div id="rel-sort-container" class="flex items-center justify-between text-xs font-bold px-1 bg-amber-900/5 p-2 rounded-xl border border-amber-900/10">
+            <div id="rel-sort-container"
+                class="flex items-center justify-between text-xs font-bold px-1 bg-amber-900/5 p-2 rounded-xl border border-amber-900/10">
                 <span class="text-[10px] text-amber-900 font-extrabold">Sắp xếp:</span>
-                <select id="rel-sort-select" onchange="renderRelationships()" class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-[10px] font-bold text-amber-950 focus:outline-none">
+                <select id="rel-sort-select" onchange="renderRelationships()"
+                    class="bg-white border border-amber-300 rounded-lg px-2 py-1 text-[10px] font-bold text-amber-950 focus:outline-none">
                     <option value="desc">Thân nhất ➔ Ghét nhất</option>
                     <option value="asc">Ghét nhất ➔ Thân nhất</option>
                 </select>
             </div>
-            
+
             <!-- Danh sách quan hệ -->
-            <div id="relationship-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[48vh] custom-scrollbar"></div>
-            
+            <div id="relationship-modal-list"
+                class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[48vh] custom-scrollbar"></div>
+
             <!-- Lịch sử quan hệ (Log) -->
-            <div id="relationship-modal-history" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[48vh] custom-scrollbar hidden"></div>
-            
-            <button onclick="showRelationshipModal(false)" class="w-full py-2.5 bg-amber-200/80 hover:bg-amber-300/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs transition-all active:scale-95 border border-amber-300">Đóng</button>
+            <div id="relationship-modal-history"
+                class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[48vh] custom-scrollbar hidden"></div>
+
+            <button onclick="showRelationshipModal(false)"
+                class="w-full py-2.5 bg-amber-200/80 hover:bg-amber-300/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs transition-all active:scale-95 border border-amber-300">Đóng</button>
         </div>
     </div>
-    
-    
+
+
     <!-- 5. MODAL SỰ KIỆN ĐỊNH KỲ -->
-    <div id="event-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4">
+    <div id="event-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4">
             <div class="text-center flex flex-col items-center">
-                <span id="event-tag" class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-2">✉️ Sự Kiện</span>
+                <span id="event-tag"
+                    class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-2">✉️
+                    Sự Kiện</span>
                 <div class="text-3xl mb-1" id="event-icon">🎁</div>
                 <h2 id="event-title" class="font-serif font-black text-amber-950 text-lg">Tên Sự Kiện</h2>
             </div>
             <div class="glass-card-inner-light p-3.5 rounded-2xl border border-amber-300/40">
-                <p id="event-description" class="text-xs font-bold text-amber-950 leading-relaxed text-center">Mô tả...</p>
+                <p id="event-description" class="text-xs font-bold text-amber-950 leading-relaxed text-center">Mô tả...
+                </p>
             </div>
             <div id="event-choices-container" class="flex flex-col gap-2"></div>
         </div>
     </div>
-    
+
     <!-- 6. MODAL ADMIN PANEL DEBUG -->
-    <div id="admin-panel-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-rose-400/50 flex flex-col gap-3">
+    <div id="admin-panel-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-rose-400/50 flex flex-col gap-3">
             <div class="text-center">
-                <span class="text-[10px] font-extrabold text-rose-900 bg-rose-200/80 px-2.5 py-0.5 rounded-full uppercase">🛠️ System Debug</span>
+                <span
+                    class="text-[10px] font-extrabold text-rose-900 bg-rose-200/80 px-2.5 py-0.5 rounded-full uppercase">🛠️
+                    System Debug</span>
                 <h2 class="font-serif font-black text-rose-950 text-xl mt-1">ADMIN PANEL</h2>
             </div>
-            
+
             <!-- Nút 1: Reset nhân vật hiện tại (Local) -->
-            <button onclick="handleAdminResetCharacter()" class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-display font-extrabold rounded-2xl text-xs border border-amber-300/40 shadow-sm transition-all active:scale-95">
+            <button onclick="handleAdminResetCharacter()"
+                class="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-white font-display font-extrabold rounded-2xl text-xs border border-amber-300/40 shadow-sm transition-all active:scale-95">
                 🔄 RESET NHÂN VẬT HIỆN TẠI (LOCAL)
             </button>
-            
+
             <!-- Nút 2: Toggle Skip Sự Kiện Giữa Tháng (Debug) -->
-            <button id="admin-skip-midmonth-btn" onclick="handleAdminToggleSkipMidMonthEvents()" class="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-display font-extrabold rounded-2xl text-xs border border-purple-300/40 shadow-sm transition-all active:scale-95">
+            <button id="admin-skip-midmonth-btn" onclick="handleAdminToggleSkipMidMonthEvents()"
+                class="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-700 text-white font-display font-extrabold rounded-2xl text-xs border border-purple-300/40 shadow-sm transition-all active:scale-95">
                 ⚡ TẮT SỰ KIỆN GIỮA THÁNG (DEBUG: OFF)
             </button>
-            
+
             <!-- Nút 3: Xóa tất cả Players trên Firestore Cloud -->
-            <button onclick="handleAdminDeleteAllPlayers()" class="w-full py-3 px-4 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-display font-black rounded-2xl text-xs border border-rose-300/40 shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5">
+            <button onclick="handleAdminDeleteAllPlayers()"
+                class="w-full py-3 px-4 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-display font-black rounded-2xl text-xs border border-rose-300/40 shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5">
                 <span>🔥</span>
                 <span>XÓA TẤT CẢ PLAYERS (FIRESTORE)</span>
             </button>
-            
+
             <button onclick="showAdminPanel(false)" class="text-xs font-bold text-amber-800/60 text-center mt-1">
                 Đóng Panel
             </button>
         </div>
     </div>
-    
-    
+
+
     <!-- 7. MODAL THUÊ NHÀ TRỌ -->
-    <div id="housing-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
+    <div id="housing-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
                 <div class="flex items-center gap-2"><span class="text-xl">🏪</span>
                     <h2 class="font-serif font-black text-amber-950 text-base">TIN RAO VẶT NHÀ TRỌ</h2>
                 </div>
                 <button onclick="showHousingModal(false)" class="text-amber-900/60 font-black text-sm px-2">✕</button>
             </div>
-            <div id="housing-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
-            <button onclick="showHousingModal(false)" class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
+            <div id="housing-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar">
+            </div>
+            <button onclick="showHousingModal(false)"
+                class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
         </div>
     </div>
-    
+
     <!-- 8. MODAL CHƯƠNG TRÌNH ĐÀO TẠO (HỌC VẤN) -->
-    <div id="education-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
+    <div id="education-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
                 <div class="flex items-center gap-2"><span class="text-xl">🎓</span>
                     <h2 class="font-serif font-black text-amber-950 text-base">CHƯƠNG TRÌNH ĐÀO TẠO</h2>
                 </div>
                 <button onclick="showEducationModal(false)" class="text-amber-900/60 font-black text-sm px-2">✕</button>
             </div>
-            <div id="education-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
-            <button onclick="showEducationModal(false)" class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
+            <div id="education-modal-list"
+                class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
+            <button onclick="showEducationModal(false)"
+                class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
         </div>
     </div>
-    
+
     <!-- 9. MODAL TÌM VIỆC LÀM -->
-    <div id="jobs-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
-            <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
-                <div class="flex items-center gap-2"><span class="text-xl">💼</span>
-                    <h2 class="font-serif font-black text-amber-950 text-base">CƠ HỘI VIỆC LÀM</h2>
-                </div>
-                <button onclick="showJobsModal(false)" class="text-amber-900/60 font-black text-sm px-2">✕</button>
+<div id="jobs-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
+        <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">💼</span>
+                <h2 class="font-serif font-black text-amber-950 text-base">CƠ HỘI VIỆC LÀM</h2>
             </div>
-            <div id="jobs-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
-            <button onclick="showJobsModal(false)" class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
+            <div class="flex items-center gap-2">
+                <!-- Nút chuyển sang Modal Học Vấn -->
+                <button onclick="showJobsModal(false); showEducationModal(true);" class="text-[10px] font-bold bg-amber-200/80 hover:bg-amber-300 text-amber-950 px-2 py-1 rounded-lg transition">
+                    🎓 Học Vấn
+                </button>
+                <button onclick="showJobsModal(false)" class="text-amber-900/60 font-black text-sm px-1">✕</button>
+            </div>
         </div>
+        <div id="jobs-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
+        <button onclick="showJobsModal(false)" class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
     </div>
-    
+</div>
+
     <!-- 10. MODAL DIALOGUE TRÒ CHUYỆN / VA CHẠM XÃ HỘI CHAT -->
-    <div id="dialogue-event-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-4 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[85vh]">
+    <div id="dialogue-event-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-4 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[85vh]">
             <div class="text-center flex flex-col items-center">
-                <span id="dialogue-tag" class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-1">
+                <span id="dialogue-tag"
+                    class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-1">
                     🗣️ Va Chạm Giao Tiếp
                 </span>
                 <h2 id="dialogue-title" class="font-serif font-black text-amber-950 text-base">
                     Tranh Luận
                 </h2>
             </div>
-            
+
             <div id="dialogue-chat-box" class="flex flex-col gap-2.5 overflow-y-auto max-h-[45vh] custom-scrollbar p-1">
                 <div class="flex items-start gap-2 max-w-[85%]">
                     <span id="dialogue-icon" class="text-2xl shrink-0">💬</span>
@@ -936,59 +1243,72 @@
                         </p>
                     </div>
                 </div>
-                
+
                 <div id="dialogue-user-bubble" class="flex items-end justify-end gap-2 max-w-[85%] self-end hidden">
-                    <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm">
+                    <div
+                        class="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm">
                         <p id="dialogue-user-text" class="text-xs font-bold leading-relaxed"></p>
                     </div>
                 </div>
-                
+
                 <div id="dialogue-npc-reply-bubble" class="flex items-start gap-2 max-w-[85%] hidden">
                     <span class="text-xl shrink-0">🗯️</span>
                     <div class="bg-amber-200/90 border border-amber-300 p-2.5 rounded-2xl rounded-tl-none shadow-sm">
                         <p id="dialogue-npc-reply-text" class="text-xs font-bold text-amber-950 leading-relaxed"></p>
                     </div>
                 </div>
-                
-                <div id="dialogue-system-badge" class="glass-card-inner-light p-2.5 rounded-2xl border border-amber-400 flex flex-col gap-1 hidden mt-1">
+
+                <div id="dialogue-system-badge"
+                    class="glass-card-inner-light p-2.5 rounded-2xl border border-amber-400 flex flex-col gap-1 hidden mt-1">
                     <span class="text-[9px] font-extrabold text-amber-900 uppercase flex items-center gap-1">
                         <span>✨ ĐÁNH GIÁ HỆ THỐNG:</span>
                     </span>
                     <p id="dialogue-feedback-text" class="text-[11px] font-black text-amber-950"></p>
                 </div>
             </div>
-            
+
             <div id="dialogue-input-container" class="flex flex-col gap-1.5">
-                <input type="text" id="dialogue-user-input" placeholder="Nhập câu trả lời bằng tiếng Việt..." autocorrect="on" autocapitalize="sentences" spellcheck="true" class="w-full bg-white/90 border border-amber-300 rounded-xl px-3 py-2 text-xs font-bold text-amber-950 focus:outline-none focus:border-amber-500 shadow-inner">
-                
-                
-                
-                <button onclick="submitDialogueResponse()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
+                <input type="text" id="dialogue-user-input" placeholder="Nhập câu trả lời bằng tiếng Việt..."
+                    autocorrect="on" autocapitalize="sentences" spellcheck="true"
+                    class="w-full bg-white/90 border border-amber-300 rounded-xl px-3 py-2 text-xs font-bold text-amber-950 focus:outline-none focus:border-amber-500 shadow-inner">
+
+
+
+                <button onclick="submitDialogueResponse()"
+                    class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95">
                     💬 GỬI LỜI ĐÁP
                 </button>
             </div>
-            
-            <button id="dialogue-close-btn" onclick="closeDialogueModal()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 hidden">
+
+            <button id="dialogue-close-btn" onclick="closeDialogueModal()"
+                class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 hidden">
                 ✨ TIẾP TỤC TRÒ CHƠI
             </button>
         </div>
     </div>
-    
+
     <!-- 11. POPUP CUSTOM TOAST NOTIFICATION -->
-    <div id="custom-toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[999] w-[90%] max-w-xs transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4">
-        <div class="glass-card-light rounded-2xl p-3.5 shadow-2xl border border-amber-400 flex items-center gap-3 backdrop-blur-xl">
+    <div id="custom-toast"
+        class="fixed top-5 left-1/2 -translate-x-1/2 z-[999] w-[90%] max-w-xs transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4">
+        <div
+            class="glass-card-light rounded-2xl p-3.5 shadow-2xl border border-amber-400 flex items-center gap-3 backdrop-blur-xl">
             <span id="toast-icon" class="text-2xl shrink-0">🔔</span>
             <div class="flex flex-col flex-1 min-w-0">
-                <span id="toast-title" class="text-[10px] font-extrabold text-amber-900 uppercase tracking-wider">Thông báo</span>
-                <p id="toast-message" class="text-xs font-bold text-amber-950 leading-snug break-words">Nội dung thông báo...</p>
+                <span id="toast-title" class="text-[10px] font-extrabold text-amber-900 uppercase tracking-wider">Thông
+                    báo</span>
+                <p id="toast-message" class="text-xs font-bold text-amber-950 leading-snug break-words">Nội dung thông
+                    báo...</p>
             </div>
-            <button onclick="closeToast()" class="text-amber-900/60 hover:text-amber-950 font-black text-xs px-1.5 py-0.5 rounded-lg active:scale-95">✕</button>
+            <button onclick="closeToast()"
+                class="text-amber-900/60 hover:text-amber-950 font-black text-xs px-1.5 py-0.5 rounded-lg active:scale-95">✕</button>
         </div>
     </div>
-    
+
     <!-- 12. MODAL CỬA HÀNG -->
-    <div id="shop-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
+    <div id="shop-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">🛍️</span>
@@ -996,31 +1316,39 @@
                 </div>
                 <button onclick="showShopModal(false)" class="text-amber-900/60 font-black text-sm px-2">✕</button>
             </div>
-            
+
             <!-- 🚀 BỔ SUNG THUỘC TÍNH ID CHO CÁC NÚT TAB -->
             <div class="flex gap-1 bg-amber-900/10 p-1 rounded-xl text-[10px] font-extrabold">
-                <button onclick="renderShopModalList('all')" id="shop-tab-all" class="flex-1 py-1 rounded-lg bg-white/80 text-amber-950 shadow-sm transition-all">
+                <button onclick="renderShopModalList('all')" id="shop-tab-all"
+                    class="flex-1 py-1 rounded-lg bg-white/80 text-amber-950 shadow-sm transition-all">
                     Tất Cả
                 </button>
-                <button onclick="renderShopModalList('technology')" id="shop-tab-technology" class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
+                <button onclick="renderShopModalList('technology')" id="shop-tab-technology"
+                    class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
                     Công Nghệ
                 </button>
-                <button onclick="renderShopModalList('vehicle')" id="shop-tab-vehicle" class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
+                <button onclick="renderShopModalList('vehicle')" id="shop-tab-vehicle"
+                    class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
                     Xe Cộ
                 </button>
-                <button onclick="renderShopModalList('lifestyle')" id="shop-tab-lifestyle" class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
+                <button onclick="renderShopModalList('lifestyle')" id="shop-tab-lifestyle"
+                    class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
                     Lối Sống
                 </button>
             </div>
-            
-            <div id="shop-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[50vh] custom-scrollbar"></div>
-            <button onclick="showShopModal(false)" class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
+
+            <div id="shop-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[50vh] custom-scrollbar">
+            </div>
+            <button onclick="showShopModal(false)"
+                class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
         </div>
     </div>
-    
+
     <!-- 13. MODAL TÚI ĐỒ -->
-    <div id="inventory-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
+    <div id="inventory-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[80vh]">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">🎒</span>
@@ -1028,237 +1356,355 @@
                 </div>
                 <button onclick="showInventoryModal(false)" class="text-amber-900/60 font-black text-sm px-2">✕</button>
             </div>
-            <div id="inventory-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
-            <button onclick="showInventoryModal(false)" class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
+            <div id="inventory-modal-list"
+                class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar"></div>
+            <button onclick="showInventoryModal(false)"
+                class="w-full py-2.5 bg-amber-200/80 text-amber-950 font-display font-extrabold rounded-2xl text-xs">Đóng</button>
         </div>
     </div>
-    
+
     <!-- 14. MODAL XÁC NHẬN TÙY CHỈNH (CUSTOM CONFIRM MODAL) -->
-    <div id="game-confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[999] flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
+    <div id="game-confirm-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-[999] flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
             <div class="text-center flex flex-col items-center">
-                <span id="confirm-modal-tag" class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-2">⚠️ Xác Nhận</span>
+                <span id="confirm-modal-tag"
+                    class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-2">⚠️
+                    Xác Nhận</span>
                 <div class="text-3xl mb-1" id="confirm-modal-icon">❓</div>
                 <h2 id="confirm-modal-title" class="font-serif font-black text-amber-950 text-lg">Tiêu Đề Xác Nhận</h2>
             </div>
-            
+
             <div class="glass-card-inner-light p-3.5 rounded-2xl border border-amber-300/40">
-                <p id="confirm-modal-description" class="text-xs font-bold text-amber-950 leading-relaxed text-center">Nội dung câu hỏi xác nhận...</p>
+                <p id="confirm-modal-description" class="text-xs font-bold text-amber-950 leading-relaxed text-center">
+                    Nội dung câu hỏi xác nhận...</p>
             </div>
-            
+
             <div class="grid grid-cols-2 gap-2 mt-1">
-                <button id="confirm-modal-cancel-btn" class="py-3 px-4 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-display font-extrabold rounded-2xl text-xs shadow-sm transition-all active:scale-95 border border-amber-300 text-center">
+                <button id="confirm-modal-cancel-btn"
+                    class="py-3 px-4 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-display font-extrabold rounded-2xl text-xs shadow-sm transition-all active:scale-95 border border-amber-300 text-center">
                     Hủy Bỏ
                 </button>
-                <button id="confirm-modal-ok-btn" class="py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-amber-300/40 text-center">
+                <button id="confirm-modal-ok-btn"
+                    class="py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-amber-300/40 text-center">
                     Đồng Ý
                 </button>
             </div>
         </div>
     </div>
-    
+
     <!-- 15. MODAL TƯƠNG TÁC NPC CHI TIẾT -->
-    <div id="npc-interaction-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[115] flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
-            
+    <div id="npc-interaction-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-[115] flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
+
             <!-- Header Thông tin NPC -->
             <div class="flex justify-between items-start border-b border-amber-900/10 pb-3">
                 <div class="flex items-center gap-3">
                     <span id="npc-modal-icon" class="text-4xl drop-shadow-md">👤</span>
                     <div class="flex flex-col">
                         <span id="npc-modal-name" class="font-serif font-black text-amber-950 text-lg">Tên NPC</span>
-                        <span id="npc-modal-relation" class="text-xs font-bold text-amber-800/80 uppercase">Quan hệ</span>
+                        <span id="npc-modal-relation" class="text-xs font-bold text-amber-800/80 uppercase">Quan
+                            hệ</span>
                     </div>
                 </div>
-                <button onclick="showNPCInteractionModal(null, false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2 py-1 bg-amber-200/50 rounded-lg">✕</button>
+                <button onclick="showNPCInteractionModal(null, false)"
+                    class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2 py-1 bg-amber-200/50 rounded-lg">✕</button>
             </div>
-            
+
             <!-- Các nút hành động -->
             <div class="flex flex-col gap-2" id="npc-interaction-actions">
                 <!-- Sẽ được Render bằng JavaScript tùy thuộc vào NPC -->
             </div>
-            
+
         </div>
     </div>
-    
-    
-    
+
+
+
     <!-- 16. MODAL KẾT THÚC TRÒ CHƠI / GAME OVER -->
-    <div id="game-over-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-rose-500/60 flex flex-col gap-4 animate-scale-up text-center">
-            <span class="text-[10px] font-extrabold text-rose-900 bg-rose-200/90 px-3 py-0.5 rounded-full uppercase self-center">💀 Kỷ Nguyên Khép Lại</span>
+    <div id="game-over-modal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-rose-500/60 flex flex-col gap-4 animate-scale-up text-center">
+            <span
+                class="text-[10px] font-extrabold text-rose-900 bg-rose-200/90 px-3 py-0.5 rounded-full uppercase self-center">💀
+                Kỷ Nguyên Khép Lại</span>
             <div class="text-4xl mb-1">🪦</div>
             <h2 class="font-serif font-black text-rose-950 text-xl">KẾT THÚC VÒNG ĐỜI</h2>
-            
-            <div class="glass-card-inner-light p-3.5 rounded-2xl border border-rose-300/40 text-left flex flex-col gap-2">
-                <p id="game-over-reason" class="text-xs font-bold text-rose-950 leading-relaxed text-center">Cuộc đời của Charlie đã khép lại tại đây...</p>
+
+            <div
+                class="glass-card-inner-light p-3.5 rounded-2xl border border-rose-300/40 text-left flex flex-col gap-2">
+                <p id="game-over-reason" class="text-xs font-bold text-rose-950 leading-relaxed text-center">Cuộc đời
+                    của Charlie đã khép lại tại đây...</p>
                 <div class="border-t border-rose-900/10 pt-2 flex flex-col gap-1 text-xs font-bold text-amber-950">
-                    <div class="flex justify-between"><span>Số tuổi đạt được:</span> <span id="go-final-age" class="font-mono font-black text-amber-900">16 tuổi</span></div>
-                    <div class="flex justify-between"><span>Tháng sinh tồn:</span> <span id="go-final-month" class="font-mono font-black text-amber-900">Tháng 1</span></div>
-                    <div class="flex justify-between"><span>Tài sản tích lũy:</span> <span id="go-final-money" class="font-mono font-black text-emerald-700">0 $</span></div>
-                    <div class="flex justify-between"><span>Tổng nợ đọng:</span> <span id="go-final-debt" class="font-mono font-black text-rose-700">0 $</span></div>
+                    <div class="flex justify-between"><span>Số tuổi đạt được:</span> <span id="go-final-age"
+                            class="font-mono font-black text-amber-900">16 tuổi</span></div>
+                    <div class="flex justify-between"><span>Tháng sinh tồn:</span> <span id="go-final-month"
+                            class="font-mono font-black text-amber-900">Tháng 1</span></div>
+                    <div class="flex justify-between"><span>Tài sản tích lũy:</span> <span id="go-final-money"
+                            class="font-mono font-black text-emerald-700">0 $</span></div>
+                    <div class="flex justify-between"><span>Tổng nợ đọng:</span> <span id="go-final-debt"
+                            class="font-mono font-black text-rose-700">0 $</span></div>
                 </div>
             </div>
-            
-            <button onclick="handleRestartFromGameOver()" class="w-full py-3.5 px-4 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-display font-black rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-rose-300/40 text-center">
+
+            <button onclick="handleRestartFromGameOver()"
+                class="w-full py-3.5 px-4 bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-display font-black rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-rose-300/40 text-center">
                 ✨ TÁI SINH VÒNG ĐỜI MỚI
             </button>
         </div>
     </div>
-    
-    <!-- 15. MODAL NHẬP DỮ LIỆU TÙY CHỈNH (CUSTOM PROMPT) -->
-    <div id="game-prompt-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[999] flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
+
+    <!-- 17. MODAL NHẬP DỮ LIỆU TÙY CHỈNH (CUSTOM PROMPT) -->
+    <div id="game-prompt-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-[999] flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-4 animate-scale-up">
             <div class="text-center flex flex-col items-center">
-                <span id="prompt-modal-tag" class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-2">✏️ Nhập Liệu</span>
+                <span id="prompt-modal-tag"
+                    class="text-[10px] font-extrabold text-amber-900 bg-amber-200/80 px-3 py-0.5 rounded-full uppercase mb-2">✏️
+                    Nhập Liệu</span>
                 <div class="text-3xl mb-1" id="prompt-modal-icon">💳</div>
                 <h2 id="prompt-modal-title" class="font-serif font-black text-amber-950 text-lg">Thanh Toán</h2>
             </div>
-            
+
             <div class="glass-card-inner-light p-3.5 rounded-2xl border border-amber-300/40">
-                <p id="prompt-modal-description" class="text-xs font-bold text-amber-950 leading-relaxed text-center mb-3">Nội dung...</p>
-                <input type="number" id="prompt-modal-input" class="w-full bg-white/90 border border-amber-300 rounded-xl px-3 py-2.5 text-sm font-black text-amber-950 focus:outline-none focus:border-amber-500 shadow-inner text-center" placeholder="Nhập số...">
+                <p id="prompt-modal-description"
+                    class="text-xs font-bold text-amber-950 leading-relaxed text-center mb-3">Nội dung...</p>
+                <input type="number" id="prompt-modal-input"
+                    class="w-full bg-white/90 border border-amber-300 rounded-xl px-3 py-2.5 text-sm font-black text-amber-950 focus:outline-none focus:border-amber-500 shadow-inner text-center"
+                    placeholder="Nhập số...">
             </div>
-            
+
             <div class="grid grid-cols-2 gap-2 mt-1">
-                <button id="prompt-modal-cancel-btn" class="py-3 px-4 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-display font-extrabold rounded-2xl text-xs shadow-sm transition-all active:scale-95 border border-amber-300 text-center">
+                <button id="prompt-modal-cancel-btn"
+                    class="py-3 px-4 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-display font-extrabold rounded-2xl text-xs shadow-sm transition-all active:scale-95 border border-amber-300 text-center">
                     Hủy Bỏ
                 </button>
-                <button id="prompt-modal-ok-btn" class="py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-amber-300/40 text-center">
+                <button id="prompt-modal-ok-btn"
+                    class="py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 border border-amber-300/40 text-center">
                     Xác Nhận
                 </button>
             </div>
         </div>
     </div>
-    
-    <!-- 17. MODAL CHI TIẾT CÔNG VIỆC & YÊU CẦU -->
-    <div id="job-detail-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[116] flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3.5 animate-scale-up">
-            
+
+    <!-- 18. MODAL CHI TIẾT CÔNG VIỆC & YÊU CẦU -->
+    <div id="job-detail-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-[116] flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3.5 animate-scale-up">
+
             <!-- Header tiêu đề công việc -->
             <div class="flex justify-between items-start border-b border-amber-900/10 pb-2.5">
                 <div class="flex flex-col">
-                    <span id="job-detail-track" class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md w-fit mb-1">Lĩnh vực</span>
+                    <span id="job-detail-track"
+                        class="text-[9px] font-extrabold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md w-fit mb-1">Lĩnh
+                        vực</span>
                     <h2 id="job-detail-title" class="font-serif font-black text-amber-950 text-base">Tên Công Việc</h2>
                 </div>
-                <button onclick="showJobDetailModal(null, false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2 py-1 bg-amber-200/50 rounded-lg">✕</button>
+                <button onclick="showJobDetailModal(null, false)"
+                    class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2 py-1 bg-amber-200/50 rounded-lg">✕</button>
             </div>
-            
+
             <!-- Nội dung chi tiết các yêu cầu -->
-            <div id="job-detail-content" class="flex flex-col gap-2.5 text-xs font-bold text-amber-950 max-h-[50vh] overflow-y-auto custom-scrollbar pr-1">
+            <div id="job-detail-content"
+                class="flex flex-col gap-2.5 text-xs font-bold text-amber-950 max-h-[50vh] overflow-y-auto custom-scrollbar pr-1">
                 <!-- Được render động bằng JS -->
             </div>
-            
+
             <!-- Nút xác nhận nộp đơn -->
-            <button id="job-detail-apply-btn" onclick="" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md active:scale-95 transition-all text-center">
+            <button id="job-detail-apply-btn" onclick=""
+                class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md active:scale-95 transition-all text-center">
                 💼 Nộp Đơn Ứng Tuyển
             </button>
         </div>
     </div>
-    
-    <!-- 18. MODAL BẢN ĐỒ THÀNH PHỐ -->
-    <div id="city-map-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden modal-transition">
-        <div class="glass-card-light w-full max-w-md rounded-3xl p-6 flex flex-col gap-4 shadow-2xl border border-amber-300/50">
+
+    <!-- 19. MODAL BẢN ĐỒ THÀNH PHỐ -->
+    <div id="city-map-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden modal-transition">
+        <div
+            class="glass-card-light w-full max-w-md rounded-3xl p-6 flex flex-col gap-4 shadow-2xl border border-amber-300/50">
             <div class="flex items-center justify-between border-b border-amber-900/10 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="text-2xl">🗺️</span>
                     <h3 class="font-display font-extrabold text-base text-amber-950">BẢN ĐỒ DI CƯ THÀNH PHỐ</h3>
                 </div>
-                <button onclick="showCityMapModal(false)" class="w-8 h-8 rounded-full bg-amber-900/10 hover:bg-amber-900/20 flex items-center justify-center font-bold text-amber-950 transition-all">
+                <button onclick="showCityMapModal(false)"
+                    class="w-8 h-8 rounded-full bg-amber-900/10 hover:bg-amber-900/20 flex items-center justify-center font-bold text-amber-950 transition-all">
                     ✕
                 </button>
             </div>
-            
+
             <!-- Danh sách thành phố render động từ CITIES_DATA -->
-            <div id="city-map-modal-list" class="flex flex-col gap-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
+            <div id="city-map-modal-list"
+                class="flex flex-col gap-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
                 <!-- Items được chèn tự động tại đây -->
             </div>
         </div>
     </div>
-    
-    <!-- 19. MODAL THỊ TRƯỜNG CHỨNG KHOÁN -->
-    <div id="stock-market-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[105] flex items-center justify-center p-4 hidden">
-        <div class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[85vh]">
+
+    <!-- 20. MODAL THỊ TRƯỜNG CHỨNG KHOÁN -->
+    <div id="stock-market-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md z-[105] flex items-center justify-center p-4 hidden">
+        <div
+            class="glass-card-light w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-amber-300 flex flex-col gap-3 max-h-[85vh]">
             <div class="flex justify-between items-center border-b border-amber-900/10 pb-2.5">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">📈</span>
                     <h2 class="font-serif font-black text-amber-950 text-base">SÀN CHỨNG KHOÁN</h2>
                 </div>
-                <button onclick="showStockModal(false)" class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2">✕</button>
+                <button onclick="showStockModal(false)"
+                    class="text-amber-900/60 hover:text-amber-950 font-black text-sm px-2">✕</button>
             </div>
-            
+
             <!-- Tab Switcher -->
             <div class="flex gap-1 bg-amber-900/10 p-1 rounded-xl text-[10px] font-extrabold">
-                <button onclick="renderStockModal('market')" id="stock-tab-market" class="flex-1 py-1 rounded-lg bg-white/80 text-amber-950 shadow-sm transition-all">
+                <button onclick="renderStockModal('market')" id="stock-tab-market"
+                    class="flex-1 py-1 rounded-lg bg-white/80 text-amber-950 shadow-sm transition-all">
                     Thị Trường
                 </button>
-                <button onclick="renderStockModal('portfolio')" id="stock-tab-portfolio" class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
+                <button onclick="renderStockModal('portfolio')" id="stock-tab-portfolio"
+                    class="flex-1 py-1 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all">
                     Danh Mục Sở Hữu
                 </button>
             </div>
-            
+
             <!-- List Container -->
             <div id="stock-modal-list" class="flex flex-col gap-2 overflow-y-auto pr-1 max-h-[55vh] custom-scrollbar">
                 <!-- Nội dung render bằng JS -->
             </div>
         </div>
     </div>
+
+    <!-- 21. MODAL CHỌN AVATAR NHÂN VẬT -->
+    <div id="avatar-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div
+            class="glass-card-light w-full max-w-md rounded-3xl p-5 border border-amber-300/40 shadow-2xl relative animate-fade-in">
+
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center mb-4 border-b border-amber-200/30 pb-2">
+                <h3 class="text-base font-extrabold text-amber-950 flex items-center gap-2 uppercase tracking-wide">
+                    <span>🖼️</span> Chọn Avatar Nhân Vật
+                </h3>
+                <button onclick="closeAvatarModal()"
+                    class="w-7 h-7 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold flex items-center justify-center transition">✕</button>
+            </div>
+
+            <!-- Bộ danh sách Ảnh Avatar để chọn -->
+            <div id="avatar-grid-list" class="grid grid-cols-3 gap-3 max-h-72 overflow-y-auto p-1 custom-scrollbar">
+                <!-- Danh sách avatar render động qua JS -->
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-4 pt-3 border-t border-amber-200/30 flex justify-end">
+                <button onclick="closeAvatarModal()"
+                    class="px-4 py-2 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-bold rounded-xl text-xs transition">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 22.MODAL CHỌN CUNG HOÀNG ĐẠO -->
+<div id="zodiac-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card-light w-full max-w-md rounded-3xl p-5 border border-amber-300/40 shadow-2xl relative animate-fade-in">
+        
+        <!-- Header Modal -->
+        <div class="flex justify-between items-center mb-4 border-b border-amber-200/30 pb-2">
+            <h3 class="text-base font-extrabold text-amber-950 flex items-center gap-2 uppercase tracking-wide">
+                <span>⭐</span> Chọn Cung Hoàng Đạo
+            </h3>
+            <button onclick="closeZodiacModal()" class="w-7 h-7 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold flex items-center justify-center transition">✕</button>
+        </div>
+
+        <!-- Lưới 12 Cung Hoàng Đạo -->
+        <div id="zodiac-grid-Slist" class="grid grid-cols-3 gap-2.5 max-h-80 overflow-y-auto p-1 custom-scrollbar">
+            <!-- Render động bằng JS -->
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-4 pt-3 border-t border-amber-200/30 flex justify-end">
+            <button onclick="closeZodiacModal()" class="px-4 py-2 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-bold rounded-xl text-xs transition">
+                Đóng
+            </button>
+        </div>
+    </div>
+</div>
+
+
+   <!-- BOTTOM NAV BAR (ĐÃ FIX LỖI BẤM NÚT) -->
+<div id="bottom-nav-menu" class="fixed bottom-0 left-0 right-0 z-40 max-w-md mx-auto glass-card-light border-t border-amber-300/40 rounded-t-3xl px-3 py-2 flex items-center justify-between shadow-2xl">
     
-    
-    <!-- ================================================================= -->
-    <!-- FLOATING BOTTOM NAVIGATION MENU (MENU NỔI CHUYÊN NGHIỆP) -->
-    <!-- ================================================================= -->
-    <nav id="bottom-nav-menu" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[90] pb-2 pt-2 px-3 flex justify-between items-center rounded-t-3xl glass-card-light transition-all">
-        
-        <!-- Nút Học Vấn -->
-        <button onclick="showEducationModal(true)" class="flex-1 flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform group">
-            <div class="nav-icon-bg w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-lg border border-transparent transition-all group-hover:bg-amber-500/20 group-hover:border-amber-400/50">
-                🎓
-            </div>
-            <span class="text-[9px] font-extrabold text-amber-950 transition-colors">Học Vấn</span>
+    <!-- Backdrop mờ che màn hình khi xòe menu vòng cung -->
+    <div id="arc-backdrop" onclick="toggleArcMenu(false)" class="fixed inset-0 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300 z-30"></div>
+
+    <!-- 1. TAB SỰ NGHIỆP (Mở Modal Việc Làm gốc) -->
+    <button onclick="openJobsModalDirect()" id="nav-btn-career" class="flex-1 flex flex-col items-center gap-1 text-amber-900 hover:text-amber-600 transition z-40 relative">
+        <span class="text-xl">💼</span>
+        <span class="text-[10px] font-bold uppercase">Sự Nghiệp</span>
+    </button>
+
+    <!-- 2. TAB TIỆM ĐỒ (Mở Modal Cửa Hàng gốc) -->
+    <button onclick="openShopModalDirect()" id="nav-btn-shop" class="flex-1 flex flex-col items-center gap-1 text-amber-900 hover:text-amber-600 transition z-40 relative">
+        <span class="text-xl">🛍️</span>
+        <span class="text-[10px] font-bold uppercase">Sắm Sửa</span>
+    </button>
+
+    <!-- 3. NÚT CHÍNH GIỮA: MỞ MENU VÒNG CUNG -->
+    <div class="relative flex-1 flex justify-center z-40">
+        <!-- Cụm 4 Nút Xòe Vòng Cung (Thêm pointer-events-none để không đè click khi đóng) -->
+        <div id="arc-radial-menu" class="absolute bottom-0 left-1/2 pointer-events-none">
+            <!-- Nút Vòng Cung 1: Báo Cáo -->
+            <button onclick="openReportModal(); toggleArcMenu(false);" class="arc-item pointer-events-auto w-12 h-12 rounded-full bg-amber-500 text-white font-bold shadow-lg flex flex-col items-center justify-center border-2 border-white hover:scale-110 active:scale-95 transition">
+                <span class="text-base">📊</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Báo cáo</span>
+            </button>
+            
+            <!-- Nút Vòng Cung 2: Rèn Luyện -->
+            <button onclick="openSelfImprovementModal(); toggleArcMenu(false);" class="arc-item pointer-events-auto w-12 h-12 rounded-full bg-emerald-500 text-white font-bold shadow-lg flex flex-col items-center justify-center border-2 border-white hover:scale-110 active:scale-95 transition">
+                <span class="text-base">🏋️</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Luyện tập</span>
+            </button>
+
+            <!-- Nút Vòng Cung 3: Sức Khỏe -->
+            <button onclick="openHealthModal(); toggleArcMenu(false);" class="arc-item pointer-events-auto w-12 h-12 rounded-full bg-rose-500 text-white font-bold shadow-lg flex flex-col items-center justify-center border-2 border-white hover:scale-110 active:scale-95 transition">
+                <span class="text-base">🩺</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Sức khỏe</span>
+            </button>
+
+            <!-- Nút Vòng Cung 4: Mối Quan Hệ -->
+            <button onclick="showRelationshipModal(true); toggleArcMenu(false);" class="arc-item pointer-events-auto w-12 h-12 rounded-full bg-indigo-500 text-white font-bold shadow-lg flex flex-col items-center justify-center border-2 border-white hover:scale-110 active:scale-95 transition">
+                <span class="text-base">🤝</span>
+                <span class="text-[8px] font-black uppercase tracking-tighter">Quan hệ</span>
+            </button>
+        </div>
+
+        <!-- Nút Tròn Trung Tâm Nổi -->
+        <button id="center-arc-trigger" onclick="toggleArcMenu()" class="w-14 h-14 -mt-6 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 border-4 border-amber-100 text-amber-950 shadow-xl flex items-center justify-center text-2xl font-black transition-transform duration-300 hover:scale-105 active:scale-95 z-50">
+            <span id="center-arc-icon" class="transition-transform duration-300">⚡</span>
         </button>
-        
-        <!-- Nút Việc Làm -->
-        <button onclick="showJobsModal(true)" class="flex-1 flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform group">
-            <div class="nav-icon-bg w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-lg border border-transparent transition-all group-hover:bg-emerald-500/20 group-hover:border-emerald-400/50">
-                💼
-            </div>
-            <span class="text-[9px] font-extrabold text-amber-950 transition-colors">Việc Làm</span>
-        </button>
-        
-        <!-- Nút Cửa Hàng (Nút to ở giữa) -->
-        <button onclick="showShopModal(true)" class="relative flex-1 flex flex-col items-center justify-center active:scale-90 transition-transform group -mt-5">
-            <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-2xl shadow-lg shadow-orange-500/40 border-4 border-white/40 group-hover:shadow-orange-500/60 transition-all z-10">
-                🛒
-            </div>
-            <span class="text-[10px] font-black text-amber-950 mt-1 transition-colors">Cửa Hàng</span>
-        </button>
-        
-        <!-- Nút Túi Đồ -->
-        <button onclick="showInventoryModal(true)" class="flex-1 flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform group">
-            <div class="nav-icon-bg w-10 h-10 rounded-2xl bg-purple-500/10 flex items-center justify-center text-lg border border-transparent transition-all group-hover:bg-purple-500/20 group-hover:border-purple-400/50">
-                🎒
-            </div>
-            <span class="text-[9px] font-extrabold text-amber-950 transition-colors">Túi Đồ</span>
-        </button>
-        
-        <!-- Nút Di Cư / Bản Đồ -->
-        <button onclick="showCityMapModal(true)" class="flex-1 flex flex-col items-center justify-center gap-1 active:scale-90 transition-transform group">
-            <div class="nav-icon-bg w-10 h-10 rounded-2xl bg-sky-500/10 flex items-center justify-center text-lg border border-transparent transition-all group-hover:bg-sky-500/20 group-hover:border-sky-400/50">
-                🗺️
-            </div>
-            <span class="text-[9px] font-extrabold text-amber-950 transition-colors">Di Cư</span>
-        </button>
-        
-    </nav>
-    
+    </div>
+
+    <!-- 4. TAB DI CƯ (Bản đồ thành phố) -->
+    <button onclick="showCityMapModal(true)" id="nav-btn-map" class="flex-1 flex flex-col items-center gap-1 text-amber-900 hover:text-amber-600 transition z-40 relative">
+        <span class="text-xl">🗺️</span>
+        <span class="text-[10px] font-bold uppercase">Di Cư</span>
+    </button>
+</div>
+
     <!-- ================================================================= -->
     <!-- ZONE 5: THIRD-PARTY LIBRARIES & SCRIPT INJECTION (KẾT NỐI SCRIPTS) -->
     <!-- ================================================================= -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDjTN4HIUiKNJ_R4iwyEn1ckVyE5bXRJtI",
@@ -1273,7 +1719,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
     </script>
-    
+
     <!-- App Scripts theo đúng thứ tự khởi chạy -->
     <script src="npcs.js"></script> <!-- ĐẶT Ở ĐÂY -->
     <script src="ui.js"></script>
@@ -1284,8 +1730,8 @@
     <script src="stocks.js"></script>
     <script src="education.js"></script>
     <script src="shop.js"></script>
-    
-    
+
+
 </body>
 
 </html>
