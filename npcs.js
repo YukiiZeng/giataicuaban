@@ -27,13 +27,16 @@ function generateRandomNPC(relationType = "Người Quen", category = "street", 
     const firstName = customName ? customName : (isMale ? namesMale[Math.floor(Math.random() * namesMale.length)] : namesFemale[Math.floor(Math.random() * namesFemale.length)]);
     const icon = isMale ? "👦" : "👧";
 
-    // 🌟 Gán avatar chuẩn từ male-1..5 hoặc fem-1..5
-    const randomIdx = Math.floor(Math.random() * 5) + 1; // Từ 1 đến 5
+    const randomIdx = Math.floor(Math.random() * 5) + 1;
     const avatarUrl = isMale ? `assets/avatars/male-${randomIdx}.png` : `assets/avatars/fem-${randomIdx}.png`;
 
     const zodiacKeys = Object.keys(ZODIAC_DATA);
     const randomZodiac = zodiacKeys[Math.floor(Math.random() * zodiacKeys.length)];
     const zodiacInfo = ZODIAC_DATA[randomZodiac];
+
+    // 🌟 THÊM LOGIC TỰ ĐỘNG PHÂN NHÓM VÀ KHÓA HẸN HÒ GIA ĐÌNH
+    const isFamilyRelation = relationType.includes("Gia đình") || relationType.includes("Bố") || relationType.includes("Mẹ") || category === "family";
+    const npcCategory = isFamilyRelation ? "family" : (category || "general");
 
     const newNPC = {
         id: "npc_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
@@ -41,7 +44,9 @@ function generateRandomNPC(relationType = "Người Quen", category = "street", 
         relation: relationType,
         icon: icon,
         avatarUrl: avatarUrl,
-        category: category,
+        category: npcCategory,        // 'family' | 'education' | 'referral' | 'work' | 'general'
+        isFamily: isFamilyRelation,  // Đánh dấu người nhà
+        canRomance: !isFamilyRelation,// Người nhà thì KHÔNG THỂ hẹn hò
         level: 0,
         xp: 10,
         inactiveMonths: 0,

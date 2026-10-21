@@ -3,26 +3,64 @@
  * ZONE 1: GAME INITIALIZATION & RENDER ENGINE (KHỞI TẠO & RENDER UI)
  * =================================================================
  */
-
 /**
  * Khởi tạo Game khi load trang
  */
 function initGame() {
+    // 1. Nếu trên máy đã có sẵn dữ liệu lưu (LocalStorage), ưu tiên render ngay lập tức cho mượt
     if (typeof loadGameState === 'function') {
         const savedState = loadGameState();
         if (savedState) {
             gameState = savedState;
             if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(false);
             renderGameState();
-            
-            // Kích hoạt thanh thời gian tự chạy ngay khi load game
+
             if (typeof startMonthCalendarTimer === 'function') {
                 startMonthCalendarTimer();
             }
             return;
         }
     }
-    if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
+
+    // 2. Nếu chưa có dữ liệu trên Local (trình duyệt mới, sạch cache):
+    const isOffline = localStorage.getItem('offline_mode');
+
+    // Nếu chọn chơi offline mà chưa có nhân vật -> Mới bật bảng tạo nhân vật
+    if (isOffline) {
+        if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
+        return;
+    }
+
+    // 3. Nếu chưa chọn offline, ĐÂY LÀ TRƯỜNG HỢP VỪA ĐĂNG NHẬP HOẶC MỞ TRÌNH DUYỆT MỚI:
+    // Tuyệt đối KHÔNG render nhân vật mặc định "SOULI". Thay vào đó, hiển thị thông báo chờ hoặc giữ màn hình chờ Firebase xác thực.
+    console.log("⏳ Đang chờ xác thực phiên đăng nhập từ Firebase Cloud...");
+
+    // Đặt thời gian chờ tối đa 1.5 giây. Nếu quá thời gian mà Firebase vẫn không có user -> Chuyển hướng sang login.html
+    setTimeout(() => {
+        const currentUser = (typeof auth !== 'undefined' && auth.currentUser) ? auth.currentUser : null;
+        const currentOffline = localStorage.getItem('offline_mode');
+
+        if (!currentUser && !currentOffline && (!gameState || !gameState.name)) {
+            window.location.href = 'login.html';
+        }
+    }, 1500);
+}
+
+// 🌟 XÓA BỎ HOÀN TOÀN hàm checkAuthGuard() tự động đá về login.html hoặc bật modal đăng nhập ở đây.
+// Bổ sung vào đầu hàm initGame() trong main.js hoặc script check trực tiếp ở index.html
+function checkAuthGuard() {
+    const isOffline = localStorage.getItem('offline_mode');
+    const firebaseUser = firebase.auth().currentUser;
+
+    // Nếu chưa đăng nhập cloud và cũng không chọn chơi offline -> Đá về trang /login
+    if (!isOffline && !firebaseUser) {
+        // Đợi một nhịp auth state change của firebase, nếu sau 1s vẫn null thì chuyển hướng
+        setTimeout(() => {
+            if (!firebase.auth().currentUser && !localStorage.getItem('offline_mode')) {
+                window.location.href = 'login.html';
+            }
+        }, 1000);
+    }
 }
 
 // Lắng nghe sự kiện khi trang web tải xong
@@ -39,22 +77,22 @@ function renderGameState() {
     if (typeof patchExistingRelationshipsAvatar === 'function') patchExistingRelationshipsAvatar();
     if (typeof ensureWorkAndEducationRelationships === 'function') ensureWorkAndEducationRelationships();
 
-    // Cập nhật thông tin cá nhân
-    setElementText('player-name', gameState.name || "Chưa đặt tên");
-    setElementText('player-gender', gameState.gender ? `(${gameState.gender})` : "(Nam)");
-    setElementText('player-age', gameState.age ?? 16);
+    // Cập nhật thông tin cá nhân qua hàm chuẩn trong ui.js
+    if (typeof updateProfileCard === 'function') {
+        updateProfileCard();
+    }
     setElementText('month', gameState.month ?? 1);
-    
+
     // Cập nhật tiền bạc
     const formattedMoney = (gameState.money ?? 0).toLocaleString();
     setElementText('money', formattedMoney);
-    
+
     // Cập nhật các thanh chỉ số sinh tồn (Health, Hunger, Happiness, Smarts)
     renderStatBar('health', gameState.health ?? 100);
     renderStatBar('hunger', gameState.hunger ?? 80);
     renderStatBar('happiness', gameState.happiness ?? 70);
     renderStatBar('smarts', gameState.smarts ?? 50);
-    
+
     // Cập nhật Bảng tin / Mẹo chơi ngẫu nhiên hàng tháng
     const newsTickerEl = document.getElementById('game-news-ticker');
     if (newsTickerEl) {
@@ -65,12 +103,12 @@ function renderGameState() {
             "💡 Mẹo Chứng Khoán: Nếu lỡ mua hớ ở đỉnh, hãy mua thêm khi giá giảm để hạ 'Giá vốn trung bình' (DCA) xuống thấp hơn.",
             "⚖️ Tin Tức Thị Trường: Khi Tâm lý thị trường chuyển sang 'Suy thoái (Downtrend)', đó lại là cơ hội vàng để gom cổ phiếu giá rẻ.",
             "💰 Mẹo Tài Chính: Tiền mặt mất giá theo thời gian. Hãy dùng tiền nhàn rỗi mua một ít tài sản an toàn để sinh lời.",
-            
+
             // --- MẸO HỌC TẬP & CÔNG VIỆC ---
             "🎓 Mẹo Khởi Nghiệp: Vừa học Chính Quy vừa làm Toàn thời gian sẽ khiến cơ thể suy nhược nghiêm trọng do quá tải (-8 Sức khỏe/tháng)!",
             "💼 Tin Tức Nghề Nghiệp: Một số công việc cấp cao yêu cầu bạn phải có mối quan hệ tốt với những người trong ngành đó.",
             "✈️ Mẹo Di Cư: Tới Thành phố Phồn Hoa lương sẽ tăng mạnh (x1.4), nhưng hãy cẩn thận vì Áp lực (Stress) cũng tăng theo cấp số nhân!",
-            
+
             // --- MẸO SỨC KHỎE & XÃ HỘI ---
             "🏥 Mẹo Y Tế: Đừng bao giờ để Sức khỏe tụt dưới 20%. Bạn sẽ bị ép nhập viện cấp cứu khẩn cấp và tốn cả đống tiền viện phí!",
             "🍔 Mẹo Dinh Dưỡng: Hãy giữ Độ no (Hunger) trên 50. Nếu để cơ thể đói khát, bạn sẽ bị trừ Sức khỏe rất nặng khi sang tháng mới.",
@@ -82,14 +120,14 @@ function renderGameState() {
         const tip1 = tips[idx % tips.length];
         const tip2 = tips[(idx + 3) % tips.length];
         const tip3 = tips[(idx + 7) % tips.length];
-        
+
         // Nối lại bằng icon chấm đỏ báo hiệu chuyển tin
         const currentTip = `${tip1} 🔴 ${tip2} 🔴 ${tip3}`;
         newsTickerEl.innerText = currentTip;
-        
+
     }
-    
-    
+
+
     // Cập nhật 4 thuộc tính năng lực
     setElementText('strength', gameState.strength ?? 50);
     setElementText('looks', gameState.looks ?? 60);
@@ -99,11 +137,12 @@ function renderGameState() {
     if (typeof updateCityTheme === 'function') {
         updateCityTheme();
     }
-    
-    
-    
+
+
+
     // Render các Sub-Panels
     renderRelationships();
+    if (typeof renderRelationshipsView === 'function') renderRelationshipsView();
     renderHousing();
     renderEducationAndJobStatus();
     updateCityTheme(); // Cập nhật theme giao diện theo thành phố hiện tại
@@ -138,22 +177,22 @@ function renderStatBar(id, value) {
  */
 function cycleSignStyle() {
     if (typeof gameState === 'undefined' || !gameState) return;
-    
+
     // Mảng 3 style
     const styles = ['style-wood', 'style-gold', 'style-glass'];
     const styleNames = ['Gỗ Mộc Tinh Tế', 'Mạ Vàng Hoàng Gia', 'Kính Mờ Hiện Đại'];
-    
+
     // Lấy style hiện tại, nếu chưa có thì mặc định là style-wood
     if (!gameState.currentSignStyle) gameState.currentSignStyle = 'style-wood';
-    
+
     let currentIndex = styles.indexOf(gameState.currentSignStyle);
     let nextIndex = (currentIndex + 1) % styles.length;
-    
+
     gameState.currentSignStyle = styles[nextIndex];
-    
+
     // Áp dụng ngay lập tức lên giao diện
     applySignStyleToUI();
-    
+
     // Lưu game và báo cáo cho người chơi biết
     if (typeof saveGameState === 'function') saveGameState();
     if (typeof showToast === 'function') {
@@ -167,10 +206,10 @@ function cycleSignStyle() {
 function applySignStyleToUI() {
     const signEl = document.getElementById('game-title-sign');
     if (!signEl || !gameState) return;
-    
+
     // Xóa hết các class style cũ
     signEl.classList.remove('style-wood', 'style-gold', 'style-glass');
-    
+
     // Thêm style đang lưu trong gameState (mặc định style-wood)
     const activeStyle = gameState.currentSignStyle || 'style-wood';
     signEl.classList.add(activeStyle);
@@ -229,19 +268,19 @@ function ensureWorkAndEducationRelationships() {
  */
 function updateCalendarUI() {
     if (!gameState) return;
-    
+
     const currentDay = gameState.currentDay || 1;
     const dayTextEl = document.getElementById("calendar-day-text");
     const progressBarEl = document.getElementById("calendar-progress-bar");
     const badgeEl = document.getElementById("calendar-status-badge");
     const btnEl = document.getElementById("next-month-btn");
     const btnTextEl = document.getElementById("next-month-btn-text");
-    
+
     if (dayTextEl) dayTextEl.innerText = `Ngày ${currentDay} / 30`;
-    
+
     const percent = Math.min(100, Math.round((currentDay / 30) * 100));
     if (progressBarEl) progressBarEl.style.width = `${percent}%`;
-    
+
     if (currentDay >= 30) {
         // Đã xong 30 ngày: Mở khóa nút Sang Tháng
         if (badgeEl) {
@@ -275,7 +314,7 @@ function handleNextMonth() {
     const btn = document.getElementById("next-month-btn");
     if (btn && btn.disabled) return;
     if (btn) btn.disabled = true; // Khóa ngay lập tức
-    
+
     if (typeof nextMonth === 'function') {
         nextMonth();
         gameState.currentDay = 1;
@@ -310,13 +349,13 @@ function switchView(viewName) {
     const reportView = document.getElementById('overview-report-view');
     const healthView = document.getElementById('health-care-view');
     const relationshipView = document.getElementById('relationship-view');
-    
-    
+
+
     if (mainView) mainView.classList.add('hidden');
     if (reportView) reportView.classList.add('hidden');
     if (healthView) healthView.classList.add('hidden');
     if (relationshipView) relationshipView.classList.add('hidden');
-    
+
     if (viewName === 'main' && mainView) {
         mainView.classList.remove('hidden');
     } else if (viewName === 'report' && reportView) {
@@ -324,7 +363,7 @@ function switchView(viewName) {
         if (typeof renderOverviewReport === 'function') renderOverviewReport();
     } else if (viewName === 'health' && healthView) {
         healthView.classList.remove('hidden');
-        
+
         // 🚀 CỰC KỲ QUAN TRỌNG: Bắt buộc phải gọi hàm này mỗi khi mở Tab Sức Khỏe!
         if (typeof renderHealthView === 'function') {
             renderHealthView();
@@ -346,7 +385,7 @@ let currentTransactionFilter = 'last_month';
  */
 function setTransactionFilter(filterType) {
     currentTransactionFilter = filterType;
-    
+
     // Cập nhật trạng thái Active trên UI Tab
     ['last_month', 'this_month', 'all'].forEach(type => {
         const btn = document.getElementById(`tx-filter-${type}`);
@@ -358,7 +397,7 @@ function setTransactionFilter(filterType) {
             }
         }
     });
-    
+
     renderTransactionsList();
 }
 
@@ -369,11 +408,11 @@ function renderTransactionsList() {
     if (!gameState) return;
     const container = document.getElementById("report-transactions-list");
     if (!container) return;
-    
+
     container.innerHTML = "";
     const history = gameState.transactionHistory || [];
     const currentMonth = gameState.month || 1;
-    
+
     let filtered = [];
     if (currentTransactionFilter === 'last_month') {
         filtered = history.filter(t => t.month === currentMonth - 1);
@@ -382,12 +421,12 @@ function renderTransactionsList() {
     } else {
         filtered = [...history]; // All-Time
     }
-    
+
     if (filtered.length === 0) {
         container.innerHTML = `<p class="text-[11px] text-amber-800/60 font-bold text-center py-3">Không có giao dịch nào trong khoảng thời gian này.</p>`;
         return;
     }
-    
+
     filtered.forEach(tx => {
         const isPos = tx.amount > 0;
         const item = document.createElement("div");
@@ -410,16 +449,16 @@ function renderTransactionsList() {
  */
 function renderOverviewReport() {
     if (!gameState) return;
-    
+
     setElementText('report-total-income', `+${(gameState.totalLifetimeIncome || 0).toLocaleString()} $`);
     setElementText('report-total-expense', `-${(gameState.totalLifetimeExpense || 0).toLocaleString()} $`);
     // === CẬP NHẬT TRẠNG THÁI NỢ ===
     const currentDebt = gameState.debt || 0;
     setElementText('report-total-debt', `${currentDebt.toLocaleString()} $`);
-    
+
     const debtStatusBadge = document.getElementById('report-debt-status');
     const payDebtBtn = document.getElementById('btn-pay-debt');
-    
+
     if (currentDebt > 0) {
         if (debtStatusBadge) {
             debtStatusBadge.className = "text-[9px] font-black text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-300";
@@ -433,10 +472,10 @@ function renderOverviewReport() {
         }
         if (payDebtBtn) payDebtBtn.classList.add("hidden"); // Ẩn nút trả nợ
     }
-    
+
     const familyBg = typeof getFamilyBackground === 'function' ? getFamilyBackground() : { label: "🏠 Gia đình bình thường" };
     setElementText('report-family-bg', familyBg.label);
-    
+
     // Render Danh Sách Bằng Cấp
     const degreeContainer = document.getElementById("report-degrees-list");
     if (degreeContainer) {
@@ -452,7 +491,7 @@ function renderOverviewReport() {
                     const program = educationData.find(p => p.rewards && p.rewards.degree_id === degId);
                     if (program) degName = program.name;
                 }
-                
+
                 const item = document.createElement("div");
                 item.className = "text-[10px] font-black text-amber-900 bg-amber-200/80 px-2.5 py-1 rounded-md shadow-sm border border-amber-300/50";
                 item.innerText = "🎓 " + degName;
@@ -460,10 +499,10 @@ function renderOverviewReport() {
             });
         }
     }
-    
+
     // Render danh sách giao dịch
     renderTransactionsList();
-    
+
     // Render Cột Mốc Đời Người
     const milestoneContainer = document.getElementById("report-milestones-logs");
     if (milestoneContainer) {
@@ -483,7 +522,7 @@ function renderOverviewReport() {
             });
         }
     }
-    
+
     // Render Nhật Ký Diễn Biến & Học Tập / Đi Làm
     const dailyContainer = document.getElementById("report-daily-logs");
     if (dailyContainer) {
@@ -511,12 +550,12 @@ function renderOverviewReport() {
 function showMonthlySummaryModal(data, onContinue) {
     const modal = document.getElementById("monthly-summary-modal");
     if (!modal) return;
-    
+
     setElementText('summary-month-title', `BÁO CÁO THÁNG ${data.month}`);
     setElementText('summary-income-text', `+${data.income.toLocaleString()} $`);
     setElementText('summary-expense-text', `-${data.expense.toLocaleString()} $`);
     setElementText('summary-net-text', `${data.net >= 0 ? '+' : ''}${data.net.toLocaleString()} $`);
-    
+
     const statsContainer = document.getElementById("summary-stats-changes");
     if (statsContainer) {
         statsContainer.innerHTML = `
@@ -525,15 +564,15 @@ function showMonthlySummaryModal(data, onContinue) {
             <div class="${data.happinessDiff >= 0 ? 'text-emerald-700' : 'text-rose-700'}">Hạnh phúc: ${data.happinessDiff >= 0 ? '+' : ''}${data.happinessDiff}</div>
         `;
     }
-    
+
     const btn = document.getElementById("summary-continue-btn");
     if (btn) {
-        btn.onclick = function() {
+        btn.onclick = function () {
             modal.classList.add("hidden");
             if (typeof onContinue === 'function') onContinue();
         };
     }
-    
+
     modal.classList.remove("hidden");
 }
 
@@ -549,14 +588,14 @@ function showMonthlySummaryModal(data, onContinue) {
  */
 function renderEducationAndJobStatus() {
     if (typeof gameState === 'undefined' || !gameState) return;
-    
+
     // 1. Cập nhật Trạng thái Học tập
     const edu = gameState.currentEducation;
     setElementText('edu-status-title', edu ? edu.name : "Chưa đăng ký học");
     setElementText('edu-status-months', edu ? `${edu.monthsCompleted}/${edu.totalMonths} tháng` : "--/-- tháng");
     const eduBarEl = document.getElementById("edu-progress-bar");
     if (eduBarEl) eduBarEl.style.width = edu ? `${Math.min(100, Math.round((edu.monthsCompleted / edu.totalMonths) * 100))}%` : "0%";
-    
+
     const eduTypeBadgeEl = document.getElementById("edu-type-badge");
     if (eduTypeBadgeEl) {
         if (edu) {
@@ -566,19 +605,19 @@ function renderEducationAndJobStatus() {
             eduTypeBadgeEl.classList.add("hidden");
         }
     }
-    
+
     // 2. Cập nhật Trạng thái Nghề nghiệp
     const job = gameState.job;
     const jobTitleEl = document.getElementById("job-status-title");
     const jobSalaryEl = document.getElementById("job-status-salary");
     const jobExpEl = document.getElementById("job-status-exp");
     const jobLevelBadgeEl = document.getElementById("job-level-badge");
-    
+
     if (job && job.title) {
         if (jobTitleEl) jobTitleEl.innerText = job.title;
         if (jobSalaryEl) jobSalaryEl.innerText = `+${(job.salary || 0).toLocaleString()} $/tháng`;
         if (jobExpEl) jobExpEl.innerText = `${job.monthsExperience || 0} tháng kinh nghiệm`;
-        
+
         if (jobLevelBadgeEl) {
             jobLevelBadgeEl.className = "text-[9px] font-black text-white bg-gradient-to-r from-emerald-500 to-teal-600 px-2 py-0.5 rounded-md shadow-sm";
             jobLevelBadgeEl.innerText = `Lvl ${job.level || 1}`;
@@ -587,7 +626,7 @@ function renderEducationAndJobStatus() {
         if (jobTitleEl) jobTitleEl.innerText = "Chưa có việc làm";
         if (jobSalaryEl) jobSalaryEl.innerText = "0 $/tháng";
         if (jobExpEl) jobExpEl.innerText = "0 tháng kinh nghiệm";
-        
+
         if (jobLevelBadgeEl) {
             jobLevelBadgeEl.className = "text-[9px] font-black text-rose-800 bg-rose-200/80 px-2 py-0.5 rounded-md";
             jobLevelBadgeEl.innerText = "Thất nghiệp";
@@ -612,13 +651,13 @@ function showCreateCharacterModal(show) {
 function handleCreateCharacterSubmit() {
     const nameInput = document.getElementById("input-character-name")?.value;
     const genderSelect = document.getElementById("select-character-gender")?.value;
-    
+
     if (typeof createCharacter === 'function') {
         createCharacter(nameInput, genderSelect);
     }
     showCreateCharacterModal(false);
     renderGameState();
-    
+
     if (typeof startMonthCalendarTimer === 'function') {
         startMonthCalendarTimer();
     }
@@ -629,21 +668,21 @@ function handleCreateCharacterSubmit() {
  */
 function handlePayDebt() {
     if (!gameState || !gameState.debt || gameState.debt <= 0) return;
-    
+
     const currentDebt = gameState.debt;
     const currentMoney = gameState.money ?? 0;
-    
+
     if (currentMoney <= 0) {
         return alert("❌ Cảnh sát trưởng: Bạn không có đồng nào trong túi để trả nợ!");
     }
-    
+
     const maxPayable = Math.min(currentDebt, currentMoney);
-    
+
     // Sử dụng Custom Prompt thay thế cho prompt() xấu xí
     showGamePrompt(
         `📉 TÌNH TRẠNG CÔNG NỢ:\n- Bạn đang nợ: ${currentDebt.toLocaleString()} $\n- Tiền trong ví: ${currentMoney.toLocaleString()} $\n\nNhập số tiền bạn muốn thanh toán:`,
         maxPayable,
-        function(amountStr) {
+        function (amountStr) {
             // ... giữ nguyên đoạn xử lý tính tiền ...
         },
         "Thanh Toán Nợ",
@@ -652,7 +691,7 @@ function handlePayDebt() {
         "number", // Bàn phím số cho phần trả nợ
         "Nhập số tiền..."
     );
-    
+
 }
 
 
@@ -662,42 +701,47 @@ function handlePayDebt() {
 function showNPCInteractionModal(npcId, show) {
     const modal = document.getElementById("npc-interaction-modal");
     if (!modal) return;
-    
+
     if (!show || !npcId) {
         modal.classList.add("hidden");
         return;
     }
-    
+
     const npc = gameState.relationships.find(r => r.id === npcId);
     if (!npc) return;
-    
+
     // Cập nhật thông tin lên UI
     setElementText("npc-modal-name", npc.name);
     setElementText("npc-modal-relation", npc.relation);
     document.getElementById("npc-modal-icon").innerText = npc.icon || "👤";
-    
+
     // Khởi tạo các nút tương tác
     const actionsContainer = document.getElementById("npc-interaction-actions");
-    
+
     // Nút Xin Tiền (Chỉ hiện nếu là Bố/Mẹ)
     const askMoneyBtnHTML = (npc.id === 'father' || npc.id === 'mother') ? `
         <button onclick="handleAskForMoney('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-amber-300/40">
             <span>💸</span> Xin Hỗ Trợ Tài Chính
         </button>
     ` : '';
-    
+
     actionsContainer.innerHTML = `
-        <button onclick="handleHangoutWithNPC('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-teal-300/40">
+        <button onclick="handleHangoutWithNPC('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-teal-300/40">
             <span>☕</span> Rủ Đi Ăn / Cafe (-30$)
+        </button>
+
+        <!-- 🌟 THÊM NÚT TẶNG QUÀ Ở ĐÂY -->
+        <button onclick="openGiftModal('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-pink-300/40">
+            <span>🎁</span> Tặng Quà Từ Túi Đồ
         </button>
         
         ${askMoneyBtnHTML}
 
-        <button onclick="handleNPCChat('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-300/40 mt-1">
+        <button onclick="handleNPCChat('${npc.id}'); showNPCInteractionModal(null, false);" class="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-display font-extrabold rounded-2xl text-xs shadow-md transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-300/40">
             <span>💬</span> Trò Chuyện Tâm Sự
         </button>
     `;
-    
+
     modal.classList.remove("hidden");
 }
 
@@ -706,30 +750,30 @@ function showNPCInteractionModal(npcId, show) {
  */
 // 🗂️ KHO TẢI CHỦ ĐỀ HỘI THOẠI THEO NGỮ CẢNH (Dễ quản lý & mở rộng)
 const NPC_CHAT_TOPICS = [
-{
-    id: "work",
-    title: "Công việc & Sự nghiệp",
-    icon: "💼",
-    getPrompt: (npc) => `${npc.name} nhìn bạn nghiêm túc hỏi: "Dạo này công việc bên chỗ cậu thế nào rồi? Có gặp áp lực gì lớn từ cấp trên hay khách hàng không, kể nghe xem nào."`
-},
-{
-    id: "money",
-    title: "Tài chính & Đầu tư",
-    icon: "💰",
-    getPrompt: (npc) => `${npc.name} bấm điện thoại rồi ngẩng lên bảo: "Thời buổi kinh tế này kiếm tiền khó khăn thật. Cậu đang có khoản tích lũy nào không, hay có định đầu tư gì mới không đấy?"`
-},
-{
-    id: "life",
-    title: "Triết lý & Lối sống",
-    icon: "🌿",
-    getPrompt: (npc) => `${npc.name} thở dài cười nhẹ: "Nhiều lúc nhìn lại thấy thời gian trôi nhanh khủng khiếp. Theo cậu, điều quan trọng nhất ở đời này rốt cuộc là gì?"`
-},
-{
-    id: "gossip",
-    title: "Than thở & Xả stress",
-    icon: "☕",
-    getPrompt: (npc) => `${npc.name} chống cằm phàn nàn: "Hôm nay tự nhiên tớ thấy mệt mỏi ngang xương, chán chẳng muốn làm gì cả. Cậu có bí quyết gì xả stress không, chia sẻ xem nào!"`
-}];
+    {
+        id: "work",
+        title: "Công việc & Sự nghiệp",
+        icon: "💼",
+        getPrompt: (npc) => `${npc.name} nhìn bạn nghiêm túc hỏi: "Dạo này công việc bên chỗ cậu thế nào rồi? Có gặp áp lực gì lớn từ cấp trên hay khách hàng không, kể nghe xem nào."`
+    },
+    {
+        id: "money",
+        title: "Tài chính & Đầu tư",
+        icon: "💰",
+        getPrompt: (npc) => `${npc.name} bấm điện thoại rồi ngẩng lên bảo: "Thời buổi kinh tế này kiếm tiền khó khăn thật. Cậu đang có khoản tích lũy nào không, hay có định đầu tư gì mới không đấy?"`
+    },
+    {
+        id: "life",
+        title: "Triết lý & Lối sống",
+        icon: "🌿",
+        getPrompt: (npc) => `${npc.name} thở dài cười nhẹ: "Nhiều lúc nhìn lại thấy thời gian trôi nhanh khủng khiếp. Theo cậu, điều quan trọng nhất ở đời này rốt cuộc là gì?"`
+    },
+    {
+        id: "gossip",
+        title: "Than thở & Xả stress",
+        icon: "☕",
+        getPrompt: (npc) => `${npc.name} chống cằm phàn nàn: "Hôm nay tự nhiên tớ thấy mệt mỏi ngang xương, chán chẳng muốn làm gì cả. Cậu có bí quyết gì xả stress không, chia sẻ xem nào!"`
+    }];
 
 /**
  * 🚀 Mở khung trò chuyện tâm sự với chủ đề ngữ cảnh riêng biệt
@@ -738,14 +782,14 @@ function handleNPCChat(npcId) {
     if (!gameState || !gameState.relationships) return;
     const npc = gameState.relationships.find(r => r.id === npcId);
     if (!npc) return;
-    
+
     const modal = document.getElementById("dialogue-event-modal");
     if (!modal) return;
-    
+
     // Chọn ngẫu nhiên 1 chủ đề ngữ cảnh trong kho
     const randomTopic = NPC_CHAT_TOPICS[Math.floor(Math.random() * NPC_CHAT_TOPICS.length)];
     const contextualPrompt = randomTopic.getPrompt(npc);
-    
+
     // Gán vào khung dialogue chung
     currentActiveDialogueEvent = {
         id: "npc_chat_" + randomTopic.id,
@@ -756,22 +800,22 @@ function handleNPCChat(npcId) {
         targetNpcId: npc.id,
         topicContext: randomTopic.id // Lưu ngữ cảnh để chấm điểm
     };
-    
+
     if (typeof setElementText === 'function') {
         setElementText('dialogue-tag', currentActiveDialogueEvent.tag);
         setElementText('dialogue-title', currentActiveDialogueEvent.title);
         setElementText('dialogue-prompt', currentActiveDialogueEvent.prompt);
     }
-    
+
     document.getElementById("dialogue-user-bubble")?.classList.add("hidden");
     document.getElementById("dialogue-npc-reply-bubble")?.classList.add("hidden");
     document.getElementById("dialogue-system-badge")?.classList.add("hidden");
     document.getElementById("dialogue-input-container")?.classList.remove("hidden");
     document.getElementById("dialogue-close-btn")?.classList.add("hidden");
-    
+
     const inputEl = document.getElementById("dialogue-user-input");
     if (inputEl) inputEl.value = "";
-    
+
     modal.classList.remove("hidden");
     setTimeout(() => { if (inputEl) inputEl.focus(); }, 150);
 }
@@ -803,7 +847,7 @@ function getRelationshipTier(level, xp) {
     let label = "Xã giao";
     let icons = "💬";
     let barColor = "bg-amber-400";
-    
+
     if (level <= -2) {
         label = "Thù địch 😡";
         icons = "⚡⚡";
@@ -829,10 +873,10 @@ function getRelationshipTier(level, xp) {
         icons = "👑💖";
         barColor = "bg-purple-600";
     }
-    
+
     const progressPercent = Math.max(0, Math.min(100, xp));
     const xpText = `${xp}/100 XP (Lvl ${level})`;
-    
+
     return {
         icons,
         label,
@@ -852,7 +896,7 @@ function setRelationshipTab(tabName) {
     const listContainer = document.getElementById("relationship-modal-list");
     const historyContainer = document.getElementById("relationship-modal-history");
     const sortContainer = document.getElementById("rel-sort-container");
-    
+
     if (tabName === 'list') {
         if (listBtn) listBtn.className = "flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-900 bg-white/80 shadow-sm";
         if (historyBtn) historyBtn.className = "flex-1 py-1 text-[10px] font-extrabold rounded-lg transition-all text-amber-800/70 hover:text-amber-900";
@@ -944,13 +988,13 @@ function renderRelationshipHistory() {
     const historyContainer = document.getElementById("relationship-modal-history");
     if (!historyContainer) return;
     historyContainer.innerHTML = "";
-    
+
     const logs = gameState.relationshipLogs || [];
     if (logs.length === 0) {
         historyContainer.innerHTML = `<p class="text-xs text-center font-bold text-amber-800/60 py-6">Chưa có lịch sử biến động quan hệ nào.</p>`;
         return;
     }
-    
+
     logs.forEach(log => {
         const item = document.createElement("div");
         item.className = "glass-card-inner-light p-2.5 rounded-xl flex items-center gap-2 text-xs font-bold border border-amber-300/30";
@@ -980,27 +1024,27 @@ function showRelationshipModal(show) {
 function renderHousing() {
     if (!gameState) return;
     const home = gameState.currentHome || { name: "Chưa có", type: "homeless", monthlyCost: 0 };
-    
+
     setElementText('home-name', home.name);
     setElementText('home-cost-text', `Chi phí: ${home.monthlyCost} $/tháng`);
-    
+
     const badgeEl = document.getElementById("home-type-badge");
     if (badgeEl) {
         if (home.type === 'shared') badgeEl.innerText = "Ở nhờ";
         else if (home.type === 'rented') badgeEl.innerText = "Đang thuê";
         else badgeEl.innerText = "Vô gia cư";
     }
-    
+
     const modalList = document.getElementById("housing-modal-list");
     if (!modalList) return;
     modalList.innerHTML = "";
     const pool = gameState.availableHousingPool || [];
-    
+
     if (pool.length === 0) {
         modalList.innerHTML = `<div class="text-center py-6"><span class="text-2xl">🚫</span><p class="text-xs font-bold text-amber-900 mt-1">Không có tin thuê nhà tháng này.</p></div>`;
         return;
     }
-    
+
     pool.forEach(house => {
         const item = document.createElement("div");
         item.className = "glass-card-inner-light p-3 rounded-2xl flex flex-col gap-2 border border-amber-300/40";
@@ -1022,12 +1066,12 @@ function handleRentHouse(houseId) {
     if (!gameState || !gameState.availableHousingPool) return;
     const targetHouse = gameState.availableHousingPool.find(h => h.id === houseId);
     if (!targetHouse) return;
-    
+
     if ((gameState.money || 0) < targetHouse.monthlyCost) {
         alert("❌ Bạn không đủ tiền cọc/tiền nhà!");
         return;
     }
-    
+
     gameState.currentHome = { ...targetHouse };
     alert(`🎉 Bạn đã chuyển sang ở: ${targetHouse.name}!`);
     showHousingModal(false);
@@ -1066,34 +1110,34 @@ function showHousingModal(show) {
 function renderHealthView() {
     if (typeof gameState === 'undefined' || !gameState) return;
     if (!gameState.subscriptions) gameState.subscriptions = { gym: false, yoga: false };
-    
+
     // Khởi tạo cờ mặc định nếu save cũ chưa có
     if (typeof gameState.hasCheckupThisMonth === 'undefined') gameState.hasCheckupThisMonth = false;
     if (typeof gameState.hasTreatedThisMonth === 'undefined') gameState.hasTreatedThisMonth = false;
-    
+
     const moneyEl = document.getElementById('health-view-money');
     if (moneyEl) moneyEl.innerText = (gameState.money ?? 0).toLocaleString();
-    
+
     const healthVal = Math.max(0, Math.min(100, gameState.health ?? 100));
     const hungerVal = Math.max(0, Math.min(100, gameState.hunger ?? 80));
     const stressVal = Math.max(0, Math.min(100, gameState.stress ?? 0));
-    
+
     const hvHealth = document.getElementById('hv-health');
     if (hvHealth) hvHealth.innerText = healthVal;
     const hvHunger = document.getElementById('hv-hunger');
     if (hvHunger) hvHunger.innerText = hungerVal;
     const hvStress = document.getElementById('hv-stress');
     if (hvStress) hvStress.innerText = stressVal;
-    
+
     const healthBar = document.getElementById('hv-health-bar');
     if (healthBar) healthBar.style.width = `${healthVal}%`;
-    
+
     const hungerBar = document.getElementById('hv-hunger-bar');
     if (hungerBar) hungerBar.style.width = `${hungerVal}%`;
-    
+
     const stressBar = document.getElementById('hv-stress-bar');
     if (stressBar) stressBar.style.width = `${stressVal}%`;
-    
+
     // Cập nhật nút Gym & Yoga
     const gymBtn = document.getElementById("btn-sub-gym");
     if (gymBtn) {
@@ -1102,7 +1146,7 @@ function renderHealthView() {
             "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm" :
             "py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm";
     }
-    
+
     const yogaBtn = document.getElementById("btn-sub-yoga");
     if (yogaBtn) {
         yogaBtn.innerText = gameState.subscriptions.yoga ? "Đã Đăng Ký (Hủy)" : "Đăng ký";
@@ -1110,11 +1154,11 @@ function renderHealthView() {
             "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm" :
             "py-1.5 px-3 bg-teal-600 text-white font-extrabold rounded-xl text-[10px] active:scale-95 shadow-sm";
     }
-    
+
     // 🩺 CẬP NHẬT TRẠNG THÁI NÚT KHÁM BỆNH (Dùng cờ hasCheckupThisMonth)
     const checkupBtn = document.getElementById("btn-med-checkup");
     const checkBadge = document.getElementById("health-check-badge");
-    
+
     if (gameState.hasCheckupThisMonth) {
         if (checkupBtn) {
             checkupBtn.innerText = "Đã khám";
@@ -1134,11 +1178,11 @@ function renderHealthView() {
             checkBadge.className = "text-[9px] font-bold text-emerald-900 bg-emerald-200 px-2 py-0.5 rounded-md";
         }
     }
-    
+
     // 💊 CẬP NHẬT TRẠNG THÁI NÚT ĐIỀU TRỊ (Dùng cờ hasTreatedThisMonth)
     const pharmacyBtn = document.getElementById("btn-med-pharmacy");
     const hospitalBtn = document.getElementById("btn-med-hospital");
-    
+
     if (gameState.hasTreatedThisMonth) {
         if (pharmacyBtn) {
             pharmacyBtn.innerText = "Đã dùng tháng này";
@@ -1158,13 +1202,13 @@ function renderHealthView() {
             hospitalBtn.className = "py-1.5 px-3 bg-rose-500 text-white font-extrabold rounded-xl text-[10px]";
         }
     }
-    
+
     // Khung Chẩn Đoán Thông Minh
     const advisoryEl = document.getElementById("health-advisory-box");
     if (advisoryEl) {
         let adviceText = "🟢 Thể trạng bình thường. Hãy duy trì lối sống điều độ!";
         let adviceBg = "bg-emerald-100/80 border-emerald-300 text-emerald-950";
-        
+
         if (hungerVal < 30) {
             adviceText = "⚠️ Đói khát! Hãy ăn uống ngay để tránh tổn hại sức khỏe khi sang tháng.";
             adviceBg = "bg-rose-100/80 border-rose-300 text-rose-950 animate-pulse";
@@ -1175,11 +1219,11 @@ function renderHealthView() {
             adviceText = "🩺 Sức khỏe báo động! Hãy đi khám hoặc mua thuốc tây điều trị.";
             adviceBg = "bg-rose-100/80 border-rose-300 text-rose-950";
         }
-        
+
         advisoryEl.className = `glass-card-inner-light p-3 rounded-2xl border text-xs font-bold flex items-center gap-2 ${adviceBg}`;
         advisoryEl.innerHTML = `<span>💡</span><span>${adviceText}</span>`;
     }
-    
+
     // Trạng thái bệnh tật
     const ailments = gameState.ailments || [];
     const statusEl = document.getElementById("health-view-status");
@@ -1199,13 +1243,13 @@ function renderHealthView() {
  */
 function updateProfileCard() {
     if (typeof gameState === 'undefined' || !gameState) return;
-    
+
     // 1. Cập nhật Tên & Tuổi
     const elName = document.getElementById('char-name');
     const elAge = document.getElementById('char-age');
     if (elName) elName.textContent = gameState.name || 'SOULI';
     if (elAge) elAge.textContent = gameState.age || '16';
-    
+
     // 2. CẬP NHẬT AVATAR (ĐOẠN CODE CỦA ANH Ở ĐÂY)
     const avatarImg = document.getElementById('char-avatar');
     if (avatarImg) {
@@ -1217,18 +1261,18 @@ function updateProfileCard() {
             avatarImg.src = isMale ? "assets/avatars/boy-1.png" : "assets/avatars/girl-1.jpeg";
         }
     }
-    
+
     // 3. Cập nhật 4 chỉ số phụ
     const elStrength = document.getElementById('char-strength');
     const elLooks = document.getElementById('char-looks');
     const elCharm = document.getElementById('char-charm');
     const elEgo = document.getElementById('char-ego');
-    
+
     if (elStrength) elStrength.textContent = Math.floor(gameState.strength || 50);
     if (elLooks) elLooks.textContent = Math.floor(gameState.looks || 50);
     if (elCharm) elCharm.textContent = Math.floor(gameState.charm || 50);
     if (elEgo) elEgo.textContent = Math.floor(gameState.ego || 50);
-    
+
     // 4. Cập nhật Cung Hoàng Đạo
     const elZodiac = document.getElementById('char-zodiac');
     if (elZodiac) {
@@ -1236,10 +1280,10 @@ function updateProfileCard() {
         const zItem = ZODIAC_LIST[zIdx] || ZODIAC_LIST[2];
         elZodiac.innerHTML = `${zItem.icon} ${zItem.name}`;
     }
-    
+
     // Chèn vào cuối hàm updateProfileCard():
     applyNameCustomizationToUI('char-name');
-    
+
 }
 
 // ==========================================
@@ -1262,7 +1306,7 @@ function switchCareerSubTab(tab) {
     const jobsTab = document.getElementById('career-subtab-jobs');
     const btnEdu = document.getElementById('btn-career-tab-edu');
     const btnJobs = document.getElementById('btn-career-tab-jobs');
-    
+
     if (tab === 'edu') {
         if (eduTab) eduTab.classList.remove('hidden');
         if (jobsTab) jobsTab.classList.add('hidden');
@@ -1298,7 +1342,7 @@ function switchShopSubTab(tab) {
     const invTab = document.getElementById('shop-subtab-inv');
     const btnStore = document.getElementById('btn-shop-tab-store');
     const btnInv = document.getElementById('btn-shop-tab-inv');
-    
+
     if (tab === 'store') {
         if (storeTab) storeTab.classList.remove('hidden');
         if (invTab) invTab.classList.add('hidden');
@@ -1442,9 +1486,9 @@ function openZodiacModal() {
     const modal = document.getElementById('zodiac-modal');
     const grid = document.getElementById('zodiac-grid-list');
     if (!modal || !grid) return;
-    
+
     const currentIdx = (gameState && gameState.zodiacIndex !== undefined) ? gameState.zodiacIndex : 2;
-    
+
     grid.innerHTML = ZODIAC_LIST.map((item, idx) => {
         const isSelected = (currentIdx === idx);
         return `
@@ -1457,7 +1501,7 @@ function openZodiacModal() {
             </div>
         `;
     }).join('');
-    
+
     modal.classList.remove('hidden');
 }
 
@@ -1474,18 +1518,18 @@ function closeZodiacModal() {
  */
 function selectZodiac(index) {
     if (!gameState) return;
-    
+
     gameState.zodiacIndex = index;
-    
+
     if (typeof updateProfileCard === 'function') {
         updateProfileCard();
     }
-    
+
     const selected = ZODIAC_LIST[index];
     if (typeof showToast === 'function') {
         showToast(`✨ Bạn đã chọn Cung ${selected.icon} ${selected.name}!`, 'success');
     }
-    
+
     closeZodiacModal();
 }
 
@@ -1495,7 +1539,7 @@ function openNameCustomModal() {
     closeAllModals();
     const modal = document.getElementById('name-custom-modal');
     if (!modal) return;
-    
+
     switchNameCustomTab('font');
     modal.classList.remove('hidden');
 }
@@ -1507,7 +1551,7 @@ function closeNameCustomModal() {
 
 function switchNameCustomTab(tab) {
     currentNameCustomTab = tab;
-    
+
     ['font', 'color', 'effect'].forEach(t => {
         const btn = document.getElementById(`name-tab-${t}`);
         if (btn) {
@@ -1516,45 +1560,44 @@ function switchNameCustomTab(tab) {
                 "flex-1 py-1.5 rounded-lg text-amber-800/70 hover:text-amber-900 transition-all font-bold";
         }
     });
-    
+
     renderNameCustomModal();
 }
 
 function renderNameCustomModal() {
     if (!gameState) return;
     ensureNameCustomState();
-    
+
     // 1. Render Preview Box
     const previewBox = document.getElementById('name-preview-box');
     if (previewBox) {
         previewBox.innerText = gameState.name || 'SOULI';
         applyNameCustomizationToUI('name-preview-box');
     }
-    
+
     // 2. Render Danh sách Item trong Tab
     const grid = document.getElementById('name-custom-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    
+
     const categoryKey = currentNameCustomTab === 'font' ? 'fonts' : (currentNameCustomTab === 'color' ? 'colors' : 'effects');
     const unlockedKey = currentNameCustomTab === 'font' ? 'unlockedFonts' : (currentNameCustomTab === 'color' ? 'unlockedColors' : 'unlockedEffects');
     const equippedKey = currentNameCustomTab === 'font' ? 'equippedFont' : (currentNameCustomTab === 'color' ? 'equippedColor' : 'equippedEffect');
-    
+
     const items = NAME_CUSTOM_DB[categoryKey] || [];
     const unlockedList = gameState.nameCustomization[unlockedKey] || ['default'];
     const equippedId = gameState.nameCustomization[equippedKey];
-    
+
     items.forEach(item => {
         const isUnlocked = unlockedList.includes(item.id);
         const isEquipped = equippedId === item.id;
-        
+
         const card = document.createElement('div');
-        card.className = `p-2.5 rounded-2xl border flex flex-col justify-between items-center text-center gap-1.5 transition ${
-            isEquipped 
-                ? 'border-amber-500 bg-amber-200/80 shadow-md' 
-                : (isUnlocked ? 'border-amber-300/60 bg-white/70 hover:bg-amber-100/50' : 'border-amber-200/40 bg-amber-50/40 opacity-85')
-        }`;
-        
+        card.className = `p-2.5 rounded-2xl border flex flex-col justify-between items-center text-center gap-1.5 transition ${isEquipped
+            ? 'border-amber-500 bg-amber-200/80 shadow-md'
+            : (isUnlocked ? 'border-amber-300/60 bg-white/70 hover:bg-amber-100/50' : 'border-amber-200/40 bg-amber-50/40 opacity-85')
+            }`;
+
         let btnHTML = '';
         if (isEquipped) {
             btnHTML = `<span class="text-[9px] font-black text-amber-900 bg-amber-300 px-2 py-0.5 rounded-md">✓ Đang Dùng</span>`;
@@ -1563,14 +1606,14 @@ function renderNameCustomModal() {
         } else {
             btnHTML = `<button onclick="buyNameCustomItem('${categoryKey}', '${item.id}')" class="w-full py-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white font-extrabold rounded-lg text-[10px]">Mua $${item.price}</button>`;
         }
-        
+
         card.innerHTML = `
             <div class="text-xs font-black text-amber-950 ${item.class} truncate w-full p-1">
                 ${item.name}
             </div>
             ${btnHTML}
         `;
-        
+
         grid.appendChild(card);
     });
 }
@@ -1583,7 +1626,7 @@ function handleRenameCharacterPrompt() {
         showGamePrompt(
             "Nhập tên mới cho nhân vật của bạn:",
             gameState.name || "SOULI",
-            function(newName) {
+            function (newName) {
                 if (newName && newName.trim()) {
                     gameState.name = newName.trim();
                     if (typeof saveGameState === 'function') saveGameState();
@@ -1599,4 +1642,92 @@ function handleRenameCharacterPrompt() {
             "Nhập tên mới..." // Truyền placeholder
         );
     }
+}
+
+// =================================================================
+// ZONE 9. HỆ THỐNG TẶNG QUÀ (GIFTING SYSTEM)
+// =================================================================
+
+let currentTargetGiftNpcId = null;
+
+/**
+ * Mở Modal chọn quà tặng
+ */
+function openGiftModal(npcId) {
+    if (!gameState) return;
+    const npc = (gameState.relationships || []).find(r => r.id === npcId);
+    if (!npc) return;
+
+    currentTargetGiftNpcId = npcId;
+    const modal = document.getElementById("gift-modal");
+    const subtitleEl = document.getElementById("gift-modal-subtitle");
+    const listEl = document.getElementById("gift-modal-list");
+
+    if (!modal || !listEl) return;
+
+    if (subtitleEl) {
+        subtitleEl.innerText = `Chọn món quà tặng cho ${npc.name} (${npc.relation})`;
+    }
+
+    const inventory = gameState.inventory || [];
+
+    if (inventory.length === 0) {
+        listEl.innerHTML = `
+            <div class="text-center py-6 flex flex-col items-center gap-2">
+                <span class="text-3xl">🎒</span>
+                <p class="text-xs font-bold text-amber-900">Túi đồ của bạn đang trống!</p>
+                <p class="text-[10px] text-amber-800/70">Hãy ghé Cửa Hàng sắm sửa vài món đồ trước khi đi tặng quà nhé.</p>
+            </div>
+        `;
+    } else {
+        listEl.innerHTML = "";
+        inventory.forEach((item, index) => {
+            const count = item.count || 1;
+            const itemCard = document.createElement("div");
+            itemCard.className = "glass-card-inner-light p-2.5 rounded-2xl flex items-center justify-between border border-amber-300/40 shrink-0 gap-2 hover:bg-amber-100/50 transition";
+            itemCard.innerHTML = `
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="text-2xl shrink-0">${item.icon || '🎁'}</span>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-xs font-black text-amber-950 truncate">${item.name}</span>
+                        <span class="text-[9px] font-bold text-amber-800/80">Số lượng: x${count}</span>
+                    </div>
+                </div>
+                <button onclick="handleSendGift('${npcId}', ${index})" class="py-1.5 px-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-extrabold rounded-xl text-[10px] shadow-sm active:scale-95 border border-pink-300/40 shrink-0">
+                    🎁 Tặng Món Này
+                </button>
+            `;
+            listEl.appendChild(itemCard);
+        });
+    }
+
+    modal.classList.remove("hidden");
+}
+
+/**
+ * Đóng Modal tặng quà
+ */
+function closeGiftModal() {
+    const modal = document.getElementById("gift-modal");
+    if (modal) modal.classList.add("hidden");
+    currentTargetGiftNpcId = null;
+}
+
+/**
+ * Hàm trả về HTML render Icon cho vật phẩm (xử lý linh hoạt Ảnh hoặc Emoji)
+ * @param {Object} item - Đối tượng vật phẩm từ items.json
+ * @param {string} extraClass - Class CSS bổ sung nếu cần
+ */
+function getItemIconHtml(item, extraClass = '') {
+    if (!item || !item.icon) return '';
+
+    // Kiểm tra xem icon có phải là đường dẫn file ảnh (.png, .jpg, .webp, .svg hoặc chứa '/')
+    const isImagePath = item.icon.includes('/') || /\.(png|jpg|jpeg|webp|svg)$/i.test(item.icon);
+
+    if (isImagePath) {
+        return `<img src="${item.icon}" alt="${item.name}" class="item-icon-img ${extraClass}" loading="lazy" onError="this.src='assets/items/default.png';" />`;
+    }
+
+    // Trường hợp là Emoji
+    return `<span class="item-icon-text ${extraClass}">${item.icon}</span>`;
 }

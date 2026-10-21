@@ -23,6 +23,14 @@ function saveGameStateToFirebase(userId) {
 function loadGameStateFromFirebase(userId) {
     if (typeof db === 'undefined') return;
 
+    // 🌟 1. RESET NGAY LẬP TỨC TRƯỚC KHI TẢI ĐỂ TRÁNH DÙNG NHẦM DỮ LIỆU CŨ CỦA ACC TRƯỚC
+    gameState = null;
+    localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
+
+    // Hiển thị trạng thái đang tải hoặc ẩn bảng tạo nhân vật cũ đi nếu có
+    if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(false);
+
     db.collection("players").doc(userId).get()
         .then((doc) => {
             if (doc.exists) {
@@ -37,21 +45,17 @@ function loadGameStateFromFirebase(userId) {
                 if (typeof saveGameState === 'function') saveGameState();
                 if (typeof renderGameState === 'function') renderGameState();
                 if (typeof startMonthCalendarTimer === 'function') startMonthCalendarTimer();
-                console.log("☁️ Đã tải tiến trình từ Firebase thành công!");
+                console.log("✅ Đã tải thành công dữ liệu Cloud cho user:", userId);
             } else {
-                console.warn("⚠️ Tài khoản mới chưa có dữ liệu Cloud. Đang khởi tạo bộ nhớ trống...");
-
-                localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+                console.warn("⚠️ Tài khoản mới chưa có dữ liệu Cloud. Đang mở bảng tạo nhân vật...");
                 gameState = null;
-                if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
-
                 if (typeof showCreateCharacterModal === 'function') showCreateCharacterModal(true);
             }
         })
         .catch((error) => {
             console.error("❌ Lỗi nạp dữ liệu từ Firebase:", error);
         });
-    
+
     if (typeof updateCityTheme === 'function') {
         updateCityTheme();
     }
@@ -60,8 +64,10 @@ function loadGameStateFromFirebase(userId) {
 /**
  * Lắng nghe trạng thái đăng nhập & Cập nhật UI Tài khoản trong Sidebar
  */
+let currentLoadedUid = null; // Biến lưu trữ uid của tài khoản đang hiển thị trên màn hình
+
 if (typeof auth !== 'undefined') {
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
         const cloudUserDisplay = document.getElementById("cloud-username-display");
         const authBtnText = document.getElementById("auth-status-btn-text");
         const authIcon = document.getElementById("sidebar-auth-icon");
@@ -86,9 +92,24 @@ if (typeof auth !== 'undefined') {
             }
 
             checkAdminAccess(displayUsername);
-            console.log("👤 Đang đăng nhập với Username:", displayUsername);
-            loadGameStateFromFirebase(user.uid);
+            console.log("👤 Đã xác thực tài khoản Cloud:", displayUsername);
+
+            // 🌟 XỬ LÝ QUAN TRỌNG: Nếu đổi tài khoản khác với tài khoản trước đó
+            if (currentLoadedUid !== user.uid) {
+                currentLoadedUid = user.uid;
+
+                // 1. Xóa sạch dữ liệu localStorage cũ của tài khoản trước để tránh bị đè nhân vật
+                localStorage.removeItem('game_state'); // Hoặc tên key lưu game của anh
+
+                // 2. Tự động tải dữ liệu mới từ Firestore của tài khoản này ngay lập tức không cần F5
+                if (typeof loadGameStateFromFirebase === 'function') {
+                    console.log("🔄 Phát hiện đổi tài khoản, đang tự động tải dữ liệu từ Cloud...");
+                    await loadGameStateFromFirebase(user.uid);
+                }
+            }
         } else {
+            // Trường hợp đăng xuất
+            currentLoadedUid = null;
             if (cloudUserDisplay) cloudUserDisplay.innerText = "Chưa đăng nhập (Offline)";
             if (authBtnText) authBtnText.innerText = "Đăng nhập / Đăng ký";
             if (authIcon) authIcon.innerText = "🔑";
@@ -113,6 +134,43 @@ function handleSidebarAuthAction() {
     } else {
         showAuthModal(true);
     }
+}
+
+// Hàm làm sạch hoàn toàn giao diện khung nhân vật khi đăng xuất hoặc reset game
+function resetPlayerUI() {
+    // 1. Reset thông tin cơ bản
+    const nameEl = document.getElementById('player-name'); // Thay ID theo thực tế code của anh
+    if (nameEl) nameEl.innerText = "ĐANG TẢI...";
+
+    const ageEl = document.getElementById('player-age');
+    if (ageEl) ageEl.innerText = "-- TUỔI";
+
+    const avatarEl = document.getElementById('player-avatar');
+    if (avatarEl) avatarEl.src = "assets/default-avatar.png"; // Ảnh mặc định nếu có
+
+    const zodiacEl = document.getElementById('player-zodiac');
+    if (zodiacEl) zodiacEl.innerText = "--";
+
+    const genderEl = document.getElementById('player-gender');
+    if (genderEl) genderEl.innerText = "--";
+
+    // 2. Reset 4 chỉ số cốt lõi trong khung nhân vật (Sức mạnh, Ngoại hình, Ăn nói, Cái tôi)
+    const statStrength = document.getElementById('stat-strength');
+    if (statStrength) statStrength.innerText = "0";
+
+    const statAppearance = document.getElementById('stat-appearance');
+    if (statAppearance) statAppearance.innerText = "0";
+
+    const statEloquence = document.getElementById('stat-eloquence');
+    if (statEloquence) statEloquence.innerText = "0";
+
+    const statEgo = document.getElementById('stat-ego');
+    if (statEgo) statEgo.innerText = "0";
+
+    // Hoặc nếu anh dùng chung một class chứa các chỉ số này, có thể dùng querySelectorAll để reset nhanh:
+    document.querySelectorAll('.player-stat-value').forEach(el => {
+        el.innerText = "0";
+    });
 }
 
 /**
@@ -236,25 +294,57 @@ function showAuthError(text) {
 
 function handleLogout() {
     showGameConfirm(
-        "Bạn có chắc chắn muốn Đăng xuất tài khoản này? Dữ liệu hiện tại sẽ được giải phóng khỏi giao diện.",
+        "Bạn có chắc chắn muốn Đăng xuất tài khoản này? Toàn bộ cache, bộ nhớ tạm và dữ liệu phiên chơi sẽ được dọn dẹp sạch sẽ.",
         function () {
-            if (typeof auth !== 'undefined') {
+            // 1. Dừng ngay lập tức bộ đếm thời gian tháng (Web Worker / Timer) đang chạy ngầm
+            if (typeof stopMonthCalendarTimer === 'function') {
+                stopMonthCalendarTimer();
+            }
+
+            // 2. Xóa sạch mọi dữ liệu lưu trữ cục bộ trong trình duyệt
+            localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
+            localStorage.removeItem("offline_mode");
+
+            // 3. Reset triệt để biến trạng thái toàn cục về null
+            gameState = null;
+            currentLoadedUid = null;
+            // 👉 GỌI HÀM RESET GIAO DIỆN KHUNG NHÂN VẬT Ở ĐÂY:
+            resetPlayerUI();
+            // 4. Đóng tất cả các modal, bảng popup đang mở dở trên giao diện
+            if (typeof closeAllModals === 'function') {
+                closeAllModals();
+            }
+
+            // Đóng cả Sidebar Menu nếu đang mở
+            const drawer = document.getElementById('sidebar-drawer');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            const content = document.getElementById('sidebar-content');
+            if (drawer && content) {
+                content.classList.add('-translate-x-full');
+                if (backdrop) backdrop.classList.add('opacity-0');
+                drawer.classList.add('pointer-events-none');
+            }
+
+            // 5. Thực hiện tiến trình đăng xuất Firebase Auth
+            if (typeof auth !== 'undefined' && auth.currentUser) {
                 auth.signOut().then(() => {
-                    if (typeof stopMonthCalendarTimer === 'function') stopMonthCalendarTimer();
-                    localStorage.removeItem("GIA_TAI_CUA_BAN_GAME_STATE");
-                    gameState = null;
+                    console.log("🔒 Đã đăng xuất Firebase thành công, bộ nhớ đã được làm sạch.");
 
-                    const openModals = document.querySelectorAll('.fixed:not(.hidden)');
-                    openModals.forEach(m => m.classList.add('hidden'));
-
-                    if (typeof showAuthModal === 'function') showAuthModal(true);
-                    alert("🚪 Đã đăng xuất tài khoản thành công!");
+                    // 6. Chuyển hướng hoặc mở modal đăng nhập sạch sẽ
+                    if (typeof showAuthModal === 'function') {
+                        showAuthModal(true);
+                    } else {
+                        window.location.reload(); // Reload lại trang để làm mới toàn bộ RAM
+                    }
                 }).catch((error) => {
-                    console.error("❌ Lỗi khi đăng xuất:", error);
+                    console.error("❌ Lỗi khi đăng xuất Firebase:", error);
+                    window.location.reload();
                 });
+            } else {
+                window.location.reload();
             }
         },
-        "Xác Nhận Đăng Xuất",
+        "Xác Nhận Đăng Xuất & Dọn Cache",
         "🚪",
         "☁️ Cloud Auth"
     );
@@ -843,7 +933,7 @@ function switchSubTab(parentViewId, subTabName) {
     if (!view) return;
 
     view.querySelectorAll('.sub-tab-content').forEach(el => el.classList.add('hidden'));
-    
+
     const target = view.querySelector(`#sub-tab-${subTabName}`);
     if (target) target.classList.remove('hidden');
 
@@ -883,6 +973,50 @@ function setRelationshipViewTab(tabName) {
 }
 
 
+// 🌟 1. ĐỊNH NGHĨA META CHO BỘ LỌC PHÂN NHÓM QUAN HỆ
+const REL_CATEGORY_META = {
+    family: { id: 'family', name: 'Gia Đình', icon: '👨‍👩‍👧', badgeClass: 'bg-rose-100 text-rose-900 border-rose-300' },
+    education: { id: 'education', name: 'Bạn Bè', icon: '🎓', badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+    referral: { id: 'referral', name: 'Người Quen Giới Thiệu', icon: '🤝', badgeClass: 'bg-purple-100 text-purple-900 border-purple-300' },
+    work: { id: 'work', name: 'Đồng Nghiệp', icon: '💼', badgeClass: 'bg-blue-100 text-blue-900 border-blue-300' },
+    general: { id: 'general', name: 'Xã Hội', icon: '🌐', badgeClass: 'bg-amber-100 text-amber-900 border-amber-300' }
+};
+
+let currentRelViewCategoryFilter = 'all';
+
+// 🌟 2. HÀM TỰ ĐỘNG BẮT NHÓM NPC
+function getNPCCategory(npc) {
+    if (!npc) return 'general';
+    if (npc.isFamily || npc.id === 'father' || npc.id === 'mother' || npc.relation === 'Bố' || npc.relation === 'Mẹ' || npc.category === 'family' || (npc.relation && npc.relation.toLowerCase().includes('gia đình'))) {
+        return 'family';
+    }
+    if (npc.category === 'work' || (npc.relation && npc.relation.toLowerCase().includes('đồng nghiệp'))) {
+        return 'work';
+    }
+    if (npc.category === 'education' || npc.category === 'school' || (npc.relation && (npc.relation.toLowerCase().includes('bạn cùng lớp') || npc.relation.toLowerCase().includes('bạn học')))) {
+        return 'education';
+    }
+    if (npc.category === 'referral' || (npc.id && npc.id.startsWith('referral_')) || (npc.relation && (npc.relation.toLowerCase().includes('giới thiệu') || npc.relation.toLowerCase().includes('bạn của')))) {
+        return 'referral';
+    }
+    return npc.category || 'general';
+}
+
+// 🌟 3. HÀM CHUYỂN TAB BỘ LỌC CATEGORY
+function setRelViewCategoryFilter(cat) {
+    currentRelViewCategoryFilter = cat;
+    ['all', 'family', 'education', 'referral', 'work'].forEach(c => {
+        const btn = document.getElementById(`rel-vcat-${c}`);
+        if (btn) {
+            btn.className = c === cat
+                ? "flex-1 min-w-[60px] py-1 px-1.5 text-[10px] font-extrabold rounded-xl transition-all bg-amber-500 text-white shadow-sm text-center"
+                : "flex-1 min-w-[60px] py-1 px-1.5 text-[10px] font-extrabold rounded-xl transition-all bg-white/70 text-amber-900 hover:bg-amber-200 text-center";
+        }
+    });
+    renderRelationshipsView();
+}
+
+// 🌟 4. HÀM RENDER MẠNG LƯỚI QUAN HỆ THEO PHÂN NHÓM
 function renderRelationshipsView() {
     if (typeof gameState === 'undefined' || !gameState) return;
     const rels = gameState.relationships || [];
@@ -902,23 +1036,37 @@ function renderRelationshipsView() {
     const sortSelect = document.getElementById("rel-view-sort-select");
     const sortOrder = sortSelect ? sortSelect.value : 'desc';
 
-    const sortedRels = [...rels].sort((a, b) => {
+    // Lọc theo nhóm nếu người chơi không chọn "Tất cả"
+    let filteredRels = [...rels];
+    if (currentRelViewCategoryFilter !== 'all') {
+        filteredRels = filteredRels.filter(npc => getNPCCategory(npc) === currentRelViewCategoryFilter);
+    }
+
+    if (filteredRels.length === 0) {
+        container.innerHTML = `<p class="text-xs text-center font-bold text-amber-800/60 py-6">Không có mối quan hệ nào trong nhóm này.</p>`;
+        return;
+    }
+
+    // Sắp xếp
+    filteredRels.sort((a, b) => {
         const scoreA = (a.level || 0) * 100 + (a.xp || 0);
         const scoreB = (b.level || 0) * 100 + (b.xp || 0);
         return sortOrder === 'desc' ? scoreB - scoreA : scoreA - scoreB;
     });
 
-    sortedRels.forEach(rel => {
+    filteredRels.forEach(rel => {
         const lvl = typeof rel.level === 'number' ? rel.level : 0;
         const xp = typeof rel.xp === 'number' ? rel.xp : 0;
         const tier = getRelationshipTier(lvl, xp);
+        const catKey = getNPCCategory(rel);
+        const catMeta = REL_CATEGORY_META[catKey] || REL_CATEGORY_META.general;
 
         if (!rel.avatarUrl) {
             const isMale = (rel.icon === '👦' || rel.icon === '👨' || rel.relation === 'Bố');
             const randIdx = Math.floor(Math.random() * 5) + 1;
             rel.avatarUrl = isMale ? `assets/avatars/male-${randIdx}.png` : `assets/avatars/fem-${randIdx}.png`;
         }
-        
+
         const avatarDisplayHTML = rel.avatarUrl
             ? `<img src="${rel.avatarUrl}" alt="${rel.name}" class="w-12 h-12 rounded-full object-cover border-2 border-amber-600 shadow-sm shrink-0" onerror="this.src='assets/avatars/male-1.png'" />`
             : `<span class="text-3xl drop-shadow-sm">${rel.icon || '👤'}</span>`;
@@ -931,8 +1079,13 @@ function renderRelationshipsView() {
                     <div class="flex items-center gap-2.5">
                         ${avatarDisplayHTML}
                         <div class="flex flex-col">
-                            <span class="text-xs font-extrabold text-amber-950">${rel.name} <span class="text-[9px] text-amber-800/80">(${rel.relation})</span></span>
-                            <span class="text-[10px] tracking-widest mt-0.5">${tier.icons}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs font-extrabold text-amber-950">${rel.name}</span>
+                                <span class="text-[8px] font-extrabold px-1.5 py-0.2 rounded-md border ${catMeta.badgeClass}">
+                                    ${catMeta.icon} ${catMeta.name}
+                                </span>
+                            </div>
+                            <span class="text-[10px] font-bold text-amber-800/80 mt-0.5">${rel.relation}</span>
                         </div>
                     </div>
                     <button onclick="showNPCInteractionModal('${rel.id}', true)" class="py-1.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold rounded-xl text-[10px] shadow-sm active:scale-95 border border-amber-300/40">
@@ -954,7 +1107,6 @@ function renderRelationshipsView() {
         container.appendChild(item);
     });
 }
-
 
 function renderRelationshipViewHistory() {
     const container = document.getElementById("relationship-view-history");
@@ -994,7 +1146,7 @@ function closeAllModals() {
         'auth-modal',
         'admin-panel-modal'
     ];
-    
+
     modalIds.forEach(id => {
         const modal = document.getElementById(id);
         if (modal) {

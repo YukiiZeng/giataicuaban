@@ -47,6 +47,16 @@
       "effects": { "charm_bonus": 5 }
     },
     {
+      "id": "vehicle_sports_bike",
+      "name": "Xe Đạp Thể Thao Cao Cấp",
+      "category": "vehicle",
+      "type": "vehicle",
+      "price": 300,
+      "icon": "🚲",
+      "description": "Rèn luyện thể lực hàng ngày, món quà năng động cho bạn bè thích thể thao.",
+      "effects": { "strength_bonus": 5 }
+    },
+    {
       "id": "vehicle_sh_abs",
       "name": "Xe Tay Ga Hạng Sang (SH 160i)",
       "category": "vehicle",
@@ -65,6 +75,116 @@
       "icon": "👔",
       "description": "Trang phục thanh lịch, tăng tự tin khi đi phỏng vấn và gặp đối tác.",
       "effects": { "looks_bonus": 10, "charm_bonus": 8 }
+    },
+    {
+      "id": "gift_coffee_beans",
+      "name": "Túi Cà Phê Mộc Nguyên Chất",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 25,
+      "icon": "☕",
+      "description": "Hương vị đậm đà, rất hợp tặng cho đồng nghiệp hoặc người thuộc cung đất.",
+      "effects": { "charm_bonus": 1 }
+    },
+    {
+      "id": "gift_flower_bouquet",
+      "name": "Bó Hoa Hồng Tươi",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 30,
+      "icon": "💐",
+      "description": "Bó hoa tươi thắm ngọt ngào, món quà lãng mạn cho người thuộc cung nước.",
+      "effects": { "charm_bonus": 2 }
+    },
+    {
+      "id": "gift_herbal_tea",
+      "name": "Hộp Trà Thảo Mộc Thượng Hạng",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 45,
+      "icon": "🍵",
+      "description": "Trà ngon thanh nhiệt, món quà sức khỏe tuyệt vời cho Bố Mẹ và người lớn tuổi.",
+      "effects": { "charm_bonus": 2 }
+    },
+    {
+      "id": "gift_fountain_pen",
+      "name": "Bút Ký Tắm Vàng",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 80,
+      "icon": "🖊️",
+      "description": "Thiết kế tinh xảo, quà tặng lịch sự dành cho cấp trên hoặc đối tác.",
+      "effects": { "charm_bonus": 3 }
+    },
+    {
+      "id": "gift_wireless_earbuds",
+      "name": "Tai Nghe Bluetooth Không Dây",
+      "category": "technology",
+      "type": "gift",
+      "price": 100,
+      "icon": "🎧",
+      "description": "Âm thanh sống động, món quà công nghệ cực thích hợp cho người thuộc cung khí.",
+      "effects": { "charm_bonus": 4 }
+    },
+    {
+      "id": "gift_health_supplements",
+      "name": "Sâm Thượng Hạng Bổ Sức Khỏe",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 120,
+      "icon": "🧪",
+      "description": "Thuốc bổ dưỡng chất cao cấp, thể hiện tấm lòng hiếu thảo trọn vẹn với Bố Mẹ.",
+      "effects": { "charm_bonus": 4 }
+    },
+    {
+      "id": "gift_perfume",
+      "name": "Nước Hoa Cao Cấp",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 150,
+      "icon": "🧴",
+      "description": "Mùi hương quyến rũ sang trọng, làm xiêu lòng những người thuộc cung lửa.",
+      "effects": { "looks_bonus": 5, "charm_bonus": 3 }
+    },
+    {
+      "id": "gift_jewelry_necklace",
+      "name": "Dây Chuyền Bạc Tinh Xảo",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 200,
+      "icon": "📿",
+      "description": "Trang sức lấp lánh tinh tế, quà tặng ý nghĩa sâu sắc cho người đặc biệt.",
+      "effects": { "looks_bonus": 6, "charm_bonus": 4 }
+    },
+    {
+      "id": "gift_gaming_console",
+      "name": "Máy Chơi Game Cầm Tay",
+      "category": "technology",
+      "type": "gift",
+      "price": 250,
+      "icon": "🎮",
+      "description": "Thiết bị giải trí cực chất, món quà bùng nổ cho bạn bè thân thiết.",
+      "effects": { "charm_bonus": 5 }
+    },
+    {
+      "id": "gift_luxury_watch",
+      "name": "Đồng Hồ Thời Trang Nam/Nữ",
+      "category": "lifestyle",
+      "type": "gift",
+      "price": 350,
+      "icon": "⌚",
+      "description": "Phụ kiện khẳng định đẳng cấp, tạo ấn tượng mạnh mẽ cho người nhận.",
+      "effects": { "looks_bonus": 8, "charm_bonus": 6 }
+    },
+    {
+      "id": "gift_laptop_ultrabook",
+      "name": "Laptop Ultrabook Mỏng Nhẹ",
+      "category": "technology",
+      "type": "gift",
+      "price": 800,
+      "icon": "💻",
+      "description": "Công cụ làm việc và học tập hiệu năng cao, quà tặng công nghệ đỉnh cao.",
+      "effects": { "smarts_bonus": 5, "charm_bonus": 8 }
     }
   ]
 }
