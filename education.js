@@ -30,12 +30,9 @@ loadEducationData();
 function enrollProgram(programId) {
     if (typeof gameState === 'undefined' || !gameState) return;
     
-    if (typeof gameState === 'undefined' || !gameState) return;
-    
     const program = educationData.find(p => p.id === programId);
     if (!program) return;
     
-    // THÊM ĐOẠN NÀY ĐỂ CHẶN HỌC LẠI
     if (program.rewards && program.rewards.degree_id && gameState.degrees && gameState.degrees.includes(program.rewards.degree_id)) {
         alert("✅ Bạn đã tốt nghiệp và có bằng của chương trình này rồi, không cần học lại!");
         return;
@@ -46,15 +43,11 @@ function enrollProgram(programId) {
         return;
     }
     
-    // Thêm vào dưới đoạn check tuổi trong hàm enrollProgram:
-    // Đã sửa lại logic check đúng biến isPartTime để chặn học chính quy khi đang làm Full-time
     if (gameState.job && !gameState.job.isPartTime && program.category === 'formal') {
         alert("⚠️ Bạn đang làm công việc Toàn thời gian (Full-time)! Hãy nộp đơn xin nghỉ việc trước khi nhập học hệ Chính Quy để đảm bảo thời gian.");
         return;
     }
 
-    
-    
     if (program.prerequisites && program.prerequisites.length > 0) {
         const myDegrees = gameState.degrees || [];
         const hasAllPrereqs = program.prerequisites.every(req => myDegrees.includes(req));
@@ -81,8 +74,16 @@ function enrollProgram(programId) {
         examQuestions: program.exam_questions || [],
         rewards: program.rewards,
         answeredSkipExamIds: [],
-        hasTakenSkipExamThisMonth: false // 🚀 Khởi tạo cờ giới hạn 1 lần/tháng
+        hasTakenSkipExamThisMonth: false
     };
+
+    // 🌟 Tự động sinh bạn cùng lớp khi nhập học
+    if (typeof generateRandomNPC === 'function') {
+        const newClassmate = generateRandomNPC(`Bạn cùng lớp (${program.name})`, 'education', true);
+        if (typeof addDailyLog === 'function') {
+            addDailyLog(`🎓 Nhập học khóa mới và gặp bạn cùng lớp: ${newClassmate.name}.`);
+        }
+    }
     
     alert(`🎉 Bạn đã đăng ký nhập học thành công: ${program.name}!`);
     
@@ -97,54 +98,44 @@ function processMonthlyEducation() {
 
     const edu = gameState.currentEducation;
 
-    // 🚀 RESET CỜ THI VƯỢT CẤP KHI BƯỚC SANG THÁNG MỚI
     edu.hasTakenSkipExamThisMonth = false;
     
-    // Khởi tạo biến đếm số tháng khất nợ (nếu chưa có)
     if (typeof edu.unpaidMonths === 'undefined') edu.unpaidMonths = 0;
 
     let finalTuition = edu.tuitionPerMonth;
     let isScholarship = false;
 
-    // 🌟 LOGIC 1: HỌC BỔNG (Miễn học phí nếu Trí tuệ >= 85)
     if ((gameState.smarts || 0) >= 85) {
         finalTuition = 0;
         isScholarship = true;
         if (typeof addDailyLog === 'function') addDailyLog(`🌟 Nhận học bổng xuất sắc khóa ${edu.name} (Miễn học phí).`);
     }
 
-    // XỬ LÝ HỌC PHÍ (Nếu không có học bổng)
     if (finalTuition > 0) {
         if ((gameState.money || 0) >= finalTuition) {
-            // Đủ tiền đóng
             gameState.money -= finalTuition;
-            edu.unpaidMonths = 0; // Trả đủ thì reset nợ
+            edu.unpaidMonths = 0;
             if (typeof addTransactionHistory === 'function') addTransactionHistory(`Học phí: ${edu.name}`, -finalTuition);
         } else {
-            // 🌟 LOGIC 2 & 3: VAY VỐN VÀ KHẤT NỢ
             const wantLoan = confirm(`⚠️ Bạn không đủ ${finalTuition}$ đóng học phí tháng này!\n\nBạn có muốn vay Quỹ Sinh Viên để nộp không? (Sẽ bị tính vào Nợ)`);
             
             if (wantLoan) {
-                // Chấp nhận vay nợ
                 gameState.debt = (gameState.debt || 0) + finalTuition;
-                edu.unpaidMonths = 0; // Đã vay để trả học phí nên reset nợ
+                edu.unpaidMonths = 0;
                 if (typeof addDailyLog === 'function') addDailyLog(`💳 Vay quỹ sinh viên ${finalTuition}$ để đóng học phí.`);
                 alert(`💳 Bạn đã vay ${finalTuition}$ nộp học phí. Tổng nợ hiện tại: ${gameState.debt}$!`);
             } else {
-                // Không chịu vay -> Khất nợ
                 edu.unpaidMonths += 1;
                 
                 if (edu.unpaidMonths >= 3) {
-                    // Quá 3 lần khất nợ -> Đuổi học
                     alert(`🚫 BẠN ĐÃ BỊ BUỘC THÔI HỌC!\nLý do: Nợ học phí ${edu.name} quá 3 tháng.`);
                     if (typeof addDailyLog === 'function') addDailyLog(`Bị đuổi học ${edu.name} do nợ học phí.`);
                     gameState.currentEducation = null;
                     
                     if (typeof saveGameState === 'function') saveGameState();
                     if (typeof renderGameState === 'function') renderGameState();
-                    return; // Kết thúc việc học tại đây
+                    return;
                 } else {
-                    // Cảnh cáo
                     alert(`⚠️ CẢNH CÁO NỢ HỌC PHÍ (${edu.unpaidMonths}/3 tháng)!\nTháng sau nếu không đóng hoặc không vay, bạn sẽ bị đuổi học.`);
                     if (typeof addDailyLog === 'function') addDailyLog(`Khất nợ học phí tháng này (${edu.unpaidMonths}/3).`);
                 }
@@ -152,14 +143,24 @@ function processMonthlyEducation() {
         }
     }
 
-    // TRỪ THỂ LỰC VÀ TĂNG TIẾN TRÌNH HỌC (Nếu không bị đuổi)
     gameState.health = Math.max(0, (gameState.health || 100) - (edu.staminaCost || 0));
     edu.monthsCompleted += 1;
 
     let logMsg = `Theo học: ${edu.name} (${edu.monthsCompleted}/${edu.totalMonths} tháng).`;
     if (!isScholarship && typeof addDailyLog === 'function') addDailyLog(logMsg);
 
-    // XÉT TỐT NGHIỆP KHI ĐỦ THÁNG
+    // 🌟 Ngẫu nhiên gặp thêm bạn cùng lớp mới hàng tháng (tối đa 3 người)
+    const eduFriends = (gameState.relationships || []).filter(r => r.category === 'education');
+    if (eduFriends.length < 3 && Math.random() < 0.35 && typeof generateRandomNPC === 'function') {
+        const newClassmate = generateRandomNPC(`Bạn cùng lớp (${edu.name})`, 'education', true);
+        if (typeof addDailyLog === 'function') {
+            addDailyLog(`🎓 Kết bạn với bạn cùng lớp mới: ${newClassmate.name}.`);
+        }
+        if (typeof showToast === 'function') {
+            showToast(`🎓 Bạn quen bạn cùng lớp mới: ${newClassmate.name} (${newClassmate.relation})!`, '🎓', 'Quan Hệ');
+        }
+    }
+
     if (edu.monthsCompleted >= edu.totalMonths) {
         if (edu.requiresExam && edu.examQuestions && edu.examQuestions.length > 0) {
             startEducationExam(edu);

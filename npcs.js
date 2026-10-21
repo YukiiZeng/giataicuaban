@@ -15,18 +15,20 @@ const ZODIAC_DATA = {
 };
 
 /**
- * Sinh một NPC ngẫu nhiên hoàn chỉnh kèm theo hệ thống avatar (male-1..6, fem-1..6)
+ * Sinh một NPC ngẫu nhiên chuẩn dải avatar:
+ * - Nam: male-1.png đến male-5.png
+ * - Nữ: fem-1.png đến fem-5.png
  */
-function generateRandomNPC(relationType = "Người Quen", category = "street", addToRelationships = true) {
+function generateRandomNPC(relationType = "Người Quen", category = "street", addToRelationships = true, customName = null, customGender = null) {
     const namesMale = ["Minh", "Hoàng", "Tuấn", "Khang", "Đức", "Huy", "Phong", "Nam", "Bảo", "Sơn"];
     const namesFemale = ["Linh", "Trang", "Hương", "Mai", "Vy", "Thảo", "Nhi", "Hà", "An", "Yến"];
     
-    const isMale = Math.random() < 0.5;
-    const firstName = isMale ? namesMale[Math.floor(Math.random() * namesMale.length)] : namesFemale[Math.floor(Math.random() * namesFemale.length)];
+    const isMale = customGender !== null ? (customGender === 'Nam' || customGender === true) : (Math.random() < 0.5);
+    const firstName = customName ? customName : (isMale ? namesMale[Math.floor(Math.random() * namesMale.length)] : namesFemale[Math.floor(Math.random() * namesFemale.length)]);
     const icon = isMale ? "👦" : "👧";
 
-    // 🌟 Gán ngẫu nhiên avatar từ male-1 đến male-6 hoặc fem-1 đến fem-6
-    const randomIdx = Math.floor(Math.random() * 6) + 1;
+    // 🌟 Gán avatar chuẩn từ male-1..5 hoặc fem-1..5
+    const randomIdx = Math.floor(Math.random() * 5) + 1; // Từ 1 đến 5
     const avatarUrl = isMale ? `assets/avatars/male-${randomIdx}.png` : `assets/avatars/fem-${randomIdx}.png`;
 
     const zodiacKeys = Object.keys(ZODIAC_DATA);
@@ -34,11 +36,11 @@ function generateRandomNPC(relationType = "Người Quen", category = "street", 
     const zodiacInfo = ZODIAC_DATA[randomZodiac];
 
     const newNPC = {
-        id: "npc_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+        id: "npc_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
         name: firstName,
         relation: relationType,
         icon: icon,
-        avatarUrl: avatarUrl, // 🌟 Thuộc tính ảnh đại diện riêng cho NPC
+        avatarUrl: avatarUrl,
         category: category,
         level: 0,
         xp: 10,
@@ -61,4 +63,3 @@ function generateRandomNPC(relationType = "Người Quen", category = "street", 
 
     return newNPC;
 }
-// BỘ TỪ ĐIỂN CHIÊM TINH HỌC & TÂM LÝ HỌC CHO NPC

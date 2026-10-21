@@ -276,7 +276,6 @@ function applyForJob(jobId) {
     }
 
     if (typeof gameState !== 'undefined') {
-        // Trả lại đúng tên biến như cấu trúc ban đầu của anh
         gameState.job = {
             id: job.id,
             title: job.title,
@@ -286,26 +285,51 @@ function applyForJob(jobId) {
             months: 0
         };
 
+        // 🌟 Tự động làm quen 1 đồng nghiệp khi nhận việc
+        if (typeof generateRandomNPC === 'function') {
+            const newColleague = generateRandomNPC(`Đồng nghiệp (${job.title})`, 'work', true);
+            if (typeof addDailyLog === 'function') {
+                addDailyLog(`🤝 Nhận việc mới và làm quen với đồng nghiệp: ${newColleague.name}.`);
+            }
+        }
+
         if (typeof showToast === 'function') {
             showToast(`🎉 Chúc mừng! Bạn đã trở thành ${job.title}!`);
         } else {
             alert(`🎉 Chúc mừng! Bạn đã trở thành ${job.title}!`);
         }
 
-        // Đóng các Modal
         showJobDetailModal(null, false);
         showJobsModal(false);
 
-        // Cập nhật lại mảng danh sách việc làm để nhảy dấu sao
         renderJobsModalList();
 
-        // Kích hoạt tất cả các hàm render để đảm bảo Dashboard ăn thay đổi
         if (typeof updateUI === 'function') updateUI();
         if (typeof updateDashboard === 'function') updateDashboard();
         if (typeof renderGameState === 'function') renderGameState();
         if (typeof saveGameState === 'function') saveGameState();
     }
 }
+
+function processMonthlyJob() {
+    if (!gameState || !gameState.job) return;
+
+    gameState.job.months = (gameState.job.months || 0) + 1;
+
+    // 🌟 Ngẫu nhiên gặp thêm đồng nghiệp mới hàng tháng (tối đa 3 người)
+    const workFriends = (gameState.relationships || []).filter(r => r.category === 'work');
+    if (workFriends.length < 3 && Math.random() < 0.35 && typeof generateRandomNPC === 'function') {
+        const jobTitle = gameState.job.title || 'Công việc';
+        const newColleague = generateRandomNPC(`Đồng nghiệp (${jobTitle})`, 'work', true);
+        if (typeof addDailyLog === 'function') {
+            addDailyLog(`🤝 Làm quen với đồng nghiệp mới: ${newColleague.name}.`);
+        }
+        if (typeof showToast === 'function') {
+            showToast(`🤝 Bạn quen một đồng nghiệp mới: ${newColleague.name} (${newColleague.relation})!`, '🤝', 'Quan Hệ');
+        }
+    }
+}
+
 
 // 7. Xử lý Thôi Việc
 function quitJob() {
@@ -357,11 +381,4 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadJobsData);
 } else {
     loadJobsData();
-}
-
-function processMonthlyJob() {
-    if (!gameState || !gameState.job) return;
-
-    // Tăng số tháng kinh nghiệm làm việc
-    gameState.job.months = (gameState.job.months || 0) + 1;
 }

@@ -189,13 +189,14 @@ body[data-city="phon_hoa"] [class*="text-amber-8"] {
     color: #e2e8f0 !important;
 }
 
-body[data-city="voi_vang"] button [class*="text-amber-"],
-body[data-city="phon_hoa"] button [class*="text-amber-"],
-body[data-city="voi_vang"] button[class*="text-amber-"],
-body[data-city="phon_hoa"] button[class*="text-amber-"] {
-    color: #451a03 !important;
-    text-shadow: none !important;
+body[data-city="voi_vang"] [class*="text-amber-9"]:not([class*="color-"]),
+body[data-city="phon_hoa"] [class*="text-amber-9"]:not([class*="color-"]),
+body[data-city="voi_vang"] [class*="text-amber-7"]:not([class*="color-"]),
+body[data-city="phon_hoa"] [class*="text-amber-7"]:not([class*="color-"]) {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
+
 
 body[data-city="voi_vang"] [class*="bg-amber-900"],
 body[data-city="phon_hoa"] [class*="bg-amber-900"] {
@@ -372,3 +373,62 @@ body[data-city="phon_hoa"] #bottom-nav-menu span {
     border-radius: 1.25rem !important;
 }
 
+/* =================================================================
+   ZONE 10: FONT CHỮ, MÀU PHÁT SÁNG & HIỆU ỨNG TÊN NHÂN VẬT
+   ================================================================= */
+
+/* --- 1. FONTS CHỮ TÙY CHỈNH --- */
+.font-press-start { font-family: 'Press Start 2P', cursive !important; letter-spacing: 0px !important; }
+.font-orbitron { font-family: 'Orbitron', sans-serif !important; letter-spacing: 2px !important; }
+.font-dancing { font-family: 'Dancing Script', cursive !important; font-size: 1.25em !important; }
+.font-cinzel { font-family: 'Cinzel', serif !important; letter-spacing: 1.5px !important; }
+
+/* --- 2. MÀU SẮC & PHÁT SÁNG (MUA BẰNG TIỀN) --- */
+/* Màu Tự Do */
+.color-wood-amber { color: #78350f !important; }
+.color-emerald { color: #059669 !important; }
+.color-sapphire { color: #2563eb !important; }
+.color-purple { color: #9333ea !important; }
+.color-ruby { color: #e11d48 !important; }
+
+/* --- 2. MÀU SẮC & PHÁT SÁNG (TĂNG ĐỘ ƯU TIÊN VỚI ID) --- */
+#char-name.color-wood-amber, #name-preview-box.color-wood-amber { color: #78350f !important; }
+#char-name.color-emerald, #name-preview-box.color-emerald { color: #059669 !important; }
+#char-name.color-sapphire, #name-preview-box.color-sapphire { color: #2563eb !important; }
+#char-name.color-purple, #name-preview-box.color-purple { color: #9333ea !important; }
+#char-name.color-ruby, #name-preview-box.color-ruby { color: #e11d48 !important; }
+
+/* Màu Phát Sáng / Đổi Màu (Vip) */
+#char-name.color-neon-cyan, #name-preview-box.color-neon-cyan {
+    color: #06b6d4 !important;
+    text-shadow: 0 0 6px #22d3ee, 0 0 12px #0891b2 !important;
+}
+
+#char-name.color-flame-red, #name-preview-box.color-flame-red {
+    color: #f97316 !important;
+    text-shadow: 0 0 8px #ef4444, 0 0 16px #dc2626 !important;
+}
+
+#char-name.color-gold-metallic, #name-preview-box.color-gold-metallic {
+    background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #78350f 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    filter: drop-shadow(0 2px 4px rgba(180, 83, 9, 0.4));
+}
+
+#char-name.color-rainbow, #name-preview-box.color-rainbow {
+    background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981, #06b6d4, #6366f1, #ec4899) !important;
+    background-size: 200% auto !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: rainbowShift 3s linear infinite !important;
+}
+
+#char-name.color-hologram, #name-preview-box.color-hologram {
+    background: linear-gradient(135deg, #a7f3d0, #fbcfe8, #bae6fd) !important;
+    background-size: 200% 200% !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    animation: rainbowShift 4s ease infinite !important;
+    filter: drop-shadow(0 0 6px rgba(167, 243, 208, 0.8));
+}

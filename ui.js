@@ -482,7 +482,7 @@ function showGameConfirm(message, onConfirm, title = "Xác Nhận Hành Động"
     modal.classList.remove("hidden");
 }
 
-function showGamePrompt(message, defaultValue, onConfirm, title = "Nhập Dữ Liệu", icon = "✏️", tag = "⚠️ Yêu Cầu") {
+function showGamePrompt(message, defaultValue, onConfirm, title = "Nhập Dữ Liệu", icon = "✏️", tag = "⚠️ Yêu Cầu", inputType = "text", placeholder = "Nhập nội dung...") {
     const modal = document.getElementById("game-prompt-modal");
     if (!modal) {
         const val = prompt(message, defaultValue);
@@ -496,7 +496,11 @@ function showGamePrompt(message, defaultValue, onConfirm, title = "Nhập Dữ L
     document.getElementById("prompt-modal-tag").innerText = tag;
 
     const inputEl = document.getElementById("prompt-modal-input");
-    inputEl.value = defaultValue || "";
+    if (inputEl) {
+        inputEl.type = inputType; // Tự động chuyển kiểu bàn phím (text hoặc number)
+        inputEl.placeholder = placeholder; // Tự động đổi chữ mờ hiển thị
+        inputEl.value = defaultValue || "";
+    }
 
     const okBtn = document.getElementById("prompt-modal-ok-btn");
     const cancelBtn = document.getElementById("prompt-modal-cancel-btn");
@@ -518,6 +522,38 @@ function showGamePrompt(message, defaultValue, onConfirm, title = "Nhập Dữ L
     modal.classList.remove("hidden");
     setTimeout(() => inputEl.focus(), 100);
 }
+
+
+/**
+ * Áp dụng Font, Màu sắc & Hiệu ứng đã chọn vào Element Tên Nhân Vật
+ */
+function applyNameCustomizationToUI(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el || !gameState) return;
+
+    ensureNameCustomState();
+    const config = gameState.nameCustomization;
+
+    // Lấy thông tin Class từ DB
+    const fontObj = NAME_CUSTOM_DB.fonts.find(f => f.id === config.equippedFont) || NAME_CUSTOM_DB.fonts[0];
+    const colorObj = NAME_CUSTOM_DB.colors.find(c => c.id === config.equippedColor) || NAME_CUSTOM_DB.colors[0];
+    const effectObj = NAME_CUSTOM_DB.effects.find(e => e.id === config.equippedEffect) || NAME_CUSTOM_DB.effects[0];
+
+    // Reset sạch các class màu/font/hiệu ứng cũ VÀ xóa luôn class text-amber-950 mặc định
+    el.className = el.className
+        .replace(/font-\S+/g, '')
+        .replace(/color-\S+/g, '')
+        .replace(/effect-\S+/g, '')
+        .replace(/text-amber-\S+/g, '') // Gỡ bỏ màu mặc định để tránh bị CSS thành phố bắt nhầm
+        .trim();
+
+    // Thêm class mới
+    const classesToAdd = [fontObj.class, colorObj.class, effectObj.class].filter(Boolean).join(' ');
+    if (classesToAdd) {
+        el.classList.add(...classesToAdd.split(' '));
+    }
+}
+
 
 /**
  * =================================================================
@@ -846,6 +882,7 @@ function setRelationshipViewTab(tabName) {
     }
 }
 
+
 function renderRelationshipsView() {
     if (typeof gameState === 'undefined' || !gameState) return;
     const rels = gameState.relationships || [];
@@ -875,14 +912,15 @@ function renderRelationshipsView() {
         const lvl = typeof rel.level === 'number' ? rel.level : 0;
         const xp = typeof rel.xp === 'number' ? rel.xp : 0;
         const tier = getRelationshipTier(lvl, xp);
+
         if (!rel.avatarUrl) {
-            const isMale = (rel.icon === '👦' || rel.icon === '👨');
-            const randomIdx = Math.floor(Math.random() * 6) + 1;
-            rel.avatarUrl = isMale ? `assets/avatars/male-${randomIdx}.png` : `assets/avatars/fem-${randomIdx}.png`;
+            const isMale = (rel.icon === '👦' || rel.icon === '👨' || rel.relation === 'Bố');
+            const randIdx = Math.floor(Math.random() * 5) + 1;
+            rel.avatarUrl = isMale ? `assets/avatars/male-${randIdx}.png` : `assets/avatars/fem-${randIdx}.png`;
         }
         
         const avatarDisplayHTML = rel.avatarUrl
-            ? `<img src="${rel.avatarUrl}" alt="${rel.name}" class="w-12 h-12 rounded-full object-cover border-2 border-amber-600 shadow-sm shrink-0" onerror="this.src='assets/avatars/boy-1.png'" />`
+            ? `<img src="${rel.avatarUrl}" alt="${rel.name}" class="w-12 h-12 rounded-full object-cover border-2 border-amber-600 shadow-sm shrink-0" onerror="this.src='assets/avatars/male-1.png'" />`
             : `<span class="text-3xl drop-shadow-sm">${rel.icon || '👤'}</span>`;
 
         const item = document.createElement("div");
@@ -916,6 +954,7 @@ function renderRelationshipsView() {
         container.appendChild(item);
     });
 }
+
 
 function renderRelationshipViewHistory() {
     const container = document.getElementById("relationship-view-history");
